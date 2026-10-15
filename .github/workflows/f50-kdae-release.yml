@@ -54,7 +54,7 @@ jobs:
         run: |
           python3 upstream/audit-bundle.py upstream/out
           python3 upstream/check-container-support.py upstream/out
-          python3 f50/build.py kernel-check upstream/out
+          python3 f50/build.py kernel-attest upstream/out
           tar -czf kernel-outputs.tar.gz -C upstream/out .
       - uses: actions/upload-artifact@v4
         with:
@@ -139,6 +139,7 @@ jobs:
           sudo apt-get install -y lz4 cpio python3-lz4
           mkdir -p upstream/out
           tar -xzf kernel-outputs.tar.gz -C upstream/out
+          python3 f50/build.py kernel-rebind upstream/out
           python3 f50/build.py inputs
       - uses: docker/setup-qemu-action@v3
         with:

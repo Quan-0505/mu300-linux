@@ -9,6 +9,7 @@ import struct
 import subprocess
 import sys
 import tarfile
+import time
 
 TOP = Path(__file__).resolve().parents[1]
 WORK = TOP / 'work/f50-addons'
@@ -102,6 +103,30 @@ def kernel_check(folder):
     assert b'Linux version 6.18.56' in (folder / 'Image').read_bytes()
 
 
+def source_tree():
+    return subprocess.check_output(['git', 'rev-parse', 'HEAD:upstream'], cwd=TOP, text=True).strip()
+
+
+def kernel_attest(folder):
+    kernel_check(folder)
+    proof = folder / 'source-tree.git'
+    if proof.exists():
+        assert proof.read_text().strip() == source_tree(), 'Cached kernel source tree differs'
+    proof.write_text(source_tree() + '\n')
+
+
+def kernel_rebind(folder):
+    # Different checkout jobs have different mtimes. First prove the artifact
+    # matches the exact upstream Git tree and every recorded binary hash.
+    assert (folder / 'source-tree.git').read_text().strip() == source_tree(), 'Kernel/source provenance mismatch'
+    kernel_check(folder)
+    latest = max(p.stat().st_mtime for p in (TOP / 'upstream/modules').rglob('*') if p.is_file())
+    stamp = max(latest, time.time()) + 1
+    for module in (folder / 'modules').glob('*.ko'):
+        os.utime(module, (stamp, stamp))
+    print('Cross-job module timestamps normalized after source-tree and binary hash verification')
+
+
 def payload():
     binary = (WORK / 'daed').read_bytes()
     assert binary[:5] == b'\x7fELF\x02' and struct.unpack('<H', binary[18:20])[0] == 183
@@ -183,6 +208,7 @@ def manifest(folder):
     result = {
         'target': 'ZTE F50 / MU300', 'openwrt': '25.12.5', 'kernel': '6.18.56',
         'source': subprocess.check_output(['git', 'rev-parse', 'HEAD'], text=True).strip(),
+        'kernel_source_tree': source_tree(),
         'upstream_branch': 'dikeckaan/mu300-linux clean-tf-7.2',
         'upstream_commit': '53ef7b1a1f370bb59ad7137e55713cde60c7d390',
         'kdae_source': '92aa565ae2d8de920380d1cca0872f4780b9c316',
@@ -208,6 +234,10 @@ if __name__ == '__main__':
         inputs()
     elif command == 'kernel-check':
         kernel_check(Path(sys.argv[2]))
+    elif command == 'kernel-attest':
+        kernel_attest(Path(sys.argv[2]))
+    elif command == 'kernel-rebind':
+        kernel_rebind(Path(sys.argv[2]))
     elif command == 'rootfs':
         rootfs(Path(sys.argv[2]), Path(sys.argv[3]))
     elif command == 'manifest':

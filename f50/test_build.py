@@ -15,6 +15,12 @@ spec.loader.exec_module(build)
 
 
 class UpgradeContracts(unittest.TestCase):
+    def test_running_mainline_is_not_silently_replaced_with_vendor_kernel(self):
+        source = (HERE.parent / 'rootfs/overlay/opt/mu300/bin/mu300-update').read_text()
+        function = source[source.index('kernel_choice() {'):source.index('\nkernel_asset()')]
+        command = 'KERNEL_CHOICE=/nonexistent/f50-test; KERNELS="5.4 6.18 7.2"; uname() { echo 6.18.55; }; ' + function + '\nkernel_choice'
+        self.assertEqual(subprocess.check_output(['sh', '-c', command], text=True).strip(), '6.18')
+
     def test_config_and_manual_software_survive_update(self):
         updater = HERE.parent / 'rootfs/overlay/opt/mu300/bin/mu300-update'
         # Execute the real keep_list() in a shell, rather than checking comments.

@@ -508,7 +508,7 @@ apply_one() {  # apply_one OS TAG
         [ -e "$old/$k" ] || [ -L "$old/$k" ] || continue
         mkdir -p "$new/$(dirname "$k")"
         rm -rf "$new/$k.image"
-        [ "$k" = etc/config ] && [ -d "$new/$k" ] && mv "$new/$k" "$new/$k.image"
+        case "$k" in etc/config|usr/local) [ ! -d "$new/$k" ] || mv "$new/$k" "$new/$k.image" ;; esac
         rm -rf "$new/$k"
         cp -a "$old/$k" "$new/$k"
         # OpenWrt's settings are the old system's, plus the files of the image's own packages the old one did not
@@ -586,7 +586,7 @@ PERSIST_LOG=$((48 << 20))   # active Linux boot partition keeps the persistent i
 # 6.18 installed the release's 5.4 kernel. "mu300-update kernel 6.18" changes it.
 KERNEL_CHOICE=$BOOTDIR/kernel
 KERNELS="5.4 6.18 7.2"
-kernel_choice() { c=$(cat "$KERNEL_CHOICE" 2>/dev/null); case " $KERNELS " in *" $c "*) echo "$c" ;; *) echo 5.4 ;; esac; }
+kernel_choice() { c=$(cat "$KERNEL_CHOICE" 2>/dev/null); case " $KERNELS " in *" $c "*) echo "$c" ;; *) case $(uname -r) in 6.18.*) echo 6.18 ;; 7.2.*) echo 7.2 ;; *) echo 5.4 ;; esac ;; esac; }
 kernel_asset() { case $(kernel_choice) in 5.4) echo mu300-kernel.tar.gz ;; *) echo "mu300-kernel-$(kernel_choice).tar.gz" ;; esac; }
 
 part_dev() {  # part_dev NAME -> /dev/<block device of that partition>
