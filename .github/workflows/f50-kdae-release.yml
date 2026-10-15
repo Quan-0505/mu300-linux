@@ -161,7 +161,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           tag="f50-$(date -u +%Y%m%d-%H%M%S)-${GITHUB_SHA:0:7}"
-          gh release create "$tag" release/f50/* --target "$GITHUB_SHA" --prerelease --title "F50 OpenWrt 25.12.5 / 6.18.56 / KDAE 2.2.5 (awaiting device validation)" --notes-file f50/README.zh-CN.md
+          gh release create "$tag" release/f50/* --target "$GITHUB_SHA" --prerelease --title "F50 OpenWrt 25.12.5 · Go KDAE 2.2.5 · 6.18.56（待实机验证）" --notes-file f50/README.zh-CN.md
       - uses: actions/upload-artifact@v4
         with:
           name: f50-upgrade
