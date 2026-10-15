@@ -1,0 +1,12 @@
+#!/bin/sh
+n=0
+while ! ip -4 route show default | grep -q .; do
+    n=$((n+1)); [ "$n" -lt 150 ] || break
+    sleep 1
+done
+while :; do
+    if ! pidof owjdxb >/dev/null; then
+        /usr/local/owjdxb/start.sh >/tmp/owjdxb-start.log 2>&1
+    fi
+    sleep 15
+done

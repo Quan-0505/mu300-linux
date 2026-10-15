@@ -1,0 +1,22 @@
+#!/bin/sh /etc/rc.common
+START=95
+STOP=10
+USE_PROCD=1
+start_service() {
+    config_dir=/etc/daed
+    [ -f /etc/daed/wing.db ] || { [ ! -f /etc/daed-kdae/wing.db ] || config_dir=/etc/daed-kdae; }
+    mkdir -p "$config_dir" /var/log/daed
+    chmod 700 "$config_dir"
+    procd_open_instance
+    procd_set_param command /bin/sh -c 'n=0; while ! ip -4 route show default | grep -q .; do n=$((n+1)); [ "$n" -ge 150 ] && break; sleep 1; done; exec /usr/bin/daed run -c "$1" --logfile /var/log/daed/daed.log --logfile-maxsize 5 --logfile-maxbackups 2' daed "$config_dir"
+    if [ -s "$config_dir/trusted-ca.pem" ]; then
+        procd_set_param env DAE_FORCE_VETH=1 DAE_DISABLE_REDIRECT_PEER=1 SSL_CERT_FILE="$config_dir/trusted-ca.pem"
+    else
+        procd_set_param env DAE_FORCE_VETH=1 DAE_DISABLE_REDIRECT_PEER=1
+    fi
+    procd_set_param respawn 3600 5 0
+    procd_set_param limits nofile="1048576 1048576"
+    procd_set_param stdout 1
+    procd_set_param stderr 1
+    procd_close_instance
+}

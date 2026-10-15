@@ -1,0 +1,168 @@
+name: F50 internal OpenWrt with KDAE
+run-name: F50 6.18 + KDAE · ${{ github.ref_name }}
+on:
+  workflow_dispatch:
+  push:
+    branches: [codex/f50-internal-kdae]
+    paths: ['.github/workflows/f50-kdae-release.yml', 'f50/**']
+permissions:
+  contents: read
+concurrency:
+  group: f50-release-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  block:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check build and update contracts
+        run: |
+          python3 -m unittest discover -s f50 -p 'test_*.py'
+          sh -n rootfs/overlay/opt/mu300/bin/mu300-update
+          sh -n f50/overlay/etc/init.d/daed
+          sh -n f50/overlay/etc/init.d/owjdxb
+          sh -n f50/overlay/usr/libexec/f50-nodebaby-guard
+      - uses: actions/cache@v4
+        with:
+          path: work/block-mount-mu300.apk*
+          key: f50-block-${{ hashFiles('openwrt/*block*', 'openwrt/patches/fstools-probe-device-types.patch') }}
+      - run: sh openwrt/build-block-mount.sh
+      - uses: actions/upload-artifact@v4
+        with:
+          name: block
+          path: work/block-mount-mu300.apk*
+          if-no-files-found: error
+  kernel:
+    runs-on: ubuntu-24.04-arm
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/cache@v4
+        id: cache
+        with:
+          path: upstream/out
+          key: f50-6.18.56-${{ hashFiles('upstream/**') }}
+      - name: Build native F50 kernel and matching modules
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: |
+          docker build -t mu300-mainline-build upstream/
+          docker volume create f50-mainline
+          docker run --rm -e KV=6.18.56 -v f50-mainline:/src -v "$PWD/upstream":/work mu300-mainline-build bash /work/build.sh
+          docker run --rm -e KV=6.18.56 -v f50-mainline:/src -v "$PWD/upstream":/work mu300-mainline-build bash /work/build-modules.sh > /dev/null
+      - name: Verify the actual Image and module payload
+        run: |
+          python3 upstream/audit-bundle.py upstream/out
+          python3 upstream/check-container-support.py upstream/out
+          python3 f50/build.py kernel-check upstream/out
+          tar -czf kernel-outputs.tar.gz -C upstream/out .
+      - uses: actions/upload-artifact@v4
+        with:
+          name: kernel
+          path: kernel-outputs.tar.gz
+          if-no-files-found: error
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: kernel-logs
+          path: upstream/out/**/*.log
+          if-no-files-found: ignore
+  kdae:
+    runs-on: ubuntu-24.04-arm
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: Quan-0505/daed-kdae
+          ref: 92aa565ae2d8de920380d1cca0872f4780b9c316
+          path: kdae-source
+          persist-credentials: false
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.24.0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.26.x'
+          cache: false
+      - name: Build the pinned console with F50 dataplane fixes
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y clang llvm libelf-dev
+          cd kdae-source
+          pnpm --dir console install --frozen-lockfile
+          npm run build
+          python3 -m unittest discover -s backend/tests -p 'test_*.py'
+          python3 backend/prepare-wing.py "$RUNNER_TEMP/f50-wing" --clone
+          cd "$RUNNER_TEMP/f50-wing/dae-core"
+          git apply --check "$GITHUB_WORKSPACE/f50/kdae-f50.patch"
+          git apply "$GITHUB_WORKSPACE/f50/kdae-f50.patch"
+          gofmt -w control/netns_utils.go
+          export BPF_CLANG=clang BPF_STRIP_FLAG=-no-strip BPF_CFLAGS="-O2 -Wall -DMAX_MATCH_SET_LEN=1024" BPF_TARGET=bpfel,bpfeb BPF_TRACE_TARGET=amd64
+          go generate ./control/control.go
+          cd ..
+          make deps
+          go test ./dae ./maintenance ./observability ./consoleapi ./graphql ./graphql/service/subscription
+          mkdir -p "$GITHUB_WORKSPACE/work/f50-addons"
+          CGO_ENABLED=0 GOEXPERIMENT= make DEFAULT_GOEXPERIMENT= OUTPUT="$GITHUB_WORKSPACE/work/f50-addons/daed" APPNAME=daed WEB_DIST="$GITHUB_WORKSPACE/kdae-source/dist" VERSION=v2.2.5-kdae-f50.1 bundle
+          sha256sum "$GITHUB_WORKSPACE/work/f50-addons/daed"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: kdae
+          path: work/f50-addons/daed
+          if-no-files-found: error
+  package:
+    needs: [block, kernel, kdae]
+    runs-on: ubuntu-24.04-arm
+    timeout-minutes: 90
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: block
+          path: work
+      - uses: actions/download-artifact@v4
+        with:
+          name: kernel
+      - uses: actions/download-artifact@v4
+        with:
+          name: kdae
+          path: work/f50-addons
+      - name: Prepare verified public inputs
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y lz4 cpio python3-lz4
+          mkdir -p upstream/out
+          tar -xzf kernel-outputs.tar.gz -C upstream/out
+          python3 f50/build.py inputs
+      - uses: docker/setup-qemu-action@v3
+        with:
+          platforms: amd64
+      - name: Assemble clean rootfs and boot updater bundle
+        run: |
+          export MU300_INPUTS="$PWD/work/f50-inputs"
+          export MU300_MAINLINE_OUT="$PWD/upstream/out"
+          export MU300_VERSION="f50-${GITHUB_SHA:0:7}"
+          sh openwrt/build-rootfs.sh f50-base-rootfs.tar.gz
+          mkdir -p release/f50
+          sh upstream/make-bundle.sh "$PWD/release/f50/mu300-kernel-6.18.tar.gz" "$PWD/work/f50-inputs/kernel-5.4.tar.gz"
+          python3 f50/build.py rootfs openwrt/f50-base-rootfs.tar.gz release/f50/mu300-openwrt-rootfs.tar.gz
+          cp rootfs/overlay/opt/mu300/bin/mu300-update release/f50/mu300-update
+          cp f50/README.zh-CN.md release/f50/README.zh-CN.md
+          python3 f50/build.py manifest release/f50
+      - name: Publish as untested prerelease
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          tag="f50-$(date -u +%Y%m%d-%H%M%S)-${GITHUB_SHA:0:7}"
+          gh release create "$tag" release/f50/* --target "$GITHUB_SHA" --prerelease --title "F50 OpenWrt 25.12.5 / 6.18.56 / KDAE 2.2.5 (awaiting device validation)" --notes-file f50/README.zh-CN.md
+      - uses: actions/upload-artifact@v4
+        with:
+          name: f50-upgrade
+          path: release/f50
+          if-no-files-found: error

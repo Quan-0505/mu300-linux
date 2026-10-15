@@ -1,0 +1,54 @@
+diff --git a/control/bpf_utils.go b/control/bpf_utils.go
+index 0ab6315..3cd409d 100644
+--- a/control/bpf_utils.go
++++ b/control/bpf_utils.go
+@@ -642,7 +642,7 @@ retryLoadBpf:
+ 	//
+ 	// When enabled, provides ~50% throughput improvement by bypassing CPU backlog.
+ 	useRedirectPeer := uint8(0)
+-	if GetDaeNetns().IsUsingNetkit() && checkNetkitDeviceCanUseRedirectPeer(log, GetDaeNetns().Dae0().Attrs().Name) {
++	if os.Getenv("DAE_DISABLE_REDIRECT_PEER") != "1" && GetDaeNetns().IsUsingNetkit() && checkNetkitDeviceCanUseRedirectPeer(log, GetDaeNetns().Dae0().Attrs().Name) {
+ 		// Check kernel version for CVE-2025-37959 fix
+ 		kernelVersion, err := internal.KernelVersion()
+ 		switch {
+diff --git a/control/kern/tproxy.c b/control/kern/tproxy.c
+index 8205d00..7654b2d 100644
+--- a/control/kern/tproxy.c
++++ b/control/kern/tproxy.c
+@@ -3833,7 +3833,23 @@ int tproxy_wan_egress_l2(struct __sk_buff *skb)
+ SEC("tc/wan_egress_l3")
+ int tproxy_wan_egress_l3(struct __sk_buff *skb)
+ {
+-	return do_tproxy_wan_egress(skb, 0, NULL);
++	/* Some RAWIP drivers (F50 SIPA) retain an Ethernet header on IPv4
++	 * egress while IPv6 and ingress remain L3. Interface type alone does
++	 * not describe that packet layout. Validate the Ethernet IPv4 frame
++	 * before choosing its offset; ordinary L3 packets keep offset zero. */
++	__u32 link_h_len = 0;
++	if (skb->protocol == bpf_htons(ETH_P_IP) && skb->len >= ETH_HLEN + sizeof(struct iphdr)) {
++		struct ethhdr eth = {};
++		struct iphdr ip = {};
++		if (!bpf_skb_load_bytes(skb, 0, &eth, sizeof(eth)) &&
++		    eth.h_proto == bpf_htons(ETH_P_IP) &&
++		    !bpf_skb_load_bytes(skb, ETH_HLEN, &ip, sizeof(ip)) &&
++		    (((const __u8 *)&ip)[0] >> 4) == 4 && iphdr_ihl(&ip) >= 5 &&
++		    bpf_ntohs(ip.tot_len) == skb->len - ETH_HLEN &&
++		    bpf_ntohs(ip.tot_len) >= iphdr_ihl(&ip) * 4)
++			link_h_len = ETH_HLEN;
++	}
++	return do_tproxy_wan_egress(skb, link_h_len, NULL);
+ }
+ 
+ static __always_inline int
+diff --git a/control/netns_utils.go b/control/netns_utils.go
+index f486144..9f335c2 100644
+--- a/control/netns_utils.go
++++ b/control/netns_utils.go
+@@ -376,6 +376,7 @@ func (ns *DaeNetns) WithBestEffort(op string, f func() error) {
+ 
+ // supportsNetkit checks if the kernel supports Netkit devices (requires 6.7+).
+ func (ns *DaeNetns) supportsNetkit() bool {
++	if os.Getenv("DAE_FORCE_VETH") == "1" { return false }
+ 	if ns.kernelVersion == nil {
+ 		return false
+ 	}

@@ -20,7 +20,7 @@
 # boot_update). An mu300-update from before that installs the new system, which brings the new mu300-update: after
 # a reboot (the running system is still the old one until then), "mu300-update apply" updates the boot image too.
 export PATH="$PATH:/opt/mu300/bin:/opt/mu300/busybox-bin:/usr/sbin:/sbin"
-REPO=${MU300_REPO:-dikeckaan/mu300-linux}
+REPO=${MU300_REPO:-Quan-0505/mu300-linux}
 DISK=${MU300_DISK:-/mnt/mu300-disk}
 CONF=/etc/mu300
 VERSION_FILE=$CONF/image-version
@@ -157,7 +157,7 @@ check() {
 keep_list() {
     case $1 in
         ubuntu) echo "etc/mu300 etc/ssh etc/hostname etc/localtime etc/timezone etc/fstab home root srv usr/local var/lib/bluetooth" ;;
-        openwrt) echo "etc/config etc/mu300 etc/unisoc-modem etc/dropbear etc/rc.local root" ;;
+        openwrt) echo "etc/config etc/mu300 etc/unisoc-modem etc/dropbear etc/rc.local etc/crontabs etc/daed etc/daed-kdae etc/kixdns usr/local etc/init.d/kixdns etc/rc.d/S90kixdns etc/rc.d/K10kixdns etc/samba var/lib/samba srv root" ;;
     esac
 }
 # vendor files that the published images deliberately do not contain
@@ -505,7 +505,7 @@ apply_one() {  # apply_one OS TAG
     say "$os: keeping your settings and the vendor files"
     image_own_save "$new" || { rm -rf "$new"; die "$os: could not read the new image"; }
     for k in $(keep_list "$os"); do
-        [ -e "$old/$k" ] || continue
+        [ -e "$old/$k" ] || [ -L "$old/$k" ] || continue
         mkdir -p "$new/$(dirname "$k")"
         rm -rf "$new/$k.image"
         [ "$k" = etc/config ] && [ -d "$new/$k" ] && mv "$new/$k" "$new/$k.image"
