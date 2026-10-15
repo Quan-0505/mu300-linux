@@ -202,13 +202,56 @@ def rootfs(source_path, destination):
         print('Rootfs public payload, service links and file ownership verified')
 
 
+def finalize_kernel(path):
+    """Audit the LK wrapper and hash the actual shipped bytes, not the raw Image."""
+    output = path.with_suffix('.verified.tmp')
+    raw = TOP / 'upstream/out'
+    raw_image = (raw / 'Image').read_bytes()
+    hashes = {}
+    shipped_modules = set()
+    with tarfile.open(path) as source, tarfile.open(output, 'w:gz') as target:
+        for member in source:
+            name = member.name.removeprefix('./')
+            if name in ['kernel.sha256', 'modules.sha256']:
+                continue
+            if not member.isfile():
+                target.addfile(member)
+                continue
+            data = source.extractfile(member).read()
+            if name == 'Image':
+                assert data[56:60] == b'ARMd'
+                assert struct.unpack_from('<I', data)[0] == 0x14060000
+                assert struct.unpack_from('<Q', data, 8)[0] == 0x80000
+                assert data[0x180000:] == raw_image, 'Packaged LK Image is not the compiled kernel'
+            elif name == 'kernel.config':
+                assert data == (raw / name).read_bytes()
+            elif name.startswith('modules/') and name.endswith('.ko'):
+                assert hashlib.sha256(data).hexdigest() == sha(raw / name), name
+                shipped_modules.add(name)
+            hashes[name] = hashlib.sha256(data).hexdigest()
+            target.addfile(member, io.BytesIO(data))
+        expected = {p.relative_to(raw).as_posix() for p in (raw / 'modules').glob('*.ko')}
+        assert expected == shipped_modules
+        assert {'Image', 'kernel.config', 'kernel.release', 'ramdisk-generic.lz4'} <= hashes.keys()
+        for name, names in [('kernel.sha256', ['Image', 'kernel.config']),
+                            ('modules.sha256', ['Image', 'kernel.config', *sorted(shipped_modules)])]:
+            data = ''.join(f'{hashes[n]}  {n}\n' for n in names).encode()
+            member = tarfile.TarInfo('./' + name)
+            member.size, member.mode = len(data), 0o644
+            target.addfile(member, io.BytesIO(data))
+    output.replace(path)
+    print('Actual packaged LK Image and', len(shipped_modules), 'matching modules verified')
+
+
 def manifest(folder):
     run('git', 'diff', '--exit-code')
     kernel_check(TOP / 'upstream/out')
+    finalize_kernel(folder / 'mu300-kernel-6.18.tar.gz')
     result = {
         'target': 'ZTE F50 / MU300', 'openwrt': '25.12.5', 'kernel': '6.18.56',
         'source': subprocess.check_output(['git', 'rev-parse', 'HEAD'], text=True).strip(),
         'kernel_source_tree': source_tree(),
+        'raw_kernel_image_sha256': sha(TOP / 'upstream/out/Image'),
         'upstream_branch': 'dikeckaan/mu300-linux clean-tf-7.2',
         'upstream_commit': '53ef7b1a1f370bb59ad7137e55713cde60c7d390',
         'kdae_source': '92aa565ae2d8de920380d1cca0872f4780b9c316',
