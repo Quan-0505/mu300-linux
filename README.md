@@ -2,12 +2,12 @@
 
 # F50 · OpenWrt
 
-**中兴 F50 / MU300 定制固件 · 内置存储更新 · Linux 6.18 LTS · Go KDAE · 节点小宝**
+**中兴 F50 / MU300 定制固件 · 内置存储更新 · Linux 6.18 LTS · Rust daed 候选 · 节点小宝**
 
 [![Build](https://img.shields.io/github/actions/workflow/status/Quan-0505/mu300-linux/f50-kdae-release.yml?branch=codex%2Ff50-internal-kdae&label=Build&style=flat-square)](https://github.com/Quan-0505/mu300-linux/actions/workflows/f50-kdae-release.yml)
 [![OpenWrt](https://img.shields.io/badge/OpenWrt-25.12.5-00b5e2?style=flat-square)](https://openwrt.org/)
 [![Kernel](https://img.shields.io/badge/Linux-6.18.56-orange?style=flat-square)](upstream)
-[![KDAE](https://img.shields.io/badge/Go_KDAE-2.2.5-0b5?style=flat-square)](https://github.com/Quan-0505/daed-kdae)
+[![Rust daed](https://img.shields.io/badge/Rust_daed-3.2.1_candidate-805ad5?style=flat-square)](https://github.com/Quan-0505/rust-daed)
 [![Status](https://img.shields.io/badge/Status-待实机验证-yellow?style=flat-square)](https://github.com/Quan-0505/mu300-linux/releases)
 
 **面向 ZTE F50 / MU300（Unisoc UMS9620 / ARM64）的 OpenWrt 构建**
@@ -18,12 +18,12 @@
 
 ---
 
-基于 [dikeckaan/mu300-linux](https://github.com/dikeckaan/mu300-linux)，整合 **F50 原生 Linux 适配、Go KDAE 和节点小宝**。本分支面向已有内置 OpenWrt 的更新，延续此前使用的 **6.18 + BTF** 路线，并保留 F50 的 SIPA RAWIP/veth 代理适配。
+基于 [dikeckaan/mu300-linux](https://github.com/dikeckaan/mu300-linux)，整合 **F50 原生 Linux 适配、Rust daed 和节点小宝**。本分支面向已有内置 OpenWrt 的更新，延续此前使用的 **6.18 + BTF** 路线，并保留 F50 的 SIPA RAWIP/veth 代理适配。
 
 维护分支为 [`codex/f50-internal-kdae`](https://github.com/Quan-0505/mu300-linux/tree/codex/f50-internal-kdae)。基础源码来自作者 `clean-tf-7.2` 分支；这个名称不表示本固件采用 7.2，本包实际编译 **Linux 6.18.56**。
 
 > [!IMPORTANT]
-> 当前为 **待实机验证的预发布固件**。内核、模块、KDAE、存储工具及打包检查已通过；F50 尚未接回，未刷入本版本，也未验证该版本的蜂窝、Wi-Fi 或断电重启表现。
+> 当前为 **待实机验证的预发布固件**。内核、模块、Rust daed、存储工具及打包检查已通过；F50 尚未接回，未刷入本版本，也未验证该版本的蜂窝、Wi-Fi 或断电重启表现。
 
 <a id="features"></a>
 ## ✨ 功能介绍
@@ -32,14 +32,14 @@
 | --- | --- |
 | **内置 OpenWrt** | OpenWrt 25.12.5，更新已有内置 Linux 区域，不重复安装或缩容 |
 | **6.18 LTS 内核** | Linux 6.18.56，保留 BTF、BPF/JIT、veth、TC/clsact 与 TUN 等功能 |
-| **Go KDAE** | daed-kdae 2.2.5，包含订阅、节点、群组、DNS、路由、实时日志及热重载管理 |
-| **F50 专用代理适配** | 修正 SIPA RAWIP IPv4 出站包的 Ethernet 头识别；启用 veth 兼容路径并关闭不适用的 redirect_peer 路径 |
+| **Rust daed 候选** | 固定 Rust 引擎与 DaedNext 页面，包含订阅、节点、群组、DNS、路由、实时日志及热重载管理 |
+| **F50 专用代理适配** | Rust 引擎修正 SIPA RAWIP IPv4 出站包的 Ethernet 头识别；固定 `NETNS_LINK=veth` |
 | **节点小宝** | 官方 ARM64 4.3.5-734 客户端，使用自己的账号登录绑定 |
 | **设备管理** | 作者的 F50 蜂窝、热点、USB、短信及 LuCI 管理功能 |
-| **插件与配置保留** | 保留原账号、网络/热点、防火墙、KDAE 数据与 CA、节点小宝身份，以及已有 KixDNS、Samba 设置和共享目录 |
+| **插件与配置保留** | 保留原账号、网络/热点、防火墙、代理数据与 CA、节点小宝身份，以及已有 KixDNS、Samba 设置和共享目录 |
 | **构建校验** | 源码树与内核产物对应校验、实际 Image 内嵌配置、匹配模块、打包文件权限及内外层 SHA256 |
 
-KDAE 保留两个必要兼容环境变量：`DAE_FORCE_VETH=1`、`DAE_DISABLE_REDIRECT_PEER=1`。F50 的适配补丁随源码提供，不能用未经适配的通用程序覆盖后就认定网络正常。
+Rust daed 首启时将原 Go `wing.db` 以非破坏性方式复制迁移到 `/etc/daed/daed.db`，Go 数据源保持不变用于回退。F50 的 SIPA RAWIP 补丁在 Rust eBPF 程序中验证完整 IPv4 Ethernet 帧后才调整偏移；不能把 CI 构建通过视为设备流量已验证。
 
 节点小宝的网关转发与回程路由需要按实际网络设置。TCP/UDP 单播互通不等于广播或 mDNS 自动发现；预装客户端也不代表第三方账号已绑定或已获得服务权限。
 
@@ -81,14 +81,14 @@ KDAE 保留两个必要兼容环境变量：`DAE_FORCE_VETH=1`、`DAE_DISABLE_RE
 | 入口 | 地址 |
 | --- | --- |
 | LuCI | `http://<F50管理地址>/` |
-| KDAE | `http://<F50管理地址>:2023/` |
+| daed（Rust 候选） | `http://<F50管理地址>:2023/` |
 | 节点小宝 | `http://<F50管理地址>:9118/` |
 
 更新沿用原来的管理网段、账号、热点、订阅和组网身份；公开固件不预置个人密码、订阅、节点或网络拓扑。已有 KixDNS 按原配置保留，不会在此次固件更新中自动改为另一套 DNS 策略。
 
 ### 验证范围
 
-此前 F50 适配版本的代理、自启和组网测试，**不能替代本次新内核与新 KDAE 组合的实机验证**。接回设备后需要检查：
+此前 F50 适配版本的代理、自启和组网测试，**不能替代本次新内核与 Rust daed 组合的实机验证**。接回设备后需要检查：
 
 - 蜂窝注册、数据连接、Wi-Fi/USB 与管理登录。
 - 直连与代理的真实 HTTPS、DNS、配置重载及重启自启。
@@ -98,14 +98,14 @@ KDAE 保留两个必要兼容环境变量：`DAE_FORCE_VETH=1`、`DAE_DISABLE_RE
 <a id="build"></a>
 ## 🔧 自行编译
 
-Actions → **F50 internal OpenWrt with KDAE**，选择 `codex/f50-internal-kdae` 分支运行。构建使用 Linux runner，保留大小写不同的内核模块文件，不在 Windows 文件系统直接解包模块树。
+Actions → **F50 internal OpenWrt with Rust daed**，选择 `codex/f50-internal-kdae` 分支运行。构建使用 Linux runner，保留大小写不同的内核模块文件，不在 Windows 文件系统直接解包模块树。
 
 ```sh
 git clone --branch codex/f50-internal-kdae https://github.com/Quan-0505/mu300-linux.git
 cd mu300-linux
 ```
 
-工作流分别构建内核、Go KDAE 和存储工具，再组装系统与更新包。KDAE 固定上游源码并应用 [F50 补丁](f50/kdae-f50.patch)；公开依赖按 SHA256 校验。生成的 Release 默认是待实机验证的预发布版。
+工作流分别构建内核、固定提交的 Rust daed 和存储工具，再组装系统与更新包。公共内核/rootfs输入固定为上游 `mu300-linux v2026.10.17.5` 并按 SHA256 校验；候选版本 Release 默认是待实机验证的预发布版。
 
 源码、编译和打包检查见 [工作流](.github/workflows/f50-kdae-release.yml) 与 [构建脚本](f50/build.py)。完整来源、实际内核配置和校验和以对应 Release 为准。
 
@@ -118,7 +118,7 @@ cd mu300-linux
 - **[kanoqwq/mu300-linux](https://github.com/kanoqwq/mu300-linux)**：LuCI 管理、公共服务、安装器和硬件兼容改进。
 - **[Enceka](https://github.com/Enceka)** 及相关 Unisoc/Linux 贡献者：设备适配、驱动研究与共享修复。
 - **[OpenWrt](https://openwrt.org/)**、**[Linux](https://www.kernel.org/)**：路由系统、内核及软件包生态。
-- **[daeuniverse](https://github.com/daeuniverse)**、**[olicesx/kdae](https://github.com/olicesx/dae/tree/kdae)**、**[ksong008/daed](https://github.com/ksong008/daed)**：代理引擎、控制器和管理界面的基础工作；通过 [daed-kdae](https://github.com/Quan-0505/daed-kdae) 集成。
+- **[daeuniverse](https://github.com/daeuniverse)**、**[ksong008/DaeNext](https://github.com/ksong008/DaeNext)**：代理引擎及管理界面的基础工作；本候选通过 [rust-daed](https://github.com/Quan-0505/rust-daed) 集成。
 - 所有贡献代码、测试、文档与问题反馈的维护者和使用者。
 
-仓库脚本沿用原有 [许可](LICENSE)，Linux、KDAE 和其他组件保留各自版权与许可证。节点小宝使用[官方软件](https://iepose.com/)并遵循其授权及服务条款，不作为本仓库的开源组件。
+仓库脚本沿用原有 [许可](LICENSE)，Linux、daed 和其他组件保留各自版权与许可证。节点小宝使用[官方软件](https://iepose.com/)并遵循其授权及服务条款，不作为本仓库的开源组件。

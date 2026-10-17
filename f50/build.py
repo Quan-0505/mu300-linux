@@ -14,14 +14,16 @@ import time
 TOP = Path(__file__).resolve().parents[1]
 WORK = TOP / 'work/f50-addons'
 INPUTS = TOP / 'work/f50-inputs'
-VERSION = 'v2.2.5-kdae-f50.1'
+VERSION = '3.2.1'
+RUST_DAED_REPOSITORY = 'https://github.com/Quan-0505/rust-daed.git'
+RUST_DAED_REVISION = '7b1d18772789be988c933dc5e18fdb5411a00857'
 PUBLIC = {
     'kernel-5.4.tar.gz': (
-        'https://github.com/dikeckaan/mu300-linux/releases/download/v2026.10.26/mu300-kernel.tar.gz',
-        '9f9c468b9d9b87a6e2d2f215e12e98245c5892b506c69a50f07e1c270fe4c034'),
+        'https://github.com/dikeckaan/mu300-linux/releases/download/v2026.10.17.5/mu300-kernel.tar.gz',
+        'dbfd241f2d8b45bd21ee6026f093034d1b36117f0bf5446fcd3eef638470f489'),
     'public-rootfs.tar.gz': (
-        'https://github.com/dikeckaan/mu300-linux/releases/download/v2026.10.26/mu300-openwrt-luci-rootfs.tar.gz',
-        '59aac5422a8ff01035520e69690981540a10b98faf5cae630a13957dc7ae67b4'),
+        'https://github.com/dikeckaan/mu300-linux/releases/download/v2026.10.17.5/mu300-openwrt-luci-rootfs.tar.gz',
+        'efcb643c327e4ffbfc6665f969b36d40e5d5be89a2b32cb5d062e4cda0cbbe92'),
     'nodebaby.tgz': (
         'https://cdn.ionewu.com/upgrade/jdxb/owjdxb_openwrt_arm64_4.3.5-734.tgz',
         'c2c1853eac004ae3699a8f3beba3331afc42aca1878acd2c7945a5658deea702'),
@@ -130,9 +132,17 @@ def kernel_rebind(folder):
 def payload():
     binary = (WORK / 'daed').read_bytes()
     assert binary[:5] == b'\x7fELF\x02' and struct.unpack('<H', binary[18:20])[0] == 183
-    for marker in [VERSION, 'DAE_FORCE_VETH', 'DAE_DISABLE_REDIRECT_PEER']:
-        assert marker.encode() in binary, marker
+    assert f'version=v{VERSION}'.encode() in binary, 'Unexpected Rust daed version'
     yield 'usr/bin/daed', binary, 0o755
+    for name in ['geoip.dat', 'geosite.dat']:
+        data = (WORK / name).read_bytes()
+        assert len(data) > 100000 and not data.lstrip().startswith(b'<'), 'Invalid Rust geodata: ' + name
+        yield 'usr/share/daed/' + name, data, 0o644
+    web = WORK / 'web'
+    assert (web / 'index.html').is_file(), 'Rust DaedNext UI missing'
+    for path in sorted(web.rglob('*')):
+        if path.is_file():
+            yield 'usr/share/daed/web/' + path.relative_to(web).as_posix(), path.read_bytes(), 0o644
     assert sha(INPUTS / 'nodebaby.tgz') == PUBLIC['nodebaby.tgz'][1]
     with tarfile.open(INPUTS / 'nodebaby.tgz') as source:
         for member in source:
@@ -252,13 +262,13 @@ def manifest(folder):
         'source': subprocess.check_output(['git', 'rev-parse', 'HEAD'], text=True).strip(),
         'kernel_source_tree': source_tree(),
         'raw_kernel_image_sha256': sha(TOP / 'upstream/out/Image'),
-        'upstream_branch': 'dikeckaan/mu300-linux clean-tf-7.2',
-        'upstream_commit': '53ef7b1a1f370bb59ad7137e55713cde60c7d390',
-        'kdae_source': '92aa565ae2d8de920380d1cca0872f4780b9c316',
-        'kdae_wing': 'b089b568649f03f909477adb6c7db25535a58782',
-        'kdae_core': 'eb510872ae9474b7fa55a7f1d252ffd79a937854',
-        'kdae_version': VERSION, 'kdae_patch_sha256': sha(TOP / 'f50/kdae-f50.patch'),
-        'kdae_binary_sha256': sha(WORK / 'daed'), 'nodebaby_version': '4.3.5-734',
+        'upstream_release': 'dikeckaan/mu300-linux v2026.10.17.5',
+        'upstream_release_commit': '19d071fea3ee649bcee240de3e2bd632578dccb5',
+        'upstream_clean_tf_7_2_head': 'a8f36987378b5e6e3726bc5e2a5b0c84c4a739e2',
+        'rust_daed_repository': RUST_DAED_REPOSITORY,
+        'rust_daed_revision': RUST_DAED_REVISION,
+        'rust_daed_version': VERSION,
+        'rust_daed_binary_sha256': sha(WORK / 'daed'), 'nodebaby_version': '4.3.5-734',
         'public_inputs': {k: {'url': v[0], 'sha256': v[1]} for k, v in PUBLIC.items()},
         'run_id': os.environ.get('GITHUB_RUN_ID'), 'device_boot_tested': False,
         'device_flashing_performed': False, 'android_partition_reclaimed': False,

@@ -1,15 +1,15 @@
-## F50 OpenWrt · Go KDAE 定制固件
+## F50 OpenWrt · Rust daed 候选固件
 
-**OpenWrt 25.12.5 · Linux 6.18.56 + BTF · Go KDAE 2.2.5 · 节点小宝 4.3.5-734**
+**OpenWrt 25.12.5 · Linux 6.18.56 + BTF · Rust daed 3.2.1 · 节点小宝 4.3.5-734**
 
 适用于 **ZTE F50 / MU300（UMS9620 / ARM64）已有内置 OpenWrt 安装的更新**。当前为待实机验证的预发布版，不设为稳定版或自动更新的 latest。
 
 ### 本包包含
 
 - 作者的 F50 原生蜂窝、Wi-Fi/USB、短信与 LuCI 管理功能。
-- Go KDAE 新管理控制台，并保留 F50 SIPA RAWIP IPv4 包头修复、veth 与 redirect_peer 兼容设置。
+- Rust daed 与 DaedNext 管理页面，内置 F50 SIPA RAWIP IPv4 出口偏移检查并固定使用 veth。
 - 官方节点小宝 ARM64 客户端，使用者自行登录绑定；网关转发与回程按实际网段配置。
-- 更新器补齐手工插件的保留清单，保留原账号、网络/热点、防火墙、KDAE 数据与 CA、节点小宝身份，以及已有 KixDNS、Samba 配置和共享目录。
+- 更新器补齐手工插件的保留清单，保留原账号、网络/热点、防火墙、代理数据与 CA、节点小宝身份，以及已有 KixDNS、Samba 配置和共享目录。首次启动将 Go `wing.db` 复制迁移到 Rust `daed.db`，保留源库不变。
 - 补充更新时计划任务保留；缺少内核选择记录时识别运行中的 6.18，避免意外退回 5.4。
 
 ### 下载文件
@@ -34,9 +34,9 @@
 
 ### 构建与验证
 
-基础源码来自 `dikeckaan/mu300-linux` 的 `clean-tf-7.2` 分支；名称不表示本包采用 7.2，本包实际编译 **6.18.56**。源码、KDAE 固定版本及补丁哈希见 `build.json`。
+公共内核与 rootfs 输入来自上游 `dikeckaan/mu300-linux v2026.10.17.5`，SHA256 固定；clean-tf-7.2 更新仅按目标机型审查后选择性采用。该名称不表示本包采用 7.2，本包实际编译 **6.18.56**。Rust Daed 固定提交、版本、内核配置及文件哈希见 `build.json`。
 
-已通过内核/模块构建、实际 Image 内嵌配置与模块能力检查、Go KDAE 测试、存储工具构建、文件权限和内外层哈希检查。CI 跨任务使用 Git 源码树和实际二进制 SHA256 绑定，不仅依赖文件修改时间。
+候选构建将检查内核/模块、实际 Image 内嵌配置与能力、Rust Daed ARM64 包、数据迁移命令、存储工具、文件权限和内外层哈希。CI 跨任务使用 Git 源码树和实际二进制 SHA256 绑定；真实 F50 网络流量仍待实机测试。
 
 **尚未在 F50 上刷入或启动验证。** 设备接回后需要验证蜂窝、Wi-Fi/USB、管理登录、DNS、真实 HTTPS 代理、热重载、双向 TCP/UDP 和断电冷启动。旧版本的实机结果不能代替本次验证；广播和 mDNS 自动发现不在现有单播网关验证范围内。
 
@@ -44,4 +44,4 @@
 
 公开包不含个人订阅、节点、密码、数据库、JWT、SSH 私钥、节点小宝组网身份、NV/校准或设备备份。设备运行文件由目标机自己保留。
 
-感谢 **dikeckaan、kanoqwq、Enceka、OpenWrt、Linux、daeuniverse、kdae 与 daed** 的作者及贡献者。完整来源和 [开源致谢](https://github.com/Quan-0505/mu300-linux#credits) 见项目首页，各组件保留原有许可；节点小宝使用官方软件并遵循其服务条款。
+感谢 **dikeckaan、kanoqwq、Enceka、OpenWrt、Linux、daeuniverse、DaeNext 与 Rust daed** 的作者及贡献者。完整来源和 [开源致谢](https://github.com/Quan-0505/mu300-linux#credits) 见项目首页，各组件保留原有许可；节点小宝使用官方软件并遵循其服务条款。

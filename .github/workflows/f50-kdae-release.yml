@@ -1,5 +1,5 @@
-name: F50 internal OpenWrt with KDAE
-run-name: F50 6.18 + KDAE · ${{ github.ref_name }}
+name: F50 internal OpenWrt with Rust daed
+run-name: F50 6.18 + Rust daed · ${{ github.ref_name }}
 on:
   workflow_dispatch:
   push:
@@ -67,55 +67,94 @@ jobs:
           name: kernel-logs
           path: upstream/out/**/*.log
           if-no-files-found: ignore
-  kdae:
-    runs-on: ubuntu-24.04-arm
-    timeout-minutes: 90
+  rust-daed:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 180
     steps:
       - uses: actions/checkout@v4
       - uses: actions/checkout@v4
         with:
-          repository: Quan-0505/daed-kdae
-          ref: 92aa565ae2d8de920380d1cca0872f4780b9c316
-          path: kdae-source
+          repository: Quan-0505/rust-daed
+          ref: 7b1d18772789be988c933dc5e18fdb5411a00857
+          path: rust-daed
           persist-credentials: false
-      - uses: pnpm/action-setup@v4
-        with:
-          version: 10.24.0
+      - name: Install Rust release dependencies
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y build-essential clang llvm libclang-dev libelf-dev cmake libssl-dev perl pkg-config gcc-aarch64-linux-gnu g++-aarch64-linux-gnu dpkg-dev curl file zstd
       - uses: actions/setup-node@v4
         with:
           node-version: 24
-      - uses: actions/setup-go@v5
+      - uses: pnpm/action-setup@v4
         with:
-          go-version: '1.26.x'
-          cache: false
-      - name: Build the pinned console with F50 dataplane fixes
+          version: 10.24.0
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: x86_64-unknown-linux-gnu,aarch64-unknown-linux-gnu
+          components: rust-src
+      - uses: dtolnay/rust-toolchain@nightly
+        with:
+          components: rust-src
+      - name: Keep stable as the top-level compiler
+        run: rustup default stable
+      - name: Install pinned BPF linker release
         run: |
-          sudo apt-get update -qq
-          sudo apt-get install -y clang llvm libelf-dev
-          cd kdae-source
-          pnpm --dir console install --frozen-lockfile
-          npm run build
-          python3 -m unittest discover -s backend/tests -p 'test_*.py'
-          python3 backend/prepare-wing.py "$RUNNER_TEMP/f50-wing" --clone
-          cd "$RUNNER_TEMP/f50-wing/dae-core"
-          git apply --check "$GITHUB_WORKSPACE/f50/kdae-f50.patch"
-          git apply "$GITHUB_WORKSPACE/f50/kdae-f50.patch"
-          gofmt -w control/netns_utils.go
-          export BPF_CLANG=clang BPF_STRIP_FLAG=-no-strip BPF_CFLAGS="-O2 -Wall -DMAX_MATCH_SET_LEN=1024" BPF_TARGET=bpfel,bpfeb BPF_TRACE_TARGET=amd64
-          go generate ./control/control.go
-          cd ..
-          make deps
-          go test ./dae ./maintenance ./observability ./consoleapi ./graphql ./graphql/service/subscription
-          mkdir -p "$GITHUB_WORKSPACE/work/f50-addons"
-          CGO_ENABLED=0 GOEXPERIMENT= make DEFAULT_GOEXPERIMENT= OUTPUT="$GITHUB_WORKSPACE/work/f50-addons/daed" APPNAME=daed WEB_DIST="$GITHUB_WORKSPACE/kdae-source/dist" VERSION=v2.2.5-kdae-f50.1 bundle
-          sha256sum "$GITHUB_WORKSPACE/work/f50-addons/daed"
+          set -euo pipefail
+          archive="$RUNNER_TEMP/bpf-linker-v0.12.0.tar.zst"
+          curl --fail --location --retry 3 --output "$archive" \
+            https://github.com/aya-rs/bpf-linker/releases/download/v0.12.0/bpf-linker-x86_64-unknown-linux-musl.tar.zst
+          echo "6789717c8cb6a2a5d920f3b6bfac2bd7efc00f6228ecd149108a99699a75c679  $archive" | sha256sum --check --strict
+          mkdir -p "$RUNNER_TEMP/bpf-linker"
+          tar --zstd --extract --file "$archive" --directory "$RUNNER_TEMP/bpf-linker"
+          linker="$(find "$RUNNER_TEMP/bpf-linker" -type f -name bpf-linker -print -quit)"
+          test -n "$linker"
+          install -m 0755 "$linker" "$HOME/.cargo/bin/bpf-linker"
+          bpf-linker --version
+      - name: Build Rust daemon and extract the checked ARM64 package
+        run: |
+          python3 - <<'PY'
+          import subprocess
+          from pathlib import Path
+          actual=subprocess.check_output(['git','-C','rust-daed','rev-parse','HEAD'],text=True).strip()
+          assert actual == '7b1d18772789be988c933dc5e18fdb5411a00857', actual
+          assert "VERSION = '3.2.1'" in Path('f50/build.py').read_text()
+          PY
+          RUST_RELEASE_CACHE="$RUNNER_TEMP/rust-cache" bash rust-daed/scripts/build-release.sh "$RUNNER_TEMP/rust-daed-release"
+          python3 - <<'PY'
+          import os, pathlib, tarfile
+          out=pathlib.Path(os.environ['RUNNER_TEMP'])/'rust-daed-release'
+          work=pathlib.Path('work/f50-addons'); work.mkdir(parents=True,exist_ok=True)
+          with tarfile.open(out/'assets/rust-daed-r2s.apk','r:gz') as pkg:
+              members={m.name.removeprefix('./'):m for m in pkg.getmembers()}
+              for name in ['usr/bin/daed','usr/share/daed/geoip.dat','usr/share/daed/geosite.dat','usr/share/daed/web/index.html']:
+                  assert name in members and members[name].isfile(), name
+              binary=pkg.extractfile(members['usr/bin/daed']).read()
+              assert binary[:5]==b'\x7fELF\x02' and int.from_bytes(binary[18:20],'little')==183 and b'version=v3.2.1' in binary
+              (work/'daed').write_bytes(binary)
+              for name in ['geoip.dat','geosite.dat']:
+                  (work/name).write_bytes(pkg.extractfile(members['usr/share/daed/'+name]).read())
+              web=work/'web'; web.mkdir(exist_ok=True)
+              for name,member in members.items():
+                  prefix='usr/share/daed/web/'
+                  if name.startswith(prefix) and member.isfile():
+                      rel=pathlib.PurePosixPath(name[len(prefix):])
+                      assert not rel.is_absolute() and '..' not in rel.parts
+                      target=web.joinpath(*rel.parts); target.parent.mkdir(parents=True,exist_ok=True)
+                      target.write_bytes(pkg.extractfile(member).read())
+          assert (work/'web/index.html').is_file()
+          print('Rust daed 3.2.1 ARM64 package, web UI and geodata verified')
+          PY
       - uses: actions/upload-artifact@v4
         with:
-          name: kdae
-          path: work/f50-addons/daed
+          name: rust-daed
+          path: |
+            work/f50-addons/daed
+            work/f50-addons/geoip.dat
+            work/f50-addons/geosite.dat
+            work/f50-addons/web/**
           if-no-files-found: error
   package:
-    needs: [block, kernel, kdae]
+    needs: [block, kernel, rust-daed]
     runs-on: ubuntu-24.04-arm
     timeout-minutes: 90
     permissions:
@@ -131,7 +170,7 @@ jobs:
           name: kernel
       - uses: actions/download-artifact@v4
         with:
-          name: kdae
+          name: rust-daed
           path: work/f50-addons
       - name: Prepare verified public inputs
         run: |
@@ -161,7 +200,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           tag="f50-$(date -u +%Y%m%d-%H%M%S)-${GITHUB_SHA:0:7}"
-          gh release create "$tag" release/f50/* --target "$GITHUB_SHA" --prerelease --title "F50 OpenWrt 25.12.5 · Go KDAE 2.2.5 · 6.18.56（待实机验证）" --notes-file f50/README.zh-CN.md
+          gh release create "$tag" release/f50/* --target "$GITHUB_SHA" --prerelease --title "F50 OpenWrt 25.12.5 · Rust daed 3.2.1 · 6.18.56（待实机验证）" --notes-file f50/README.zh-CN.md
       - uses: actions/upload-artifact@v4
         with:
           name: f50-upgrade

@@ -15,6 +15,16 @@ spec.loader.exec_module(build)
 
 
 class UpgradeContracts(unittest.TestCase):
+    def test_rust_daed_candidate_and_state_migration_contract(self):
+        service = (HERE / 'overlay/etc/init.d/daed').read_text()
+        self.assertEqual(build.VERSION, '3.2.1')
+        self.assertIn('v2026.10.17.5', build.PUBLIC['kernel-5.4.tar.gz'][0])
+        self.assertIn('state migrate --from-wing-db', service)
+        self.assertIn('--to "$state_db"', service)
+        self.assertIn('NETNS_LINK=veth', service)
+        self.assertNotIn('DAE_FORCE_VETH', service)
+        self.assertNotIn('DAE_DISABLE_REDIRECT_PEER', service)
+
     def test_running_mainline_is_not_silently_replaced_with_vendor_kernel(self):
         source = (HERE.parent / 'rootfs/overlay/opt/mu300/bin/mu300-update').read_text()
         function = source[source.index('kernel_choice() {'):source.index('\nkernel_asset()')]
