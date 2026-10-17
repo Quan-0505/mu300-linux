@@ -23,7 +23,7 @@
 维护分支为 [`codex/f50-internal-kdae`](https://github.com/Quan-0505/mu300-linux/tree/codex/f50-internal-kdae)。基础源码来自作者 `clean-tf-7.2` 分支；这个名称不表示本固件采用 7.2，本包实际编译 **Linux 6.18.56**。
 
 > [!IMPORTANT]
-> 当前 Rust daed 固件候选正在进行 CI 构建验证。F50 尚未接回，未刷入本版本，也未验证该版本的蜂窝、Wi-Fi 或断电重启表现；构建通过后仍会以预发布版提供。
+> Rust daed 固件候选已完成 CI 构建并发布为[预发布版](https://github.com/Quan-0505/mu300-linux/releases/tag/f50-20261017-231546-4ca7a46)。F50 尚未接回，未刷入本版本，也未验证该版本的蜂窝、Wi-Fi 或断电重启表现；此版本仍待实机验证。
 
 <a id="features"></a>
 ## ✨ 功能介绍
@@ -46,7 +46,7 @@ Rust daed 首启时将原 Go `wing.db` 以非破坏性方式复制迁移到 `/et
 <a id="download"></a>
 ## 📦 固件下载
 
-从 **[Releases](https://github.com/Quan-0505/mu300-linux/releases)** 选择明确标注 F50 的版本。当前版本保持 **Pre-release**，不设为稳定版或自动更新的 latest。
+从 **[Releases](https://github.com/Quan-0505/mu300-linux/releases)** 选择明确标注 F50 的版本。当前候选为 [`f50-20261017-231546-4ca7a46`](https://github.com/Quan-0505/mu300-linux/releases/tag/f50-20261017-231546-4ca7a46)，保持 **Pre-release**，不设为稳定版或自动更新的 latest。
 
 | 文件 | 用途 |
 | --- | --- |
@@ -98,7 +98,7 @@ Rust daed 首启时将原 Go `wing.db` 以非破坏性方式复制迁移到 `/et
 <a id="build"></a>
 ## 🔧 自行编译
 
-Actions → **F50 internal OpenWrt with Rust daed**，选择 `codex/f50-internal-kdae` 分支运行。构建使用 Linux runner，保留大小写不同的内核模块文件，不在 Windows 文件系统直接解包模块树。
+Actions → **F50 internal OpenWrt with Rust daed**，选择 `codex/f50-internal-kdae` 分支运行。已发布候选由提交 `4ca7a466c77838cb08e5623fc4ab3a79dd8f7704` 构建；构建使用 Linux runner，保留大小写不同的内核模块文件，不在 Windows 文件系统直接解包模块树。
 
 ```sh
 git clone --branch codex/f50-internal-kdae https://github.com/Quan-0505/mu300-linux.git
