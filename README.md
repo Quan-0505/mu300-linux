@@ -23,7 +23,7 @@
 维护分支为 [`codex/f50-internal-kdae`](https://github.com/Quan-0505/mu300-linux/tree/codex/f50-internal-kdae)。基础源码来自作者 `clean-tf-7.2` 分支；这个名称不表示本固件采用 7.2，本包实际编译 **Linux 6.18.56**。
 
 > [!IMPORTANT]
-> 当前为 **待实机验证的预发布固件**。内核、模块、Rust daed、存储工具及打包检查已通过；F50 尚未接回，未刷入本版本，也未验证该版本的蜂窝、Wi-Fi 或断电重启表现。
+> 当前 Rust daed 固件候选正在进行 CI 构建验证。F50 尚未接回，未刷入本版本，也未验证该版本的蜂窝、Wi-Fi 或断电重启表现；构建通过后仍会以预发布版提供。
 
 <a id="features"></a>
 ## ✨ 功能介绍
