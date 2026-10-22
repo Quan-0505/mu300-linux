@@ -75,7 +75,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           repository: Quan-0505/rust-daed
-          ref: 225315d84d4ce2aa5914643d65bc47f086d5eca8
+          ref: dfee5ebc11e432dd09ac5d8ab6e87f64458f16c5
           path: rust-daed
           persist-credentials: false
       - name: Install Rust release dependencies
@@ -116,7 +116,7 @@ jobs:
           import subprocess
           from pathlib import Path
           actual=subprocess.check_output(['git','-C','rust-daed','rev-parse','HEAD'],text=True).strip()
-          assert actual == '225315d84d4ce2aa5914643d65bc47f086d5eca8', actual
+          assert actual == 'dfee5ebc11e432dd09ac5d8ab6e87f64458f16c5', actual
           assert "VERSION = '3.2.2'" in Path('f50/build.py').read_text()
           PY
           RUST_RELEASE_CACHE="$RUNNER_TEMP/rust-cache" bash rust-daed/scripts/build-release.sh "$RUNNER_TEMP/rust-daed-release"
