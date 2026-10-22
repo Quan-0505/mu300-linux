@@ -7,7 +7,7 @@
 [![Build](https://img.shields.io/github/actions/workflow/status/Quan-0505/mu300-linux/f50-kdae-release.yml?branch=codex%2Ff50-internal-kdae&label=Build&style=flat-square)](https://github.com/Quan-0505/mu300-linux/actions/workflows/f50-kdae-release.yml)
 [![OpenWrt](https://img.shields.io/badge/OpenWrt-25.12.5-00b5e2?style=flat-square)](https://openwrt.org/)
 [![Kernel](https://img.shields.io/badge/Linux-6.18.56-orange?style=flat-square)](upstream)
-[![Rust daed](https://img.shields.io/badge/Rust_daed-3.2.1_candidate-805ad5?style=flat-square)](https://github.com/Quan-0505/rust-daed)
+[![Rust daed](https://img.shields.io/badge/Rust_daed-3.2.2_candidate-805ad5?style=flat-square)](https://github.com/Quan-0505/rust-daed)
 [![Status](https://img.shields.io/badge/Status-待实机验证-yellow?style=flat-square)](https://github.com/Quan-0505/mu300-linux/releases)
 
 **面向 ZTE F50 / MU300（Unisoc UMS9620 / ARM64）的 OpenWrt 构建**

@@ -14,9 +14,9 @@ import time
 TOP = Path(__file__).resolve().parents[1]
 WORK = TOP / 'work/f50-addons'
 INPUTS = TOP / 'work/f50-inputs'
-VERSION = '3.2.1'
+VERSION = '3.2.2'
 RUST_DAED_REPOSITORY = 'https://github.com/Quan-0505/rust-daed.git'
-RUST_DAED_REVISION = '7b1d18772789be988c933dc5e18fdb5411a00857'
+RUST_DAED_REVISION = '225315d84d4ce2aa5914643d65bc47f086d5eca8'
 PUBLIC = {
     'kernel-5.4.tar.gz': (
         'https://github.com/dikeckaan/mu300-linux/releases/download/v2026.10.17.5/mu300-kernel.tar.gz',

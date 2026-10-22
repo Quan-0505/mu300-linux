@@ -1,6 +1,6 @@
 ## F50 OpenWrt · Rust daed 候选固件
 
-**OpenWrt 25.12.5 · Linux 6.18.56 + BTF · Rust daed 3.2.1 · 节点小宝 4.3.5-734**
+**OpenWrt 25.12.5 · Linux 6.18.56 + BTF · Rust daed 3.2.2 候选版 · 节点小宝 4.3.5-734**
 
 适用于 **ZTE F50 / MU300（UMS9620 / ARM64）已有内置 OpenWrt 安装的更新**。当前为待实机验证的预发布版，不设为稳定版或自动更新的 latest。
 

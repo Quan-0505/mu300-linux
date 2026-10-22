@@ -75,7 +75,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           repository: Quan-0505/rust-daed
-          ref: 7b1d18772789be988c933dc5e18fdb5411a00857
+          ref: 225315d84d4ce2aa5914643d65bc47f086d5eca8
           path: rust-daed
           persist-credentials: false
       - name: Install Rust release dependencies
@@ -116,8 +116,8 @@ jobs:
           import subprocess
           from pathlib import Path
           actual=subprocess.check_output(['git','-C','rust-daed','rev-parse','HEAD'],text=True).strip()
-          assert actual == '7b1d18772789be988c933dc5e18fdb5411a00857', actual
-          assert "VERSION = '3.2.1'" in Path('f50/build.py').read_text()
+          assert actual == '225315d84d4ce2aa5914643d65bc47f086d5eca8', actual
+          assert "VERSION = '3.2.2'" in Path('f50/build.py').read_text()
           PY
           RUST_RELEASE_CACHE="$RUNNER_TEMP/rust-cache" bash rust-daed/scripts/build-release.sh "$RUNNER_TEMP/rust-daed-release"
           python3 - <<'PY'
@@ -129,7 +129,7 @@ jobs:
               for name in ['usr/bin/daed','usr/share/daed/geoip.dat','usr/share/daed/geosite.dat','usr/share/daed/web/index.html']:
                   assert name in members and members[name].isfile(), name
               binary=pkg.extractfile(members['usr/bin/daed']).read()
-              assert binary[:5]==b'\x7fELF\x02' and int.from_bytes(binary[18:20],'little')==183 and b'version=v3.2.1' in binary
+              assert binary[:5]==b'\x7fELF\x02' and int.from_bytes(binary[18:20],'little')==183 and b'version=v3.2.2' in binary
               (work/'daed').write_bytes(binary)
               for name in ['geoip.dat','geosite.dat']:
                   (work/name).write_bytes(pkg.extractfile(members['usr/share/daed/'+name]).read())
@@ -142,7 +142,7 @@ jobs:
                       target=web.joinpath(*rel.parts); target.parent.mkdir(parents=True,exist_ok=True)
                       target.write_bytes(pkg.extractfile(member).read())
           assert (work/'web/index.html').is_file()
-          print('Rust daed 3.2.1 ARM64 package, web UI and geodata verified')
+          print('Rust daed 3.2.2 ARM64 package, web UI and geodata verified')
           PY
       - uses: actions/upload-artifact@v4
         with:
@@ -200,7 +200,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           tag="f50-$(date -u +%Y%m%d-%H%M%S)-${GITHUB_SHA:0:7}"
-          gh release create "$tag" release/f50/* --target "$GITHUB_SHA" --prerelease --title "F50 OpenWrt 25.12.5 · Rust daed 3.2.1 · 6.18.56（待实机验证）" --notes-file f50/README.zh-CN.md
+          gh release create "$tag" release/f50/* --target "$GITHUB_SHA" --prerelease --title "F50 OpenWrt 25.12.5 · Rust daed 3.2.2 · 6.18.56（待实机验证）" --notes-file f50/README.zh-CN.md
       - uses: actions/upload-artifact@v4
         with:
           name: f50-upgrade

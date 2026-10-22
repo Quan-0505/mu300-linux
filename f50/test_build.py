@@ -17,7 +17,7 @@ spec.loader.exec_module(build)
 class UpgradeContracts(unittest.TestCase):
     def test_rust_daed_candidate_and_state_migration_contract(self):
         service = (HERE / 'overlay/etc/init.d/daed').read_text()
-        self.assertEqual(build.VERSION, '3.2.1')
+        self.assertEqual(build.VERSION, '3.2.2')
         self.assertIn('v2026.10.17.5', build.PUBLIC['kernel-5.4.tar.gz'][0])
         self.assertIn('state migrate --from-wing-db', service)
         self.assertIn('--to "$state_db"', service)
