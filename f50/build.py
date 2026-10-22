@@ -16,7 +16,7 @@ WORK = TOP / 'work/f50-addons'
 INPUTS = TOP / 'work/f50-inputs'
 VERSION = '3.2.2'
 RUST_DAED_REPOSITORY = 'https://github.com/Quan-0505/rust-daed.git'
-RUST_DAED_REVISION = 'dfee5ebc11e432dd09ac5d8ab6e87f64458f16c5'
+RUST_DAED_REVISION = 'dfee5ebe876fe2e313c2eb49e98b6e8d85d7f7cb'
 PUBLIC = {
     'kernel-5.4.tar.gz': (
         'https://github.com/dikeckaan/mu300-linux/releases/download/v2026.10.17.5/mu300-kernel.tar.gz',
