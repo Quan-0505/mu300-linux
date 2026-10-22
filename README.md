@@ -105,7 +105,7 @@ git clone --branch codex/f50-internal-kdae https://github.com/Quan-0505/mu300-li
 cd mu300-linux
 ```
 
-工作流分别构建内核、固定提交的 Rust daed 和存储工具，再组装系统与更新包。公共内核/rootfs输入固定为上游 `mu300-linux v2026.10.17.5` 并按 SHA256 校验；候选版本 Release 默认是待实机验证的预发布版。
+工作流分别构建内核、固定提交的 Rust daed 和存储工具，再组装系统与更新包。公共内核/rootfs 输入固定为上游 `mu300-linux v2026.10.19.3` 并按官方 SHA256 清单校验；该上游版包含 5.4 与主线共用的 Wi-Fi PCIe RX 修复。候选版本 Release 默认是待实机验证的预发布版。
 
 源码、编译和打包检查见 [工作流](.github/workflows/f50-kdae-release.yml) 与 [构建脚本](f50/build.py)。完整来源、实际内核配置和校验和以对应 Release 为准。
 

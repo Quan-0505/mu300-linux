@@ -15,15 +15,16 @@ TOP = Path(__file__).resolve().parents[1]
 WORK = TOP / 'work/f50-addons'
 INPUTS = TOP / 'work/f50-inputs'
 VERSION = '3.2.2'
+UPSTREAM_RELEASE = 'v2026.10.19.3'
 RUST_DAED_REPOSITORY = 'https://github.com/Quan-0505/rust-daed.git'
 RUST_DAED_REVISION = 'dfee5ebe876fe2e313c2eb49e98b6e8d85d7f7cb'
 PUBLIC = {
     'kernel-5.4.tar.gz': (
-        'https://github.com/dikeckaan/mu300-linux/releases/download/v2026.10.17.5/mu300-kernel.tar.gz',
-        'dbfd241f2d8b45bd21ee6026f093034d1b36117f0bf5446fcd3eef638470f489'),
+        f'https://github.com/dikeckaan/mu300-linux/releases/download/{UPSTREAM_RELEASE}/mu300-kernel.tar.gz',
+        '7eef04d1223dc3d7489c8e23b3e282d436a554bdc62c5ad60534ace92b6a53f8'),
     'public-rootfs.tar.gz': (
-        'https://github.com/dikeckaan/mu300-linux/releases/download/v2026.10.17.5/mu300-openwrt-luci-rootfs.tar.gz',
-        'efcb643c327e4ffbfc6665f969b36d40e5d5be89a2b32cb5d062e4cda0cbbe92'),
+        f'https://github.com/dikeckaan/mu300-linux/releases/download/{UPSTREAM_RELEASE}/mu300-openwrt-luci-rootfs.tar.gz',
+        '576c290f8f1cea0d3c388f41ab37342d23f629cd79c5379f6cc91400b3448b1c'),
     'nodebaby.tgz': (
         'https://cdn.ionewu.com/upgrade/jdxb/owjdxb_openwrt_arm64_4.3.5-734.tgz',
         'c2c1853eac004ae3699a8f3beba3331afc42aca1878acd2c7945a5658deea702'),
@@ -262,7 +263,7 @@ def manifest(folder):
         'source': subprocess.check_output(['git', 'rev-parse', 'HEAD'], text=True).strip(),
         'kernel_source_tree': source_tree(),
         'raw_kernel_image_sha256': sha(TOP / 'upstream/out/Image'),
-        'upstream_release': 'dikeckaan/mu300-linux v2026.10.17.5',
+        'upstream_release': 'dikeckaan/mu300-linux ' + UPSTREAM_RELEASE,
         'upstream_release_commit': '19d071fea3ee649bcee240de3e2bd632578dccb5',
         'upstream_clean_tf_7_2_head': 'a8f36987378b5e6e3726bc5e2a5b0c84c4a739e2',
         'rust_daed_repository': RUST_DAED_REPOSITORY,

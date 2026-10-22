@@ -18,7 +18,8 @@ class UpgradeContracts(unittest.TestCase):
     def test_rust_daed_candidate_and_state_migration_contract(self):
         service = (HERE / 'overlay/etc/init.d/daed').read_text()
         self.assertEqual(build.VERSION, '3.2.2')
-        self.assertIn('v2026.10.17.5', build.PUBLIC['kernel-5.4.tar.gz'][0])
+        self.assertEqual(build.UPSTREAM_RELEASE, 'v2026.10.19.3')
+        self.assertEqual(build.PUBLIC['kernel-5.4.tar.gz'][1], '7eef04d1223dc3d7489c8e23b3e282d436a554bdc62c5ad60534ace92b6a53f8')
         self.assertIn('state migrate --from-wing-db', service)
         self.assertIn('--to "$state_db"', service)
         self.assertIn('NETNS_LINK=veth', service)
