@@ -273,6 +273,7 @@ monitor() {
         case $key in q|Q) break ;; esac
         [ -n "$MON_STOP" ] && break
         [ -n "${MON_UNTIL:-}" ] && [ "$(date +%s)" -ge "$MON_UNTIL" ] && break
+        stress_hot && break
     done
     stty "$old" 2>/dev/null; printf '\033[?25h\033[2J\033[H'; rm -f "$state"
     trap - INT TERM
@@ -329,13 +330,28 @@ stress_net() {
     ( while [ ! -e "$STRESS_DIR/stop" ]; do net_once >> "$STRESS_DIR/net.log"; sleep 2; done ) & echo $! >> "$STRESS_DIR/pids"
 }
 
-# every 2 s: time, hottest sensor, active cooling devices, cur freq per policy, max freq per policy
+# The test stops itself when the hottest sensor reaches STRESS_LIMIT, well before thermal-guard's power-off at 105 C:
+# a device whose cooling cannot hold the load (mainline's step_wise could not, FINDINGS 166) must not be switched off
+# by the test that is recommended to check it, and a hot power-off can cost the next boot its eMMC.
+STRESS_LIMIT=${MU300_STRESS_LIMIT:-95000}
+
+# every 2 s: time, hottest sensor, active cooling devices, cur freq per policy, max freq per policy; at STRESS_LIMIT
+# the reading goes to $STRESS_DIR/hot and the sampler ends (stress_run then stops the load)
 stress_sampler() {
     ( while [ ! -e "$STRESS_DIR/stop" ]; do
-          hot=$(cat /sys/class/thermal/thermal_zone*/temp 2>/dev/null | sort -n | tail -n1)
+          hot=$(cat "${MU300_SYSROOT:-}"/sys/class/thermal/thermal_zone*/temp 2>/dev/null | sort -n | tail -n1)
           echo "$(date +%s) $hot $(throttle_state | wc -w) $(cat "$CPUFREQ"/policy*/scaling_cur_freq | tr '\n' ' ')$(cat "$CPUFREQ"/policy*/scaling_max_freq | tr '\n' ' ')"
+          [ "${hot:-0}" -ge "$STRESS_LIMIT" ] 2>/dev/null && { echo "$hot" > "$STRESS_DIR/hot"; break; }
           sleep 2
       done > "$STRESS_DIR/samples" ) & echo $! >> "$STRESS_DIR/pids"
+}
+stress_hot() { [ -n "${STRESS_DIR:-}" ] && [ -e "$STRESS_DIR/hot" ]; }
+stress_hot_message() {  # why the test ended early, at the top of the summary
+    stress_hot || return 0
+    printf 'STOPPED EARLY after %s: the SoC reached %s C, the limit is %s C. The load was stopped so that the\n' \
+        "$(fmt_dur $(( $(date +%s) - STRESS_START )))" "$(( $(cat "$STRESS_DIR/hot") / 1000 ))" "$((STRESS_LIMIT / 1000))"
+    printf 'device does not power itself off (thermal-guard does at 105 C). Its cooling did not hold this load: let\n'
+    printf 'it cool down, check that nothing covers it, and report it with this summary.\n\n'
 }
 
 stress_status() {
@@ -409,14 +425,14 @@ stress_run() {  # stress_run WHAT(cpu,gpu,net|all) SECONDS
     if [ -t 0 ] && [ -t 1 ]; then
         monitor 2
     else
-        while [ -z "$MON_UNTIL" ] || [ "$(date +%s)" -lt "$MON_UNTIL" ]; do sleep 5; done
+        while { [ -z "$MON_UNTIL" ] || [ "$(date +%s)" -lt "$MON_UNTIL" ]; } && ! stress_hot; do sleep 1; done
     fi
     MON_UNTIL=
     touch "$STRESS_DIR/stop"
     for pid in $(cat "$STRESS_DIR/pids"); do kill_tree "$pid"; done
     wait 2>/dev/null
-    out=/var/log/mu300-stress-$(date +%Y%m%d-%H%M%S).txt
-    stress_summary | tee "$out"
+    out=${MU300_STRESS_LOGDIR:-/var/log}/mu300-stress-$(date +%Y%m%d-%H%M%S).txt
+    { stress_hot_message; stress_summary; } | tee "$out"
     printf '\nsaved to %s\n' "$out"
     rm -rf "$STRESS_DIR"; STRESS_DIR=
 }
@@ -467,6 +483,7 @@ info() {
     [ -n "$xs" ] && printf '%sExtras%s  %s\n' "$B" "$N" "$xs"
     printf '%sLoad%s     %s\n' "$B" "$N" "$(cut -d' ' -f1-3 /proc/loadavg)"
     awk -v b="$B" -v n="$N" '/^MemTotal/{t=$2} /^MemAvailable/{a=$2} END{printf "%sRAM%s      %d MB used of %d MB (%d MB available)\n", b, n, (t-a)/1024, t/1024, a/1024}' /proc/meminfo
+    printf '%sSwap%s     %s\n' "$B" "$N" "$(/opt/mu300/bin/mu300-zram brief 2>/dev/null || echo unknown)"
     printf '%sStorage%s  %s\n' "$B" "$N" "$(df -h / | awk 'NR==2 {print $3 " used of " $2 " (" $5 ")"}')"
     hot=$(cat /sys/class/thermal/thermal_zone*/temp 2>/dev/null | sort -n | tail -n1)
     printf '%sTemp%s     hottest %s C, profile %s\n' "$B" "$N" "$((hot / 1000))" "$(current_profile)"
@@ -496,13 +513,14 @@ menu_performance() {
         printf '  %s1%s  eco          cores capped at ~60 %% of max, GPU at lowest step (cooler, less power)\n' "$C" "$N"
         printf '  %s2%s  balanced     schedutil across the full hardware range (stock behaviour)\n' "$C" "$N"
         printf '  %s3%s  performance  all cores and GPU pinned at their hardware maximum\n' "$C" "$N"
-        printf '\n  %sThis SoC cannot be overclocked beyond its frequency table: the voltage steps are fixed by the\n' "$D"
-        printf '  firmware. "performance" is the fastest safe setting; the kernel still throttles at 85 C and the\n'
-        printf '  passively cooled case reaches that within minutes under full load.%s\n' "$N"
+        printf '  %s4%s  %sCPU voltage offset (EXPERIMENTAL - can permanently damage the device)%s\n' "$C" "$N" "$R" "$N"
+        printf '\n  %sThis SoC cannot be overclocked beyond its frequency table. "performance" is the fastest safe\n' "$D"
+        printf '  setting; the kernel still throttles at 85 C and the passively cooled case reaches that within\n'
+        printf '  minutes under full load.%s\n' "$N"
         printf '\n  %s0%s  Back\n\n  > ' "$C" "$N"
         read -r c || return
         case $c in
-            1) p=eco ;; 2) p=balanced ;; 3) p=performance ;; *) return ;;
+            1) p=eco ;; 2) p=balanced ;; 3) p=performance ;; 4) menu_voltage; continue ;; *) return ;;
         esac
         profile_apply "$p" && conf_set CPU_PROFILE "$p"
     done
@@ -788,6 +806,27 @@ menu_ttl() {
     done
 }
 
+# Data roaming (mobile-data roaming, docs/FINDINGS.md 120): allowed by default; off keeps mobile data down while the
+# SIM is registered on a roaming network
+menu_roaming() {
+    while :; do
+        title "Data roaming"
+        timeout 20 /opt/mu300/bin/mobile-data roaming 2>&1 | sed 's/^/  /'
+        printf '\n  %sWith data roaming off, mobile data stays down while the SIM is registered on a roaming network;\n' "$D"
+        printf '  SMS and calls keep working. Some SIMs report roaming at home (an MVNO, national roaming): those\n'
+        printf '  need it on. A change applies within half a minute.%s\n\n' "$N"
+        printf '  %s1%s  Allow data roaming (default)\n' "$C" "$N"
+        printf '  %s2%s  Data roaming off\n' "$C" "$N"
+        printf '\n  %s0%s  Back\n\n  > ' "$C" "$N"
+        read -r CHOICE || CHOICE=0
+        case $CHOICE in
+            1) /opt/mu300/bin/mobile-data roaming on >/dev/null || pause ;;
+            2) /opt/mu300/bin/mobile-data roaming off >/dev/null || pause ;;
+            *) return ;;
+        esac
+    done
+}
+
 menu_network() {
     while :; do
         # the VPN item only with the module (vpn_shown); without it TTL moves up to 8
@@ -795,7 +834,7 @@ menu_network() {
         menu "Network" "Live traffic (monitor)" "Interfaces and addresses" "Mobile data: status" \
             "Mobile signal (live, for finding a better spot)" "Mobile data: reconnect" "Mobile data: disconnect" \
             "Wi-Fi (hotspot, or join a network)" ${vpn_item:+"$vpn_item"} \
-            "TTL of mobile data (hide hotspot use)"
+            "TTL of mobile data (hide hotspot use)" "Mobile data: data roaming"
         case $CHOICE in
             1) monitor ;;
             2) title "Interfaces"; { ip -br addr 2>/dev/null || ip addr; } | grep -vE '^(dummy|tunl|gre|erspan|ip_vti|ip6_vti|sit|ip6tnl|ip6gre|sipa_eth[1-9])' | sed 's/^/  /'
@@ -807,7 +846,8 @@ menu_network() {
             6) if is_openwrt; then ifdown wan; else svc stop mu300-mobile-data; fi; pause ;;
             7) menu_wifi ;;
             8) if [ -n "$vpn_item" ]; then menu_vpn; else menu_ttl; fi ;;
-            9) if [ -n "$vpn_item" ]; then menu_ttl; else return 0; fi ;;
+            9) if [ -n "$vpn_item" ]; then menu_ttl; else menu_roaming; fi ;;
+            10) if [ -n "$vpn_item" ]; then menu_roaming; else return 0; fi ;;
             *) return ;;
         esac
     done
@@ -861,10 +901,53 @@ menu_update() {
     done
 }
 
+# The CPU voltage offset (EXPERIMENTAL): mu300-cpu voltage does the work and the checks; this asks, shows the warning
+# in three languages and wants the confirmation word typed. Nothing changes before the next reboot.
+menu_voltage() {
+    while :; do
+        title "CPU voltage offset (EXPERIMENTAL)"
+        printf '%s' "$R$B"; /opt/mu300/bin/mu300-cpu voltage warning | sed 's/^/  /'; printf '%s\n' "$N"
+        /opt/mu300/bin/mu300-cpu voltage status | sed 's/^/  /'
+        printf '\n  %s1%s  Set offsets for the next boot (uV, domains 0,1,2: CPUs 0-3, 4-6, 7)\n' "$C" "$N"
+        printf '  %s2%s  Back to the stock voltages (from the next boot)\n' "$C" "$N"
+        printf '  %s3%s  CPU stress test (10 minutes) - run it during the trial boot of a new offset\n' "$C" "$N"
+        printf '\n  %s0%s  Back\n\n  > ' "$C" "$N"
+        read -r c || return
+        case $c in
+            1) printf '  Offsets in uV, e.g. -6250,-3125,0 (steps of 3125, -25000..12500): '; read -r v
+               [ -n "$v" ] || continue
+               printf '\n  %sThis can PERMANENTLY DAMAGE the device. Type EXPERIMENTAL to go ahead:%s ' "$R$B" "$N"; read -r w
+               /opt/mu300/bin/mu300-cpu voltage set "$v" --confirm "$w"
+               pause ;;
+            2) /opt/mu300/bin/mu300-cpu voltage off; pause ;;
+            3) /opt/mu300/bin/mu300-cpu voltage stress 10; pause ;;
+            *) return ;;
+        esac
+    done
+}
+
+# Compressed swap in RAM (mu300-zram, /etc/mu300/zram.conf): on by default
+menu_zram() {
+    while :; do
+        title "Compressed swap (zram)"
+        /opt/mu300/bin/mu300-zram status 2>&1 | sed 's/^/  /'
+        printf '\n  %s1%s  On (now and at every boot)\n' "$C" "$N"
+        printf '  %s2%s  Off (now and at every boot)\n' "$C" "$N"
+        printf '\n  %sSize, compressor and swappiness: /etc/mu300/zram.conf (see /opt/mu300/lib/zram.conf.example).%s\n' "$D" "$N"
+        printf '\n  %s0%s  Back\n\n  > ' "$C" "$N"
+        read -r c || return
+        case $c in
+            1) /opt/mu300/bin/mu300-zram on >/dev/null || pause ;;
+            2) /opt/mu300/bin/mu300-zram off >/dev/null || pause ;;
+            *) return ;;
+        esac
+    done
+}
+
 menu_system() {
     while :; do
         menu "System" "Summary" "Software update" "Change password (${SUDO_USER:-$(id -un)})" "Hostname" "Timezone" \
-            "Recent warnings and errors" "Storage usage" "Next boot: Android" "Reboot" "Power off"
+            "Recent warnings and errors" "Storage usage" "Compressed swap (zram)" "Next boot: Android" "Reboot" "Power off"
         case $CHOICE in
             1) title "Summary"; info; pause ;;
             2) menu_update ;;
@@ -889,10 +972,11 @@ menu_system() {
                else logread | grep -iE 'warn|err|fail' | tail -n 40 | cut -c1-200; fi
                pause ;;
             7) title "Storage"; df -h 2>/dev/null | grep -vE '^(tmpfs|devtmpfs|none|overlay|cgroup)' | sed 's/^/  /'; pause ;;
-            8) printf '  The next boot starts stock Android (Linux stays installed). Continue? [y/N] '; read -r a
+            8) menu_zram ;;
+            9) printf '  The next boot starts stock Android (Linux stays installed). Continue? [y/N] '; read -r a
                case $a in y|Y) /opt/mu300/bin/mu300-next-boot android; pause ;; esac ;;
-            9) printf '  Reboot now? [y/N] '; read -r a; case $a in y|Y) reboot ;; esac ;;
-            10) printf '  Power off now? (needs a replug to start again) [y/N] '; read -r a; case $a in y|Y) poweroff ;; esac ;;
+            10) printf '  Reboot now? [y/N] '; read -r a; case $a in y|Y) reboot ;; esac ;;
+            11) printf '  Power off now? (needs a replug to start again) [y/N] '; read -r a; case $a in y|Y) poweroff ;; esac ;;
             *) return ;;
         esac
     done

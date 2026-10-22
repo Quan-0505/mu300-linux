@@ -463,9 +463,7 @@ static int cmdevt_send_cmd(struct sprd_priv *priv, struct sprd_msg *msg)
 		le32_to_cpu(hdr->mstime),
 		hdr->common.mode, cmdevt_cmd2str(hdr->cmd_id));
 
-	if (sprd_get_debug_level() >= L_DBG)
-		print_hex_dump_debug("CMD: ", DUMP_PREFIX_OFFSET, 16, 1,
-				     (u8 *)hdr, hdr->plen, 0);
+	/* Keep command identifiers above, never dump credential-bearing payloads. */
 
 	ret = sprd_chip_tx(&priv->chip, msg);
 	if (ret)
@@ -680,13 +678,22 @@ int sc2355_send_cmd_recv_rsp(struct sprd_priv *priv, struct sprd_msg *msg, u8 *r
 		return -EIO;
 	}
 
+	/*
+	 * MU300: a command that is not sent is not a success. The lock refused (the driver going away) and the two
+	 * blocked windows below returned 0 with nothing sent and, for the blocked ones, *rlen as the caller set it: the
+	 * caller then read its own uninitialised reply buffer as the firmware's answer (sc2355_get_station: a station's
+	 * signal and rates from the kernel stack, to any user's nl80211 request), and every setting "succeeded" that the
+	 * firmware never saw. After kanoqwq's clean-tf-7.2 0e19fe32; FINDINGS 106.
+	 */
 	ret = sc2355_api_version_available_check(priv, msg);
-	if (ret || cmdevt_lock_cmd(cmd, hif)) {
+	if (!ret && cmdevt_lock_cmd(cmd, hif))
+		ret = -EIO;
+	if (ret) {
 		sprd_chip_free_msg(&priv->chip, msg);
 		kfree(msg->tran_data);
 		if (rlen)
 			*rlen = 0;
-		if (ret)
+		if (ret != -EIO)
 			pr_err("API check fail, return!!\n");
 		goto out;
 	}
@@ -701,6 +708,9 @@ int sc2355_send_cmd_recv_rsp(struct sprd_priv *priv, struct sprd_msg *msg, u8 *r
 			sprd_chip_free_msg(&priv->chip, msg);
 			kfree(msg->tran_data);
 			cmdevt_unlock_cmd(cmd, hif);
+			if (rlen)
+				*rlen = 0;
+			ret = -EBUSY;
 			goto out;
 		}
 	}
@@ -712,6 +722,9 @@ int sc2355_send_cmd_recv_rsp(struct sprd_priv *priv, struct sprd_msg *msg, u8 *r
 			sprd_chip_free_msg(&priv->chip, msg);
 			kfree(msg->tran_data);
 			cmdevt_unlock_cmd(cmd, hif);
+			if (rlen)
+				*rlen = 0;
+			ret = -EBUSY;
 			goto out;
 		}
 	}
@@ -1931,7 +1944,8 @@ int sc2355_get_station(struct sprd_priv *priv, struct sprd_vif *vif,
 		       struct sprd_sta_info *sta)
 {
 	struct sprd_msg *msg;
-	struct cmd_get_station get_sta;
+	/* zeroed: a reply shorter than the structure (or none) must not hand on the stack's bytes */
+	struct cmd_get_station get_sta = {};
 	u8 *r_buf = (u8 *)&get_sta;
 	u16 r_len = sizeof(get_sta);
 	int ret;
@@ -2646,6 +2660,14 @@ int sprd_xmit_data2cmd_wq(struct sk_buff *skb, struct net_device *ndev)
 			return -EPERM;
 		}
 	}
+	/*
+	 * MU300 (kanoqwq's clean-tf-7.2 149c9d2a): the descriptor is where the fill put it - behind the 5-byte address
+	 * prefix on PCIe - and is found before SDIO's flag goes in front. The vendor read it at skb->data, i.e. the
+	 * prefix on PCIe, so "sta_lut_index" was the descriptor's offset byte (11) and group frames never got the BK
+	 * TID that this is for.
+	 */
+	dscr = (struct tx_msdu_dscr *)(skb->data +
+		(hif->hw_type == SPRD_HW_SC2355_PCIE ? MSDU_DSCR_RSVD : 0));
 	/*alloc five byte for fw 16 byte need
 	 *dscr:11+flag:5 =16
 	 */
@@ -2653,13 +2675,11 @@ int sprd_xmit_data2cmd_wq(struct sk_buff *skb, struct net_device *ndev)
 		skb_push(skb,FLAG_SIZE);
 		memcpy(skb->data,temp_flag,FLAG_SIZE);
 	}
-	    /*send group in BK to avoid FW hang*/
-	    dscr = (struct tx_msdu_dscr *)skb->data;
+	/*send group in BK to avoid FW hang*/
 	if ((vif->mode == SPRD_MODE_AP ||
 	     vif->mode == SPRD_MODE_P2P_GO) && dscr->sta_lut_index < 6) {
 		dscr->buffer_info.msdu_tid = prio_1;
-		pr_info("%s, %d, SOFTAP/GO group go as BK\n", __func__,
-			__LINE__);
+		pr_debug_ratelimited("%s, %d, SOFTAP/GO group go as BK\n", __func__, __LINE__);
 	}
 
 	/*create work queue*/
@@ -3349,9 +3369,24 @@ static void cmdevt_report_remain_on_channel_evt(struct sprd_vif *vif, u8 *data,
 static void cmdevt_report_new_station_evt(struct sprd_vif *vif, u8 *data, u16 len)
 {
 	struct evt_new_station *sta = (struct evt_new_station *)data;
+	u16 ie_len;
 
-	sprd_report_softap(vif, sta->is_connect, sta->mac, sta->ie,
-			   sta->ie_len);
+	/* MU300 (from PR #237, oswaldxdd): the event's own length bounds what is read. A station that left needs
+	 * only the flag and the address (its ie_len is not used); a new one hands cfg80211 at most the bytes the
+	 * event carries, never what ie_len claims beyond them.
+	 */
+	if (len < sizeof(sta->is_connect) + sizeof(sta->mac))
+		return;
+	if (!sta->is_connect) {
+		sprd_report_softap(vif, 0, sta->mac, NULL, 0);
+		return;
+	}
+	if (len < sizeof(*sta))
+		return;
+	ie_len = le16_to_cpu(sta->ie_len);
+	if (ie_len > len - sizeof(*sta))
+		return;
+	sprd_report_softap(vif, sta->is_connect, sta->mac, sta->ie, ie_len);
 }
 
 /* @flag: 1 for data, 0 for event */
@@ -3948,8 +3983,10 @@ unsigned short sc2355_rx_evt_process(struct sprd_priv *priv, u8 *msg)
 		return plen;
 	}
 
-	print_hex_dump_debug("EVENT: ", DUMP_PREFIX_OFFSET, 16, 1,
-			     (u8 *)hdr, hdr->plen, 0);
+	/* NEW_STATION can contain the firmware SAE PMK/PMKID. */
+	if (hdr->cmd_id != EVT_NEW_STATION)
+		print_hex_dump_debug("EVENT: ", DUMP_PREFIX_OFFSET, 16, 1,
+				     (u8 *)hdr, hdr->plen, 0);
 
 	len = plen - sizeof(*hdr);
 	vif = sc2355_ctxid_to_vif(priv, ctx_id);
@@ -4103,8 +4140,7 @@ unsigned short sc2355_rx_rsp_process(struct sprd_priv *priv, u8 *msg)
 	hdr = (struct sprd_cmd_hdr *)msg;
 	plen = SPRD_GET_LE16(hdr->plen);
 
-	print_hex_dump_debug("CMD RSP: ", DUMP_PREFIX_OFFSET, 16, 1,
-			     (u8 *)hdr, hdr->plen, 0);
+	/* Command replies may echo credential-bearing payloads. */
 
 	/* 2048 use mac */
 	/*TODO here ctx_id range*/

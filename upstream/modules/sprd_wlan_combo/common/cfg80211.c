@@ -648,7 +648,7 @@ int sprd_cfg80211_change_beacon(struct wiphy *wiphy, struct net_device *ndev,
 {
 	struct sprd_vif *vif = netdev_priv(ndev);
 
-	netdev_info(ndev, "%s\n", __func__);
+	netdev_dbg(ndev, "%s\n", __func__);
 
 	return cfg80211_set_beacon_ies(vif, &info->beacon);
 }
@@ -720,6 +720,24 @@ int sprd_cfg80211_change_station(struct wiphy *wiphy, struct net_device *ndev,
 	return 0;
 }
 
+/*
+ * MU300: whether MAC is a station of this access point: an entry of this interface in the firmware's peer table
+ * (as dump_station below lists them), not the interface's own address.
+ */
+static bool sprd_ap_has_peer(struct sprd_vif *vif, const u8 *mac)
+{
+	struct sprd_hif *hif = &vif->priv->hif;
+	int i;
+
+	if (!is_valid_ether_addr(mac) || ether_addr_equal(mac, vif->ndev->dev_addr))
+		return false;
+	for (i = 0; i < MAX_LUT_NUM; i++)
+		if (READ_ONCE(hif->peer_entry[i].ctx_id) == vif->ctx_id &&
+		    ether_addr_equal(hif->peer_entry[i].tx.da, mac))
+			return true;
+	return false;
+}
+
 int sprd_cfg80211_get_station(struct wiphy *wiphy, struct net_device *ndev,
 			      const u8 *mac, struct station_info *sinfo)
 {
@@ -728,6 +746,19 @@ int sprd_cfg80211_get_station(struct wiphy *wiphy, struct net_device *ndev,
 	struct sprd_rate_info *tx_rate;
 	struct sprd_rate_info *rx_rate;
 	int ret;
+
+	/*
+	 * MU300: what follows is the station side's: the interface's own counters and the firmware's GET_STATION,
+	 * which reports the link to the access point this interface is connected to. On an access point it would hand
+	 * those out as any client's (and for any address asked). The firmware has no per-client figures: a station
+	 * of ours is answered with nothing filled in, as dump_station does, an unknown address with -ENOENT.
+	 */
+	if (vif->wdev.iftype == NL80211_IFTYPE_AP || vif->wdev.iftype == NL80211_IFTYPE_P2P_GO) {
+		if (!sprd_ap_has_peer(vif, mac))
+			return -ENOENT;
+		sinfo->filled = 0;
+		return 0;
+	}
 
 	sinfo->filled |= BIT(NL80211_STA_INFO_TX_BYTES) |
 	    BIT(NL80211_STA_INFO_TX_PACKETS) |
@@ -988,7 +1019,6 @@ int sprd_cfg80211_connect(struct wiphy *wiphy, struct net_device *ndev,
 			if (ret)
 				goto err;
 		} else {
-			netdev_info(ndev, "PSK %s\n", sme->key);
 			con.psk_len = sme->key_len;
 			memcpy(con.psk, sme->key, sme->key_len);
 		}
@@ -1174,6 +1204,26 @@ int sprd_cfg80211_mgmt_tx(struct wiphy *wiphy, struct wireless_dev *wdev,
 	bool dont_wait_for_ack = params->dont_wait_for_ack;
 	static u64 mgmt_index;
 	int ret = 0;
+
+	/* MU300 (from PR #237, oswaldxdd): nl80211 lets an access point send a management frame on its own channel
+	 * without naming a frequency, and the vendor code dereferenced params->chan regardless (an oops at
+	 * mgmt_tx+0x60). Without a channel: the access point's own, never an off-channel one.
+	 */
+	if (!chan) {
+		if (params->offchan ||
+		    (wdev->iftype != NL80211_IFTYPE_AP && wdev->iftype != NL80211_IFTYPE_P2P_GO))
+			return -EINVAL;
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(5, 15, 0))
+		/* one non-MLO link on this chip */
+		if (wdev->valid_links || params->link_id > 0)
+			return -EINVAL;
+		chan = wdev->links[0].ap.chandef.chan;
+#else
+		chan = wdev->chandef.chan;
+#endif
+		if (!chan)
+			return -ENODATA;
+	}
 
 	*cookie = ++mgmt_index;
 	netdev_info(wdev->netdev, "%s cookie %lld\n", __func__, *cookie);
@@ -1579,7 +1629,7 @@ static int sprd_cfg80211_dump_station(struct wiphy *wiphy, struct net_device *nd
 	struct sprd_hif *hif = &vif->priv->hif;
 	int i, n = 0;
 
-	if (vif->wdev.iftype != NL80211_IFTYPE_AP && vif->wdev.iftype != NL80211_IFTYPE_P2P_GO)
+	if (idx < 0 || (vif->wdev.iftype != NL80211_IFTYPE_AP && vif->wdev.iftype != NL80211_IFTYPE_P2P_GO))
 		return -ENOENT;
 	for (i = 0; i < MAX_LUT_NUM; i++) {
 		const u8 *da = hif->peer_entry[i].tx.da;
@@ -1596,15 +1646,18 @@ static int sprd_cfg80211_dump_station(struct wiphy *wiphy, struct net_device *nd
 	return -ENOENT;
 }
 
-/* MU300: the access point's channel, which cfg80211 keeps from start_ap (iwinfo showed "Channel: 0") */
+/*
+ * MU300: the access point's channel, which cfg80211 keeps from start_ap (iwinfo showed "Channel: 0"). The driver
+ * has no MLO: link 0 only (links[] has IEEE80211_MLD_MAX_NUM_LINKS entries; another link_id is not ours to index).
+ */
 #if (LINUX_VERSION_CODE >= KERNEL_VERSION(5, 15, 0))
 static int sprd_cfg80211_get_channel(struct wiphy *wiphy, struct wireless_dev *wdev, unsigned int link_id,
 				     struct cfg80211_chan_def *chandef)
 {
-	if ((wdev->iftype != NL80211_IFTYPE_AP && wdev->iftype != NL80211_IFTYPE_P2P_GO) ||
-	    !wdev->links[link_id].ap.chandef.chan)
+	if (link_id || (wdev->iftype != NL80211_IFTYPE_AP && wdev->iftype != NL80211_IFTYPE_P2P_GO) ||
+	    !wdev->links[0].ap.chandef.chan)
 		return -ENODATA;
-	*chandef = wdev->links[link_id].ap.chandef;
+	*chandef = wdev->links[0].ap.chandef;
 	return 0;
 }
 #else

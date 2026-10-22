@@ -38,6 +38,7 @@ proto_config_add_boolean() { rec proto_config_add_boolean "$@"; }
 proto_config_add_array() { rec proto_config_add_array "$@"; }
 proto_notify_error() { rec proto_notify_error "$@"; }
 proto_block_restart() { rec proto_block_restart "$@"; }
+proto_set_available() { rec proto_set_available "$@"; }
 proto_setup_failed() { rec proto_setup_failed "$@"; }
 proto_add_dynamic_defaults() { rec proto_add_dynamic_defaults; }
 json_get_vars() { apn=$T_APN; pdptype=$T_PDPTYPE; peerdns=$T_PEERDNS; ipv6=$T_IPV6; apn_internal=${T_APN_INTERNAL:-}; pdptype_internal=${T_PDPTYPE_INTERNAL:-}
@@ -232,6 +233,39 @@ exit 0''')
             self.assertIn('proto_notify_error wan NO_MODEM', calls)
             self.assertIn('proto_block_restart wan', calls)
             self.assertNotIn('sleep 20', calls)
+
+    def test_held_for_roaming_is_retried_a_minute_later_without_a_log_line(self):
+        """FINDINGS 120: exit 4 is data held back for roaming. DATA_ROAMING, netifd tries again after a minute (the
+        way data comes back at home), no restart block, no address, and no log line of its own (mobile-data said it
+        once)."""
+        for shell in self.each_shell():
+            calls = self.run_proto(shell, 'proto_mu300cell_setup', out='', rc=4, err='', ok=1)
+            self.assertIn('proto_notify_error wan DATA_ROAMING', calls)
+            self.assertNotIn('proto_block_restart wan', calls)
+            self.assertIn('sleep 60', calls)
+            self.assertLess(calls.index('sleep 60'), calls.index('proto_setup_failed wan'))
+            self.assertFalse([c for c in calls if c.startswith(('proto_send_update', 'logger', 'proto_init_update'))], calls)
+
+    def test_an_empty_slot_is_not_redialled(self):
+        """FINDINGS 186: exit 6 is no card in the slot in use: SIM_MISSING, no retry every 20 s (unavailable; the card's event brings
+        the WAN up when one answers)."""
+        for shell in self.each_shell():
+            calls = self.run_proto(shell, 'proto_mu300cell_setup', out='', rc=6, err='', ok=1)
+            self.assertIn('proto_notify_error wan SIM_MISSING', calls)
+            self.assertIn('proto_set_available wan 0', calls)
+            self.assertNotIn('proto_block_restart wan', calls)
+            self.assertNotIn('sleep 20', calls)
+
+    def test_a_sim_radio_switched_off_is_not_retried(self):
+        """FINDINGS 185: exit 7 is the SIM's radio switched off in its settings: SIM_RADIO_DISABLED, no retry (the
+        interface is unavailable until mu300-sim-radio switches it on and brings the WAN up), no address."""
+        for shell in self.each_shell():
+            calls = self.run_proto(shell, 'proto_mu300cell_setup', out='', rc=7, err='', ok=1)
+            self.assertIn('proto_notify_error wan SIM_RADIO_DISABLED', calls)
+            self.assertIn('proto_set_available wan 0', calls)
+            self.assertNotIn('proto_block_restart wan', calls)
+            self.assertNotIn('sleep 20', calls)
+            self.assertFalse([c for c in calls if c.startswith(('proto_send_update', 'proto_init_update'))], calls)
 
     def test_ipv6_bearer_still_adds_extendprefix_interface(self):
         """Without ipv6 'relay' (plain OpenWrt, or the option unset or 'extend'): today's RFC 7278 design, no monitor."""
@@ -1058,3 +1092,149 @@ esac
 
 if __name__ == '__main__':
     unittest.main()
+
+
+class RelayMonitorBearer(ShellTest):
+    """FINDINGS 91: the relay monitor's bearer half - which card's channels and URC log it uses, what it believes of
+    +CGCONTRDP, and how an address change is applied (after kanoqwq's clean-tf-7.2 3cbf37fc). The monitor is
+    sourced with MU300CELL_V6_LIB=1 (functions only); mu300-sim, mu300-at, ip and logger are stubs."""
+
+    def setUp(self):
+        super().setUp()
+        harness = self.tmp / 'netifd.sh'
+        harness.write_text('rec() { printf \'%s\\n\' "$*" >> "$STUBLOG/calls"; }\n'
+                           + ''.join(f'{f}() {{ rec {f} "$@"; }}\n' for f in (
+                               'proto_init_update', 'proto_add_ipv4_address', 'proto_add_ipv4_route',
+                               'proto_add_ipv6_address', 'proto_add_ipv6_route', 'proto_add_dns_server',
+                               'proto_send_update')))
+        text = MONITOR.read_text()
+        text = text.replace('. /lib/functions.sh\n', '').replace('. /lib/netifd/netifd-proto.sh', f'. "{harness}"')
+        text = text.replace('/opt/mu300/bin/mu300-sim', str(self.stubs / 'mu300-sim'))
+        self.copy = self.tmp / 'mu300cell-v6.sh'
+        self.copy.write_text(text)
+        self.stub('mu300-sim', '[ "$1" = active ] && echo "${SLOT:-0}"')
+        self.stub('logger', 'shift 2; echo "log $*" >> "$STUBLOG/calls"')
+        # mu300-at: records the channel and the command, answers $RDP (printf %b)
+        self.stub('mu300-at', 'echo "at ${MU300_AT_DIR##*/} $3" >> "$STUBLOG/calls"\n'
+                  '[ "${RDP:-}" != none ] || exit 1\nprintf "%b\\n" "$RDP"')
+        # ip: logs every change; "addr show" lists $HAVE; a change matching $IPFAIL fails
+        self.stub('ip', 'case "$*" in *"addr show"*) [ -z "$HAVE" ] || echo "2: sipa_eth0    inet $HAVE scope global";'
+                  ' exit 0 ;; esac\necho "ip $*" >> "$STUBLOG/calls"\n'
+                  'case "$*" in ${IPFAIL:-nothing-fails}) exit 2 ;; esac')
+        self.chan = self.tmp / 'at6'
+        self.chan.mkdir()
+        os.mkfifo(self.chan / 'cmd')
+
+    def run_lib(self, shell, code, **env):
+        (self.tmp / 'calls').write_text('')
+        env.setdefault('MU300_CELL_AT_DIRS', str(self.chan))
+        env.setdefault('MU300_RADIO_FREEZE', str(self.tmp / 'no-freeze'))
+        r = self.sh(shell, f'set -- wan sipa_eth0 10.0.0.2 24 1.1.1.1 8.8.8.8 1\nMU300CELL_V6_LIB=1\n. "{self.copy}"\n'
+                    + code, **env)
+        return r, (self.tmp / 'calls').read_text().splitlines()
+
+    def test_the_active_cards_channels_and_urc_log(self):
+        freeze = self.tmp / 'freeze'
+        cases = [('0', False, '/run/mu300-at6 /run/mu300-at7 /run/mu300-at', '/run/mu300-at/urc/stty_nr0.log'),
+                 ('0', True, '/run/mu300-at6 /run/mu300-at7 /run/mu300-at', '/run/mu300-at/urc/stty_nr0.log'),
+                 ('1', False, '/run/mu300-at', '/run/mu300-at/urc/stty_nr3.log'),
+                 # the dual-SIM boot's SIM2: its own owner, never SIM1's nr1 (the defect)
+                 ('1', True, '/run/mu300-at4', '/run/mu300-at4/urc/stty_nr3.log')]
+        for shell in self.each_shell():
+            for slot, native, dirs, urc in cases:
+                freeze.unlink(missing_ok=True)
+                if native:
+                    freeze.touch()
+                r, _ = self.run_lib(shell, 'echo "$AT_DIRS|$urclog"', SLOT=slot, MU300_CELL_AT_DIRS='',
+                                    MU300_RADIO_FREEZE=str(freeze))
+                self.assertEqual(r.stdout.strip(), f'{dirs}|{urc}', (slot, native, r.stderr))
+            # a slot mu300-sim cannot name: no monitor at all
+            r, _ = self.run_lib(shell, 'echo reached', SLOT='2')
+            self.assertNotIn('reached', r.stdout)
+
+    def test_mask2prefix_takes_only_contiguous_masks(self):
+        good = {'255.255.255.0': '24', '255.255.255.255': '32', '255.255.254.0': '23', '0.0.0.0': '0',
+                '255.128.0.0': '9'}
+        bad = ['255.0.255.0', '255.255.255.1', '255.255.255', '255.255.255.0.0', '255.255.256.0', 'x.0.0.0', '']
+        for shell in self.each_shell():
+            for mask, want in good.items():
+                r, _ = self.run_lib(shell, f'mask2prefix "{mask}"')
+                self.assertEqual((r.returncode, r.stdout.strip()), (0, want), mask)
+            for mask in bad:
+                r, _ = self.run_lib(shell, f'mask2prefix "{mask}"')
+                self.assertNotEqual(r.returncode, 0, mask)
+
+    def test_valid_ipv4(self):
+        good = ['10.1.2.3', '255.255.255.255', '1.0.0.0', '100.64.0.1']
+        bad = ['0.0.0.0', '10.1.2', '10.1.2.3.4', '256.1.1.1', '01.2.3.4', '1..2.3', '-1.2.3.4', '1.2.3.4;id', '',
+               '1.2.3.4 ', '$(id).1.1.1', '1.2.3.']
+        for shell in self.each_shell():
+            for a in good:
+                self.assertEqual(self.run_lib(shell, f'valid_ipv4 "{a}"')[0].returncode, 0, a)
+            for a in bad:
+                self.assertNotEqual(self.run_lib(shell, f"valid_ipv4 '{a}'")[0].returncode, 0, a)
+
+    RDP = '+CGCONTRDP: 1,5,"apn","{addr}","","{dns1}","{dns2}"\\r\\nOK'
+
+    def test_read_bearer_believes_only_a_well_formed_answer(self):
+        show = 'read_bearer && echo "got $BEARER_IP4/$BEARER_PREFIX4 [$BEARER_DNS1] [$BEARER_DNS2]"'
+        cases = [(('10.9.8.7.255.255.255.0', '1.1.1.1', '8.8.8.8'), 'got 10.9.8.7/24 [1.1.1.1] [8.8.8.8]'),
+                 (('10.9.8.7.255.255.255.0', '1.1.1.1', '0.0.0.0'), 'got 10.9.8.7/24 [1.1.1.1] []'),
+                 (('10.9.8.7.255.255.255.0', '999.1.1.1', '8.8.8.8'), 'got 10.9.8.7/24 [] [8.8.8.8]'),
+                 (('10.9.8.7.255.0.255.0', '1.1.1.1', '8.8.8.8'), ''),       # not a mask
+                 (('10.9.8.777.255.255.255.0', '1.1.1.1', '8.8.8.8'), ''),   # not an address
+                 (('0.0.0.0.0.0.0.0', '0.0.0.0', '0.0.0.0'), '')]            # no bearer
+        for shell in self.each_shell():
+            for (addr, d1, d2), want in cases:
+                r, calls = self.run_lib(shell, show, RDP=self.RDP.format(addr=addr, dns1=d1, dns2=d2))
+                self.assertEqual(r.stdout.strip(), want, (addr, d1, d2, r.stderr))
+                self.assertIn(f'at at6 AT+CGCONTRDP=1', calls)
+            r, _ = self.run_lib(shell, show, RDP='none')
+            self.assertEqual(r.stdout.strip(), '')
+
+    def test_a_new_address_is_added_before_the_old_one_goes(self):
+        rdp = self.RDP.format(addr='10.9.8.7.255.255.255.0', dns1='1.1.1.1', dns2='8.8.8.8')
+        for shell in self.each_shell():
+            r, calls = self.run_lib(shell, 'refresh_bearer cgev; echo "now $ip4/$prefix4"', RDP=rdp, HAVE='10.0.0.2/24')
+            self.assertIn('now 10.9.8.7/24', r.stdout, r.stderr)
+            ip = [c for c in calls if c.startswith('ip ')]
+            self.assertEqual(ip[:3], ['ip -4 addr add 10.9.8.7/24 dev sipa_eth0',
+                                      'ip -4 route replace default dev sipa_eth0',
+                                      'ip -4 addr del 10.0.0.2/24 dev sipa_eth0'], calls)
+            self.assertIn('proto_add_ipv4_address 10.9.8.7 24', calls)
+            self.assertIn('proto_send_update wan', calls)
+
+    def test_a_failed_install_keeps_the_previous_state_for_the_next_try(self):
+        rdp = self.RDP.format(addr='10.9.8.7.255.255.255.0', dns1='1.1.1.1', dns2='8.8.8.8')
+        for shell in self.each_shell():
+            code = ('rc=0; refresh_bearer cgev || rc=$?; echo "first rc=$rc $ip4/$prefix4 $dns1"\n'
+                    'IPFAIL=nothing-fails; refresh_bearer renew; echo "second $ip4/$prefix4"')
+            r, calls = self.run_lib(shell, code, RDP=rdp, HAVE='10.0.0.2/24', IPFAIL='*route*')
+            self.assertIn('first rc=1 10.0.0.2/24 1.1.1.1', r.stdout, r.stderr)
+            self.assertIn('second 10.9.8.7/24', r.stdout, r.stderr)
+            # nothing was reported while it failed, and the old address was not taken away before the new one held
+            first = calls[:calls.index('log renew: bearer updated to 10.9.8.7/24')] if \
+                'log renew: bearer updated to 10.9.8.7/24' in calls else calls
+            fail_part = first[:next(i for i, c in enumerate(first) if 'keeping the previous state' in c)]
+            self.assertFalse([c for c in fail_part if c.startswith('proto_') or 'addr del' in c], calls)
+
+    def test_an_unchanged_bearer_whose_address_the_kernel_lost_is_put_back(self):
+        rdp = self.RDP.format(addr='10.0.0.2.255.255.255.0', dns1='1.1.1.1', dns2='8.8.8.8')
+        for shell in self.each_shell():
+            r, calls = self.run_lib(shell, 'refresh_bearer cgev', RDP=rdp, HAVE='10.0.0.2/24')
+            self.assertIn('log cgev: bearer unchanged', calls)
+            self.assertFalse([c for c in calls if c.startswith('ip ')], calls)
+            r, calls = self.run_lib(shell, 'refresh_bearer cgev', RDP=rdp, HAVE='')
+            self.assertIn('ip -4 addr add 10.0.0.2/24 dev sipa_eth0', calls)
+            self.assertFalse([c for c in calls if 'addr del' in c], calls)   # never deletes what it just put back
+            self.assertIn('proto_send_update wan', calls)
+
+    def test_the_urc_hints_and_their_coalescing(self):
+        text = MONITOR.read_text()
+        for hint in ('*+CGEV:*PDN*', '*+CGEV:*ACT*', '*+CGEV:*DETACH*', '*+CGEV:*MODIFY*', '*+SPPCODATA:*'):
+            self.assertIn(hint, text)
+        # one queued read per burst, flagged by a directory (no file written through a planted symlink)
+        self.assertIn('mkdir -m 700 "$pending" 2>/dev/null && printf \'pdp\\n\'', text)
+        self.assertIn('rmdir "$pending"', text)
+        # a hint in the cool-down waits instead of being dropped
+        self.assertNotIn('-lt 2 ] && continue', text)

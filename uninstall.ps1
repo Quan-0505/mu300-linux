@@ -5,22 +5,56 @@
 .DESCRIPTION
     Run with the device booted in rooted Android and connected over USB (adb). It makes the slot Android runs from
     the boot slot in misc, copies Android's boot image over the Linux slot's (boot_a over boot_b; boot_b over boot_a
-    when Android runs from slot b), erases the Linux filesystem in the unpartitioned eMMC region and, when you say
+    when Android runs from slot b), erases the Linux filesystem in the unpartitioned eMMC region (or inside the GPT
+    partition named mu300root another installer made: its contents, never the partition) and, when you say
     so, the one on the SD card (ext4 labelled mu300sd; a card with any other filesystem is never touched), and
     removes the installer leftovers. Android's boot partition, the GPT, userdata and every other partition stay
     untouched.
     Needs: adb and Python 3.
+
+      .\uninstall.ps1 -AnswersFile f.txt   ask nothing: every question is answered by its variable, from that file
+                               (NAME=value lines) or the environment (-NonInteractive); a question without an answer
+                               is an error that names the variable. $env:MU300_PROGRESS = '1' adds the progress
+                               stream (tools\answers.ps1, docs\INSTALLER-AUTOMATION.md). The variables:
+        ANDROID_SERIAL=<serial>            the adb device, with more than one attached (or MU300_ANS_DEVICE=<number>)
+        MU300_ANS_REBOOT_ANDROID=yes|no    the device runs Linux: reboot it into Android over SSH
+        MU300_ANS_WIPE=secure|quick|keep   the Linux filesystem on the eMMC
+        MU300_ANS_SD_WIPE=erase|keep       the Linux filesystem on the SD card
+        MU300_ANS_CONFIRM=UNINSTALL        the summary's question; @stdin waits for it on standard input
 #>
 [CmdletBinding()]
-param()
+param(
+    [string]$AnswersFile = '',  # file of NAME=value lines: every question answered by its variable
+    [switch]$NonInteractive     # the same, with the variables from the environment
+)
 
 $ErrorActionPreference = 'Stop'
 $T = '/data/local/tmp'
-# the USB network of each kind of device: F50 192.168.77.1, U30 Air 192.168.78.1; $MU300_IP is set to the one
-# that answers
+# the answers mode and the progress stream (tools\answers.ps1: Progress, Info, Step, AnswerNamed). This script is
+# English only: T only fills in the {1} of the messages that file shares with install.ps1.
+$Top = if ($PSScriptRoot) { $PSScriptRoot } else { Split-Path -Parent $MyInvocation.MyCommand.Path }
+function T($key) {
+    $s = [string]$key
+    for ($i = 0; $i -lt $args.Count; $i++) { $s = $s.Replace("{$($i + 1)}", [string]$args[$i]) }
+    $s
+}
+. (Join-Path (Join-Path $Top 'tools') 'answers.ps1')
+AnswersSetup $AnswersFile ([bool]$NonInteractive)
+# An error nobody caught still ends the progress stream with an event - whoever reads it must not wait for more - and
+# the script with status 1, saying where it was. (A trap that only passes the error on leaves the status of the last
+# program that ran, which is 0 more often than not.)
+trap {
+    $where = "$_ ($(Split-Path -Leaf $_.InvocationInfo.ScriptName) line $($_.InvocationInfo.ScriptLineNumber))"
+    Progress 'error' 'message' $where
+    Write-Host "`nERROR: $where" -ForegroundColor Red
+    exit 1
+}
+Progress 'hello' 'script' 'uninstall.ps1' 'version' '1' 'mode' 'uninstall'
+# the USB network of each kind of device: F50 192.168.77.1, U30 Air 192.168.78.1, V50 192.168.79.1; $MU300_IP is set
+# to the one that answers
 $MU300_IP = '192.168.77.1'
 function LinuxRunning {
-    foreach ($ip in @('192.168.77.1', '192.168.78.1')) {
+    foreach ($ip in @('192.168.77.1', '192.168.78.1', '192.168.79.1')) {
         if (Test-NetConnection -ComputerName $ip -Port 22 -InformationLevel Quiet -WarningAction SilentlyContinue) { $script:MU300_IP = $ip; return $true }
     }
     return $false
@@ -41,8 +75,8 @@ function FindAdb {
     }
 }
 
-function Say($m) { Write-Host "`n==> $m" -ForegroundColor Cyan }
-function Die($m) { Write-Host "`nERROR: $m" -ForegroundColor Red; exit 1 }
+function Say($m) { ProgressSay $m; Write-Host "`n==> $m" -ForegroundColor Cyan }
+function Die($m) { Progress 'error' 'message' $m; Write-Host "`nERROR: $m" -ForegroundColor Red; exit 1 }
 # Windows PowerShell 5.1 turns every stderr line of a native command into an ErrorRecord once stderr is
 # redirected, and with ErrorActionPreference Stop that aborts the script (adb's "daemon not running",
 # "no devices", push progress). Run such commands with Continue and drop their stderr.
@@ -69,7 +103,7 @@ function SelectDevice([switch]$Quiet) {
     if ($env:ANDROID_SERIAL) { return }
     $all = @(AndroidLines (Quiet { adb devices -l }))
     if ($all.Count -eq 0) { return }
-    $f50 = @($all | Where-Object { $_ -match 'model:F50|product:MU300|device:MU300|device:U30Air' })
+    $f50 = @($all | Where-Object { $_ -match 'model:F50|product:MU300|device:MU300|device:U30Air|device:MU3351' })
     # the only adb device, and an F50/U30 Air: nothing to ask
     if ($all.Count -eq 1 -and $f50.Count -eq 1) { $env:ANDROID_SERIAL = ($all[0] -split '\s+')[0]; return }
     # -Quiet (waiting for the device to come back): only the one F50/U30 Air. Otherwise always ask: a phone or
@@ -86,7 +120,7 @@ function SelectDevice([switch]$Quiet) {
         if ($f50.Count -eq 1 -and $all[$i] -eq $f50[0]) { $def = $i + 1 }
     }
     $n = 0
-    if (-not [int]::TryParse((Ask 'Device' "$def"), [ref]$n) -or $n -lt 1 -or $n -gt $all.Count) { Die 'invalid choice' }
+    if (-not [int]::TryParse((Ask 'Device' "$def" 'MU300_ANS_DEVICE'), [ref]$n) -or $n -lt 1 -or $n -gt $all.Count) { Die 'invalid choice' }
     $env:ANDROID_SERIAL = ($all[$n - 1] -split '\s+')[0]
 }
 # [string]: with no device adb prints nothing, and `-notmatch` on that empty result is falsy, not true
@@ -97,9 +131,13 @@ function AdbState {
     if (-not $env:ANDROID_SERIAL -and @(AndroidLines (Quiet { adb devices -l })).Count -eq 0) { return '' }
     [string](Quiet { adb get-state })
 }
-function Ask($question, $default) {
-    $a = Read-Host "$question [$default]"
-    if ([string]::IsNullOrWhiteSpace($a)) { return $default } else { return $a.Trim() }
+# Ask QUESTION DEFAULT [VARIABLE]: VARIABLE answers the question in answers mode (tools\answers.ps1)
+function Ask($question, $default, $Id) {
+    $a = if ($script:MuAnswersMode) { AnswerNamed $question $default $Id } else { Read-Host "$question [$default]" }
+    $r = if ([string]::IsNullOrWhiteSpace($a)) { $default } else { $a.Trim() }
+    if (AnswerSecret ([string]$Id)) { Progress 'question' 'id' $Id 'text' $question 'default' $default 'secret' '1' }
+    else { Progress 'question' 'id' $Id 'text' $question 'default' $default 'answer' $r }
+    return $r
 }
 function SuDo($cmd) { (Quiet { adb shell "su -c '$cmd'" }) -join "`n" -replace "`r", '' }
 # see install.ps1: `su -c` may run on a pty that rewrites LF as CRLF, so binaries are written on the device
@@ -114,8 +152,11 @@ $script:PyExe = $null
 function Python { param([Parameter(ValueFromRemainingArguments = $true)][string[]]$PyArgs)
     if (-not $script:PyExe) {
         foreach ($n in 'python', 'python3', 'py') {
-            $c = Get-Command $n -ErrorAction SilentlyContinue
-            if ($c) { $script:PyExe = $c.Source; break }
+            # -CommandType Application: command lookup ignores case and functions win, so a bare `Get-Command python`
+            # finds this very function, whose .Source is empty - and the uninstaller stopped with "Python 3 not
+            # found" on every Windows machine (install.ps1 had the same, issue #3)
+            $c = @(Get-Command $n -CommandType Application -ErrorAction SilentlyContinue)[0]
+            if ($c) { $script:PyExe = $(if ($c.Source) { $c.Source } else { $c.Path }); break }
         }
         if (-not $script:PyExe) { Die 'Python 3 not found' }
     }
@@ -153,14 +194,17 @@ function SdEraseCommand([string]$Dev) {
 }
 function Hex32 { (SuDo 'dd if=/dev/block/by-name/misc bs=1 skip=2048 count=32 2>/dev/null | od -An -tx1') -replace '\s', '' }
 
+Step 'preflight' 5
 Say 'Checking host tools and device'
 FindAdb
 if (-not (Get-Command adb -ErrorAction SilentlyContinue)) { Die 'adb not found' }
 # the device in Linux, and only a phone or tablet in Android: that is not the one to touch - reboot the device first
 # (ANDROID_SERIAL naming the device in Linux: that is the one to send back to Android, not one to work on)
-if ($env:ANDROID_SERIAL -like 'MU300LINUX*') { Remove-Item Env:ANDROID_SERIAL }
+# (kept in $LinuxWanted: with two boards in Linux it is the one that is rebooted, never the other)
+$LinuxWanted = ''
+if ($env:ANDROID_SERIAL -like 'MU300LINUX*') { $LinuxWanted = $env:ANDROID_SERIAL; Remove-Item Env:ANDROID_SERIAL }
 $devs = @(Quiet { adb devices -l })
-$target = @(AndroidLines $devs | Where-Object { $_ -match 'model:F50|product:MU300|device:MU300|device:U30Air' })
+$target = @(AndroidLines $devs | Where-Object { $_ -match 'model:F50|product:MU300|device:MU300|device:U30Air|device:MU3351' })
 $linuxAdb = @(LinuxAdbSerials $devs)
 $linuxFirst = (-not $env:ANDROID_SERIAL) -and $target.Count -eq 0 -and ($linuxAdb.Count -gt 0 -or (LinuxRunning))
 if (-not $linuxFirst) { SelectDevice }
@@ -169,14 +213,15 @@ if ($linuxFirst -or (AdbState) -notmatch 'device') {
     if (-not $linux) { Die 'no adb device (boot Android, enable USB debugging)' }
     Say 'The device is running MU300 Linux, not Android'
     Write-Host '  Uninstalling happens from Android, so the device has to reboot first.'
-    if ((Ask 'Reboot the device into Android now? (yes/no)' 'yes') -ne 'yes') { Die 'boot Android yourself (in Linux: sudo mu300-next-boot android && sudo reboot)' }
+    if ((Ask 'Reboot the device into Android now? (yes/no)' 'yes' 'MU300_ANS_REBOOT_ANDROID') -ne 'yes') { Die 'boot Android yourself (in Linux: sudo mu300-next-boot android && sudo reboot)' }
     # Over adb where the Linux lets this computer in (every computer, by default): a root shell, no password to
     # type, and it works where the USB network does not. The marker file first: only our Linux is told to reboot.
     $gone = $false; $sshTried = $false
     $open = @(LinuxAdbSerials (Quiet { adb devices -l }) -Open)
+    if ($LinuxWanted) { $open = @($open | Where-Object { $_ -eq $LinuxWanted }) }
+    $s = $(if ($open.Count -eq 1) { $open[0] } else { $LinuxWanted })
     if ($open.Count -eq 1) {
-        $s = $open[0]
-        if (([string](Quiet { adb -s $s shell 'test -x /opt/mu300/bin/mu300-next-boot && echo mu300' })).Trim() -eq 'mu300') {
+        if (("" + (Quiet { adb -s $s shell 'test -x /opt/mu300/bin/mu300-next-boot && echo mu300' })).Trim() -eq 'mu300') {
             Write-Host ('  ' + "asking it over adb ($s)")
             Quiet { adb -s $s shell '/opt/mu300/bin/mu300-next-boot android && sync && reboot' } | Out-Null
             for ($i = 0; $i -lt 8; $i++) {
@@ -185,6 +230,13 @@ if ($linuxFirst -or (AdbState) -notmatch 'device') {
             }
             if ($gone) { Write-Host ('  ' + 'rebooting') }
         }
+    }
+    # Only where the address can be no other device: with two boards in Linux on adb (or the one named not on adb
+    # while another one in Linux is), 192.168.77.1 or .78.1 may well be the other one (measured: the F50 named by
+    # ANDROID_SERIAL next to a U30 Air in Linux at .78.1).
+    $inLinux = @(LinuxAdbSerials (Quiet { adb devices -l }))
+    if (-not $gone -and ($inLinux.Count -gt 1 -or ($LinuxWanted -and $inLinux.Count -gt 0 -and $inLinux -notcontains $LinuxWanted))) {
+        Die 'more than one device runs MU300 Linux and adb could not reboot this one: boot Android yourself (on the device: sudo mu300-next-boot android && sudo reboot), or give its address with MU300_IP'
     }
     # -t: sudo needs a terminal to ask for the device password; reboot cuts the connection, so watch the port
     foreach ($u in 'ubuntu', 'root') {
@@ -205,11 +257,18 @@ if ($linuxFirst -or (AdbState) -notmatch 'device') {
         Die 'boot Android yourself (in Linux: sudo mu300-next-boot android && sudo reboot)'
     }
     Write-Host '  waiting for Android'
+    # Which device comes back: the serial number of our Linux is MU300LINUX-<Android's serial>-<eMMC id> (boot/init).
+    # Never "whatever single device adb lists": while the F50 rebooted, a Pixel next to it was the only one, and the
+    # check went on with the Pixel (measured with install.sh).
+    $lmBack = (($s -replace '^MU300LINUX-?', '') -split '-')[0]
+    $lmUp = $false
     for ($i = 0; $i -lt 60; $i++) {
-        if ((AdbState) -match 'device') { break }
+        if ($lmBack -and @(AndroidLines (Quiet { adb devices -l }) | Where-Object { ($_ -split '\s+')[0] -eq $lmBack }).Count -gt 0) { $env:ANDROID_SERIAL = $lmBack }
+        $lmState = AdbState
+        if ($env:ANDROID_SERIAL -and $lmState -match 'device') { $lmUp = $true; break }
         Start-Sleep 5
     }
-    if ((AdbState) -notmatch 'device') { Die 'the device did not come back as Android' }
+    if (-not $lmUp) { Die 'the device did not come back as Android' }
 }
 # whatever its serial number says: a root shell of our Linux must never be taken for a rooted Android
 if (("" + (Quiet { adb shell 'ls -d /opt/mu300/bin 2>/dev/null' })).Trim()) {
@@ -218,7 +277,8 @@ if (("" + (Quiet { adb shell 'ls -d /opt/mu300/bin 2>/dev/null' })).Trim()) {
 if ((SuDo 'id -u') -ne '0') { Die 'su does not work on the device' }
 $model = "$(SuDo 'getprop ro.product.model') / $(SuDo 'getprop ro.product.device')"
 Write-Host "device: $model"
-if ($model -notmatch 'MU300|F50|mu300|U30Air|U30_Air') { Die 'this does not look like a ZTE F50/MU300 or U30 Air' }
+# (the ZTE V50, experimental: FINDINGS 95, as install.ps1 takes it)
+if ($model -notmatch 'MU300|F50|mu300|U30Air|U30_Air' -and $model -cne 'V50 / MU3351') { Die 'this does not look like a ZTE F50/MU300, U30 Air or V50' }
 # Linux is on the slot Android is not on (install.ps1): b next to an Android on a, a next to an Android on b
 switch ((SuDo 'getprop ro.boot.slot_suffix').Trim()) {
     '_a' { $ANDROID_SLOT = 'a'; $LINUX_SLOT = 'b' }
@@ -227,31 +287,62 @@ switch ((SuDo 'getprop ro.boot.slot_suffix').Trim()) {
 }
 if ((SuDo 'readlink -f /dev/block/by-name/boot_a') -eq (SuDo 'readlink -f /dev/block/by-name/boot_b')) { Die 'boot_a and boot_b are the same partition' }
 Write-Host "Android runs from slot $ANDROID_SLOT; Linux is on slot $LINUX_SLOT (boot_$LINUX_SLOT)"
+Info 'device.model' $model; Info 'slot.android' $ANDROID_SLOT; Info 'slot.linux' $LINUX_SLOT
 
+Step 'find' 15
 Say 'Looking for the Linux installation'
-$parts = (SuDo 'e=0; for p in /sys/block/mmcblk0/mmcblk0p*; do x=$(( $(cat $p/start) + $(cat $p/size) )); [ $x -gt $e ] && e=$x; done; echo $e $(cat /sys/block/mmcblk0/size)').Split(' ')
-if ($parts.Count -ne 2) { Die 'could not read the partition table from the device (is su granted? try again)' }
-[int64]$lastEnd = $parts[0]; [int64]$disk = $parts[1]
+# where the installers look and boot/init boots (tools/storage.sh's region_probe and region_find_existing, the same
+# command as install.ps1's): the free region behind the last partition, a GPT partition named mu300root that another
+# installer made (kanoqwq's desktop installer, FINDINGS 179), the old fixed offset
+# (no double quotes in a device command: Windows PowerShell 5.1 drops them on the way to adb)
+$parts = @((SuDo 'e=0; for p in /sys/block/mmcblk0/mmcblk0p*; do x=$(( $(cat $p/start) + $(cat $p/size) )); [ $x -gt $e ] && e=$x; grep -qx PARTNAME=mu300root $p/uevent 2>/dev/null && echo part:$(cat $p/start):$(cat $p/size); done; [ -f /data/mu300linux/openwrt.ext4 ] && echo image; echo $e $(cat /sys/block/mmcblk0/size)').Trim() -split '\s+')
+$nums = @($parts | Where-Object { $_ -match '^[0-9]+$' })
+$partList = @($parts | Where-Object { $_ -match '^part:[0-9]+:[0-9]+$' })
+$image = @($parts | Where-Object { $_ -eq 'image' }).Count
+if ($nums.Count -ne 2 -or ($nums.Count + $partList.Count + $image) -ne $parts.Count) { Die 'could not read the partition table from the device (is su granted? try again)' }
+if ($partList.Count -gt 1) { Die "the eMMC has $($partList.Count) partitions named mu300root, and which one holds Linux cannot be told; nothing was changed" }
+[int64]$lastEnd = $nums[0]; [int64]$disk = $nums[1]
 [int64]$OFF = 0; [int64]$SIZE = 0
 [int64]$start = [math]::Floor($lastEnd / 4096 + 1) * 4096 * 512
+$IN_PART = 0; [int64]$PART_OFF = -1; [int64]$PART_SIZE = 0; $PART_FS = 'none'
+if ($partList.Count -eq 1) {
+    $pp = $partList[0].Split(':')
+    $PART_OFF = [int64]$pp[1] * 512; $PART_SIZE = [int64]$pp[2] * 512
+}
 # a candidate past the end of the eMMC (a table that reaches the disk's end, issues #52/#65) is never read: that dd
 # never returns on the device
 function RegionOnDisk([int64]$bytes) { [math]::Floor(($bytes + 2048) / 512) -le $disk }
-foreach ($cand in @($start, 27762098176)) {
+# the free space behind the last partition and before the backup GPT, or wholly inside the partition named mu300root
+function RegionInBounds([int64]$o, [int64]$z) {
+    (([math]::Floor($o / 512) -ge $lastEnd) -and ([math]::Floor(($o + $z) / 512) -le ($disk - 34))) -or
+        (($PART_OFF -ge 0) -and ($o -ge $PART_OFF) -and (($o + $z) -le ($PART_OFF + $PART_SIZE)))
+}
+$cands = @($start); if ($PART_OFF -ge 0) { $cands += $PART_OFF }; $cands += [int64]27762098176
+foreach ($cand in $cands) {
     if (-not (RegionOnDisk $cand)) { continue }
+    if ($cand -eq 27762098176 -and $PART_OFF -ge 0 -and $cand -ge $PART_OFF -and $cand -lt ($PART_OFF + $PART_SIZE)) { continue }
     $m = (SuDo "dd if=/dev/block/mmcblk0 bs=1 skip=$($cand + 1080) count=2 2>/dev/null | od -An -tx1") -replace '\s', ''
+    # two bytes on the disk always read as four hex digits: anything else is no answer, never "no installation"
+    if ($m -notmatch '^[0-9a-f]{4}$') { Die 'no answer from the device while looking for the Linux filesystem; nothing was changed' }
     $l = (SuDo "dd if=/dev/block/mmcblk0 bs=1 skip=$($cand + 1144) count=16 2>/dev/null") -replace '\0', ''
+    if ($cand -eq $PART_OFF -and $m -eq '53ef') { $PART_FS = $(if ($l.Trim() -eq 'mu300root') { 'mu300root' } else { 'ext4' }) }
     if ($m -eq '53ef' -and $l.Trim() -eq 'mu300root') {
         $blocks = [int64]((SuDo "dd if=/dev/block/mmcblk0 bs=1 skip=$($cand + 1028) count=4 2>/dev/null | od -An -tu4").Trim())
-        $OFF = $cand; $SIZE = $blocks * 4096; break
+        $OFF = $cand; $SIZE = $blocks * 4096
+        # a filesystem in the partition is never larger than the partition
+        if ($cand -eq $PART_OFF) { $IN_PART = 1; if ($SIZE -gt $PART_SIZE) { $SIZE = $PART_SIZE } }
+        break
     }
 }
 if ($OFF -gt 0) {
-    if (($OFF / 512) -lt $lastEnd -or (($OFF + $SIZE) / 512) -gt ($disk - 34)) { Die 'the mu300root filesystem overlaps a partition, refusing to touch it' }
+    if (-not (RegionInBounds $OFF $SIZE)) { Die 'the mu300root filesystem overlaps a partition, refusing to touch it' }
     if ($OFF % 1MB -ne 0) { Die "unexpected filesystem offset $OFF" }
-    Write-Host "Linux filesystem: offset $OFF, $([int64]($SIZE / 1MB)) MiB"
+    if ([math]::Floor($SIZE / 1MB) -le 0) { Die 'the mu300root filesystem has no size, refusing to touch it' }
+    Write-Host "Linux filesystem: offset $OFF, $([math]::Floor($SIZE / 1MB)) MiB"
+    if ($IN_PART -eq 1) { Write-Host '  in the GPT partition named mu300root that another installer made: an erase empties the partition, the partition itself stays (remove it with the installer that made it)' }
 } else {
     Write-Host 'no mu300root filesystem found (already erased?)'
+    if ($PART_FS -eq 'ext4') { Write-Host '  the GPT partition named mu300root holds another Linux filesystem (not labelled mu300root): not this project''s, left as it is' }
 }
 # The SD card (tools/storage.sh's sd_probe): "<block device> <512-byte sectors> <type>" of the first mmc disk that
 # is not the eMMC - its first partition when it has one, the whole card otherwise; the type keeps a second eMMC or
@@ -264,15 +355,20 @@ if ($sd.Count -eq 3 -and $sd[2] -eq 'SD' -and $sd[1] -match '^[0-9]+$' -and [int
 }
 if ($SD_HAS -eq 'yes') { Write-Host ('Linux filesystem on the SD card: {0}, {1:N1} GiB' -f $SD_DEV, ($SD_BYTES / 1GB)) }
 $BC = Hex32
+Info 'region.existing' $(if ($OFF -gt 0) { 'yes' } else { 'no' }); Info 'region.offset' $OFF; Info 'region.size' $SIZE
+Info 'region.partition' $IN_PART
+Info 'sd.device' $SD_DEV; Info 'sd.bytes' $SD_BYTES; Info 'sd.state' $SD_HAS
 
+Step 'choices' 25
 Say 'What should be removed?'
 $wipe = 'keep'
 if ($OFF -gt 0) {
-    Write-Host "  secure  overwrite the whole $([int64]($SIZE / 1GB)) GiB region and verify (recommended, takes a few"
+    Write-Host "  secure  overwrite the whole $([math]::Floor($SIZE / 1MB)) MiB region and verify (recommended, takes a few"
     Write-Host '          minutes; your files are really gone afterwards)'
-    Write-Host '  quick   only erase the filesystem headers (fast, but the files stay readable on the flash)'
+    Write-Host '  quick   only erase the filesystem headers (fast, but the files stay readable on the flash; an'
+    Write-Host '          installation into this space later finds it not empty and asks for the word overwrite)'
     Write-Host '  keep    leave the Linux filesystem in place (it just never boots again)'
-    $wipe = Ask 'Erase the Linux filesystem: secure / quick / keep' 'secure'
+    $wipe = Ask 'Erase the Linux filesystem: secure / quick / keep' 'secure' 'MU300_ANS_WIPE'
     if ($wipe -eq 'full') { $wipe = 'secure' }
     if ($wipe -notin @('secure', 'quick', 'keep')) { Die 'invalid choice' }
 }
@@ -282,22 +378,28 @@ if ($SD_HAS -eq 'yes') {
     Write-Host '  erase   remove the filesystem from the card (its first 64 MiB are overwritten: fast, but the files'
     Write-Host '          stay readable on the card until the space is reused)'
     Write-Host "  keep    leave the card as it is (it does not boot once boot_$LINUX_SLOT is restored)"
-    $sdwipe = Ask 'Linux filesystem on the SD card: erase / keep' 'erase'
+    $sdwipe = Ask 'Linux filesystem on the SD card: erase / keep' 'erase' 'MU300_ANS_SD_WIPE'
     if ($sdwipe -notin @('erase', 'keep')) { Die 'invalid choice' }
 }
+Progress 'step' 'id' 'confirm' 'percent' '30' 'title' 'What will be done'
 Write-Host ''
 Write-Host "  misc:     boot slot $ANDROID_SLOT (Android), Linux boot disabled"
 Write-Host "  boot_$($LINUX_SLOT):   replaced with a copy of boot_$ANDROID_SLOT (stock Android boot image)"
 if ($OFF -eq 0) { Write-Host '  Linux:    no installation on the eMMC' }
-else { Write-Host "  Linux:    $(if ($wipe -eq 'keep') { 'kept on the eMMC (not bootable)' } else { "$wipe erase of $([int64]($SIZE / 1MB)) MiB at offset $OFF" })" }
+else {
+    Write-Host "  Linux:    $(if ($wipe -eq 'keep') { 'kept on the eMMC (not bootable)' } else { "$wipe erase of $([math]::Floor($SIZE / 1MB)) MiB at offset $OFF" })"
+    if ($IN_PART -eq 1) { Write-Host '            (inside the GPT partition named mu300root: the partition stays, only its contents are erased)' }
+}
 if ($sdwipe -eq 'erase') { Write-Host "  SD card:  mu300sd filesystem erased ($SD_DEV, first 64 MiB)" }
 elseif ($SD_HAS -eq 'yes') { Write-Host "  SD card:  kept ($SD_DEV, not bootable)" }
 else { Write-Host '  SD card:  no installation' }
-Write-Host "  untouched: boot_$ANDROID_SLOT, GPT, userdata and all other partitions"
-if ((Ask 'Type UNINSTALL to continue' 'no') -ne 'UNINSTALL') { Die 'cancelled' }
+Write-Host "  untouched: boot_$ANDROID_SLOT, GPT, userdata and all other partitions$(if ($IN_PART -eq 1) { ' (the partition named mu300root too: it stays)' })"
+# the word itself, in capitals (-cne: PowerShell's -ne does not tell uninstall from UNINSTALL)
+if ((Ask 'Type UNINSTALL to continue' 'no' 'MU300_ANS_CONFIRM') -cne 'UNINSTALL') { Die 'cancelled' }
 
 # Android still runs from the slot it ran from at the start: its partition is never the one written below
 if ((SuDo 'getprop ro.boot.slot_suffix').Trim() -ne "_$ANDROID_SLOT") { Die "Android no longer runs from slot $ANDROID_SLOT; nothing was changed" }
+Step 'misc' 40
 Say "Making slot $ANDROID_SLOT the boot slot"
 $miscTmp = [IO.Path]::GetTempFileName()
 SuDoToFile 'dd if=/dev/block/by-name/misc bs=4096 count=1 2>/dev/null' $miscTmp
@@ -332,6 +434,7 @@ if ($BC -ne $NEW) {
     Write-Host "already on slot $ANDROID_SLOT"
 }
 
+Step 'boot' 55
 Say "Restoring boot_$LINUX_SLOT from boot_$ANDROID_SLOT"
 $A = (SuDo "sha256sum /dev/block/by-name/boot_$ANDROID_SLOT").Split(' ')[0]
 SuDo "dd if=/dev/block/by-name/boot_$ANDROID_SLOT of=/dev/block/by-name/boot_$LINUX_SLOT bs=4M 2>/dev/null && sync" | Out-Null
@@ -339,14 +442,20 @@ if ((SuDo "sha256sum /dev/block/by-name/boot_$LINUX_SLOT").Split(' ')[0] -ne $A)
 Write-Host "boot_$LINUX_SLOT = boot_$ANDROID_SLOT"
 
 if ($wipe -ne 'keep') {
+    Step 'erase' 65
     Say "Erasing the Linux filesystem ($wipe)"
     $busy = SuDo "for o in /sys/block/loop*/loop/offset; do [ x`$(cat `$o 2>/dev/null) = x$OFF ] && echo `${o%/loop/offset}; done"
     if ($busy) { Die "the Linux region is still attached ($busy); reboot Android and run again" }
-    [int64]$skip = $OFF / 1MB; [int64]$mib = $SIZE / 1MB
+    # whole MiB, rounded down ([int64] of a division rounds to even, and up would write past a partition's end)
+    [int64]$skip = [math]::Floor($OFF / 1MB); [int64]$mib = [math]::Floor($SIZE / 1MB)
+    # once more, in the units the writes use: every megabyte written lies in the free space or in the partition
+    if (-not (RegionInBounds ($skip * 1MB) ($mib * 1MB))) { Die 'the region does not lie in the free space; the filesystem was not erased' }
     if ($wipe -eq 'quick') {
-        SuDo "dd if=/dev/zero of=/dev/block/mmcblk0 bs=1048576 seek=$skip count=64 conv=notrunc 2>/dev/null; sync" | Out-Null
+        # (never more than the filesystem: in a partition named mu300root that is the partition's end)
+        $n = [math]::Min(64, $mib)
+        SuDo "dd if=/dev/zero of=/dev/block/mmcblk0 bs=1048576 seek=$skip count=$n conv=notrunc 2>/dev/null; sync" | Out-Null
     } else {
-        Write-Host "overwriting $([int64]($mib / 1024)) GiB, this takes a few minutes"
+        Write-Host "overwriting $mib MiB, this takes a few minutes"
         SuDo "command -v blkdiscard >/dev/null && blkdiscard -o $OFF -l $SIZE /dev/block/mmcblk0 2>/dev/null; dd if=/dev/zero of=/dev/block/mmcblk0 bs=1048576 seek=$skip count=$mib conv=notrunc 2>/dev/null; sync" | Out-Null
     }
     $m = (SuDo "dd if=/dev/block/mmcblk0 bs=1 skip=$($OFF + 1080) count=2 2>/dev/null | od -An -tx1") -replace '\s', ''
@@ -362,6 +471,7 @@ if ($wipe -ne 'keep') {
 }
 
 if ($sdwipe -eq 'erase') {
+    Step 'sd' 80
     Say 'Erasing the Linux filesystem on the SD card'
     if ((SdExisting) -ne 'yes') { Die "the SD card ($SD_DEV) holds no mu300sd filesystem; nothing was erased" }
     try { $cmd = SdEraseCommand $SD_DEV } catch { Die $_.Exception.Message }
@@ -384,9 +494,13 @@ if ($OFF -gt 0 -and $wipe -eq 'keep' -and ($sdwipe -eq 'erase' -or $SD_HAS -ne '
 }
 
 # (no double quotes in a command for the device: Windows PowerShell 5.1 drops them on the way to adb)
-SuDo "grep -qw $T/mu300root /proc/mounts || rm -rf $T/mu300root; rm -f $T/mu300-* $T/android-install.sh $T/android-mount-mu300root.sh" | Out-Null
+# (files only: /data/local/tmp/mu300-web is the web installer's directory)
+SuDo "grep -qw $T/mu300root /proc/mounts || rm -rf $T/mu300root; for f in $T/mu300-*; do [ -d `$f ] || rm -f `$f; done; rm -f $T/android-install.sh $T/android-mount-mu300root.sh" | Out-Null
 # the on-device switch would point at a Linux slot that holds Android again
+Step 'switch' 95
 Say 'Removing the on-device switch (Magisk module)'
 if ((SuDo 'magisk -v')) { SuDo '[ -d /data/adb/modules/mu300_linux_switch ] && touch /data/adb/modules/mu300_linux_switch/remove' | Out-Null }
 
+Step 'done' 100
 Say 'Done. The device boots stock Android; reboot it once to check.'
+Progress 'done' 'result' 'ok'

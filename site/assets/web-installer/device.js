@@ -373,7 +373,7 @@ export function normalizeLinuxInfo(o, source) {
   const systems = Array.isArray(o.systems) ? o.systems.map(s) : s(o.systems).split(/\s+/);
   return {
     source,                                  // "json" (mu300-device --json) or "commands"
-    device: ["f50", "u30air"].includes(s(o.device)) ? s(o.device) : "",
+    device: ["f50", "u30air", "v50"].includes(s(o.device)) ? s(o.device) : "",
     version: s(o.version), os: s(o.os), kernel: s(o.kernel), kernelChoice: s(o.kernel_choice),
     bootOs: s(o.boot_os), defaultBoot: s(o.default_boot) === "linux" ? "linux" : "android",
     attempts: /^[1-6]$/.test(s(o.attempts)) ? Number(s(o.attempts)) : 5,
@@ -464,7 +464,63 @@ export class LinuxDevice {
     await this.reboot();
     return r;
   }
+
+  // ---- mu300-api (FINDINGS 110, docs/ADB-INTERFACE.md): the device manager's one way in.
+  // hello() -> its answer ({ api, system, device, methods, features, job }), or null when this release has no
+  // mu300-api (the page then offers what the small manage view above does, and says to update).
+  async hello() {
+    const r = await shell(this.conn, `[ -x ${API_PATH} ] && ${API_PATH} hello || echo MU300-API-NONE`, { stdin: "{}", timeoutMs: 30000 });
+    if (/MU300-API-NONE/.test(r.stdout)) return null;
+    const o = parseApiAnswer(r.stdout);
+    if (!o || o.ok !== 1 || typeof o.api !== "number" || !Array.isArray(o.methods)) return null;
+    this.apiMethods = new Set(o.methods.filter((m) => API_METHOD.test(m)));
+    return o;
+  }
+
+  // api(method, request) -> the answer's object ({ ok: 1, ... }); a refusal is a DeviceError "api-CODE" whose detail is
+  // the device's (masked). The method is one of the page's fixed list and one the device said it has; the request
+  // goes on the command's stdin as JSON, never into the command line, and is never logged: it may hold a password.
+  // The log gets the method and how it ended, nothing else.
+  async api(method, request = {}, options = {}) {
+    if (!API_METHODS.has(method) || !API_METHOD.test(method)) throw new DeviceError("bad-argument", method);
+    if (this.apiMethods && !this.apiMethods.has(method)) throw new DeviceError("api-unknown-method", method);
+    if (!request || typeof request !== "object" || Array.isArray(request)) throw new DeviceError("bad-argument", method);
+    const r = await shell(this.conn, `${API_PATH} ${method}`, { stdin: JSON.stringify(request), timeoutMs: options.timeoutMs || 90000, signal: options.signal });
+    const o = parseApiAnswer(r.stdout);
+    if (!o) { this.log(`# mu300-api ${method}: no answer`, true); throw new DeviceError("bad-answer", method); }
+    if (o.ok !== 1) {
+      const code = typeof o.error === "string" && /^[a-z-]{1,30}$/.test(o.error) ? o.error : "failed";
+      const detail = this.mask(typeof o.detail === "string" ? o.detail : "").slice(0, 200);
+      this.log(`# mu300-api ${method}: ${code}${detail ? " (" + detail + ")" : ""}`, true);
+      throw new DeviceError("api-" + code, detail);
+    }
+    if (!options.quiet) this.log(`# mu300-api ${method}: ok`);
+    return o;
+  }
 }
+
+export const API_PATH = "/opt/mu300/bin/mu300-api";
+const API_METHOD = /^[a-z][a-z0-9_.]{0,39}$/;
+// the methods this page ever asks for (mu300-api --methods; tests/web/manager.test.mjs holds the two to the same list)
+export const API_METHODS = new Set(("hello overview wifi.get wifi.set wifi.power wificlient.status wificlient.scan wificlient.join " +
+  "wificlient.leave data.get data.set data.power sim.get sim.select sim.card sim.state voice.get voice.set radio.get radio.set lock.get lock.set vpn.status vpn.profiles vpn.subs " +
+  "vpn.settings vpn.service vpn.killswitch vpn.use vpn.add vpn.add_url vpn.rename vpn.remove vpn.setting vpn.sub_add " +
+  "vpn.sub_refresh vpn.sub_remove vpn.logs vpn.install vpn.engine_install vpn.engines sms.list sms.read sms.send sms.job sms.delete " +
+  "sms.forward sms.forward_set sms.forward_test sms.forward_log_clear lan.get lan.set usb.role usb.net adb.auth system.get system.hostname system.timezone system.password system.ssh " +
+  "system.reboot system.boot system.bootos update.check update.apply kernel.set extra.list extra.install extra.remove logs " +
+  "backup.export backup.import at.send at.history ussd.send ussd.cancel modem.restart ttl.get ttl.set traffic.get traffic.set power.get " +
+  "power.set led.get led.set zram.get zram.set cpu.get cpu.profile cpu.core cpu.lowlatency cpu.voltage update.status update.source packages.get " +
+  "packages.act docker.status job.status job.cancel job.clear").split(" "));
+// the last line of what mu300-api printed, as an object (it prints exactly one)
+export function parseApiAnswer(stdout) {
+  const last = String(stdout || "").trim().split("\n").pop() || "";
+  if (!last.startsWith("{")) return null;
+  try {
+    const o = JSON.parse(last);
+    return o && typeof o === "object" && !Array.isArray(o) ? o : null;
+  } catch (e) { return null; }
+}
+
 
 // A sink for backup() that keeps a file in memory (for the "save" link of browsers without a folder picker)
 export function memorySink(store) {

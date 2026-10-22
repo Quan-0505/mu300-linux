@@ -187,7 +187,8 @@ class Status(WebCase):
         end = (((16 << 21) - 34) // 4096 - 1) * 4096
         self.assertEqual(s['disk'], 16 << 21)
         self.assertEqual(s['last_end'], last_end)
-        self.assertEqual(s['region'], {'off': start * 512, 'size': (end - start) * 512, 'existing': 'no', 'dirty': -1})
+        self.assertEqual(s['region'], {'off': start * 512, 'size': (end - start) * 512, 'existing': 'no', 'dirty': -1,
+                                       'part': 0, 'part_fs': 'none', 'part_count': 0, 'foreign_image': 0})
         self.assertEqual(s['parts'], [['userdata', 2048, 8 << 21]])
         self.assertEqual(s['sd'], {'dev': '', 'bytes': 0, 'small': 0, 'existing': 'no'})
         self.assertEqual(s['job'], {'state': 'none', 'kind': '', 'arg': '', 'rc': -1, 'step': 0, 'more': 0})
@@ -211,6 +212,16 @@ class Status(WebCase):
         s = self.status()
         self.assertEqual(s['model'], 'ZTE MU300 "quoted" \\ backslash')
         self.assertEqual(s['device'], 'f50')
+
+    def test_v50_exactly(self):
+        # the ZTE V50 (FINDINGS 95): V50 / MU3351 on ums9620; any other V50 is no device this page knows
+        for kw, want in ((dict(model='V50', product='MU3351', platform='ums9620'), 'v50'),
+                         (dict(model='V50', product='MU3351', platform='mt6789'), ''),
+                         (dict(model='V50', product='MU3351'), ''),
+                         (dict(model='ZTE Blade V50', product='P671F60', platform='ums9620'), ''),
+                         (dict(model='U30 Air'), 'u30air'), (dict(), 'f50')):
+            self.device(**kw)
+            self.assertEqual(self.status()['device'], want, kw)
 
     def test_another_device_and_no_slots(self):
         self.device(model='Pixel 9')
@@ -655,6 +666,20 @@ class Uninstall(WebCase):
         return subprocess.run([BUSYBOX, 'sh', '-c', f'MU300_LIB=1; . "{self.stage}/android-web.sh"; ' + code],
                               capture_output=True, text=True, env=self.web_env(MU300_WEB_STAGE=self.stage, **extra), timeout=60)
 
+    def test_a_job_that_ends_while_it_is_looked_at_is_done(self):
+        # the job writes its status (rc) and ends; a look that found no status yet and then no process saw it end
+        # in between: done, never "interrupted" (follow then printed "EXIT interrupted" for an install that went well)
+        job = self.root() / 'job'
+        job.mkdir(parents=True)
+        (job / 'kind').write_text('install\n')
+        dead = subprocess.Popen(['true']); dead.wait()
+        (job / 'pid').write_text(f'{dead.pid}\n')
+        code = ('boot_now > "$JOB/boot"; '
+                'kill() { [ "$1" = -0 ] && [ ! -e "$JOB/rc.once" ] && : > "$JOB/rc.once" && echo 0 > "$JOB/rc"; command kill "$@"; }; '
+                'job_state; rm -f "$JOB/rc"; job_state')
+        r = self.lib(code)
+        self.assertEqual(r.stdout.split(), ['done', 'interrupted'], r.stderr)
+
     def test_misc_that_does_not_verify_gets_its_old_block_back(self):
         self.installed()
         misc = self.fake.root / 'dev/block/by-name/misc'
@@ -790,6 +815,11 @@ class BootLinux(WebCase):
         img = bytearray((by / 'boot_b').read_bytes())
         img[44:55] = b'loglevel=5\0'; img[9000:9005] = b'linux'
         (by / 'boot_b').write_bytes(bytes(img))
+        # switch.sh takes misc only where sysfs names it so (FINDINGS 101)
+        misc = os.path.realpath(by / 'misc')
+        ue = self.fake.root / 'sys/class/block' / os.path.basename(misc)
+        ue.mkdir(parents=True, exist_ok=True)
+        (ue / 'uevent').write_text('PARTNAME=misc\n')
         before = self.parts()
         r = self.web('boot-linux', 'dry', MU300_BUSYBOX=BUSYBOX, MU300_SLOT_SUFFIX='_a')
         if os.getuid() != 0:
@@ -1000,8 +1030,9 @@ class Bounds(FetchCase):
 
     def test_a_server_that_sends_more_than_the_release_names_cannot_fill_the_storage(self):
         # 5 MB for a file of 100 000 bytes: the downloader's own file size limit stops the write, and what the file
-        # had grown to when the stub looked is at most the size rounded up to a block
-        w = self.wget(f'{self.SAYS}{self.OUT}head -c 5000000 /dev/zero >> "$out" 2>/dev/null; wc -c < "$out" > "$STUBLOG/grew"')
+        # had grown to when the stub looked is at most the size rounded up to a block. (The stub outlives the watch's
+        # kill, which may come first - the file is past the size once the limit stopped it - so that it can look.)
+        w = self.wget(f'trap "" TERM; {self.SAYS}{self.OUT}head -c 5000000 /dev/zero >> "$out" 2>/dev/null; wc -c < "$out" > "$STUBLOG/grew"')
         t0 = time.time()
         rc, out = self.fetch(w, 100000)
         self.assertEqual(rc, '13', out)

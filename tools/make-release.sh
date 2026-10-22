@@ -1,26 +1,72 @@
 #!/bin/sh
 # Maintainer: build the generic release assets used by ./install.sh (prebuilt mode) and optionally publish them.
+#   tools/make-release.sh --next-tag      print the tag of the next release: vYYYY.MM.DD.N for today (UTC), N one
+#                                          more than the highest N of today's releases and tags (1 for the first)
+#   tools/make-release.sh --check-tag TAG  only check TAG as a new release's tag (below); prints it
 #   tools/make-release.sh TAG             build into release/TAG and audit the contents
 #   tools/make-release.sh TAG --publish   also create/update the GitHub release (gh)
 #   tools/make-release.sh TAG --publish --prerelease   create it as a prerelease: never "latest", so mu300-update and
 #                                          the installers do not offer it until it is promoted on GitHub
+#   --any-date                             take a TAG whose day is not today (a build that went on past midnight, a
+#                                          retry of a release made another day); its form is checked all the same
+# The tag of a new release is vYYYY.MM.DD.N: the real day (UTC) it is built, and N = 1, 2, ... for the releases of
+# that day (docs/FINDINGS.md 125; the three-field tags up to v2026.10.27 used the day as a counter and are not made
+# any more). Every four-field tag is newer than every three-field one, for the updater and the installers alike.
 # Needs docker and the kernel outputs in $MU300_KERNEL_OUT (default: out/, from kernel/build-all.sh).
 # The assets must never contain proprietary files or anything from a particular device: the audit below fails the
 # build if firmware, Android userspace, host keys or local settings end up in an image.
 set -eu
-TAG=${1:?usage: tools/make-release.sh TAG [--publish [--prerelease]]}
-shift
-PUBLISH="" PRERELEASE=""
+USAGE='usage: tools/make-release.sh TAG [--publish [--prerelease]] [--any-date] | --next-tag | --check-tag TAG [--any-date]'
+TOP=$(cd "$(dirname "$0")/.." && pwd)
+REPO=${MU300_REPO:-dikeckaan/mu300-linux}
+# tag_ok, tag_key, newer: the release tags (the same block as mu300-update's)
+. "$TOP/tools/releases.sh"
+# today: the day of a release built now, as its tag writes it (MU300_TODAY stands in for the clock in the tests)
+today() { echo "${MU300_TODAY:-$(date -u +%Y.%m.%d)}"; }
+# next_tag: vYYYY.MM.DD.N for today. What counts: GitHub's releases (drafts and prereleases too, as gh lists them to
+# the maintainer) and the tags, here and on origin. Without GitHub's answer there is no next tag: a guess could
+# take the name of a release that exists.
+next_tag() {
+    _day=v$(today)
+    _rel=$(gh release list -R "$REPO" --limit 200 --json tagName -q '.[].tagName') ||
+        { echo "cannot read the releases of $REPO (gh): no tag is guessed" >&2; return 1; }
+    _n=0
+    for _t in $_rel $(git -C "$TOP" tag -l "$_day.*") \
+        $(git -C "$TOP" ls-remote --tags origin "refs/tags/$_day.*" 2>/dev/null | sed -n 's|.*refs/tags/\([^^]*\).*|\1|p'); do
+        case $_t in "$_day".*) tag_ok "$_t" || continue; [ "${_t##*.}" -le "$_n" ] || _n=${_t##*.} ;; esac
+    done
+    [ "$_n" -lt 99 ] || { echo "$_day has 99 releases already" >&2; return 1; }
+    echo "$_day.$((_n + 1))"
+}
+# check_tag TAG: a tag a new release may have - vYYYY.MM.DD.N, and of today unless --any-date
+check_tag() {
+    case $1 in
+        *.*.*.*) tag_ok "$1" || { echo "$1 is not a release tag: vYYYY.MM.DD.N, N = 1..99 without a leading zero (tools/make-release.sh --next-tag)" >&2; return 1; } ;;
+        *) echo "$1 is not a tag for a new release: those are vYYYY.MM.DD.N, the day and its N (tools/make-release.sh --next-tag; docs/FINDINGS.md 125)" >&2; return 1 ;;
+    esac
+    [ -n "$ANY_DATE" ] || [ "${1%.*}" = "v$(today)" ] ||
+        { echo "$1 is not of today (v$(today)): a release is named after the day it is built (--any-date takes it anyway)" >&2; return 1; }
+}
+ARG= PUBLISH="" PRERELEASE="" ANY_DATE="" MODE=build
 for a in "$@"; do
     case $a in
         --publish) PUBLISH=--publish ;;
         --prerelease) PRERELEASE=--prerelease ;;
-        *) echo "unknown option $a (usage: tools/make-release.sh TAG [--publish [--prerelease]])" >&2; exit 1 ;;
+        --any-date) ANY_DATE=1 ;;
+        --next-tag) MODE=next ;;
+        --check-tag) MODE=check ;;
+        -*) echo "unknown option $a ($USAGE)" >&2; exit 1 ;;
+        *) [ -z "$ARG" ] || { echo "$USAGE" >&2; exit 1; }; ARG=$a ;;
     esac
 done
-TOP=$(cd "$(dirname "$0")/.." && pwd)
+case $MODE in
+    next) [ -z "$ARG" ] || { echo "$USAGE" >&2; exit 1; }; next_tag; exit ;;
+    check) [ -n "$ARG" ] || { echo "$USAGE" >&2; exit 1; }; check_tag "$ARG" || exit 1; echo "$ARG"; exit 0 ;;
+esac
+TAG=$ARG
+[ -n "$TAG" ] || { echo "$USAGE" >&2; exit 1; }
+check_tag "$TAG" || exit 1
 KOUT=${MU300_KERNEL_OUT:-$TOP/out}
-REPO=${MU300_REPO:-dikeckaan/mu300-linux}
 D=$TOP/release/$TAG
 IN=$D/inputs
 [ -f "$KOUT/Image" ] && ls "$KOUT"/modules/*.ko >/dev/null 2>&1 || { echo "kernel outputs missing in $KOUT (kernel/build-all.sh)" >&2; exit 1; }
@@ -38,7 +84,16 @@ docker run --rm mu300-ubuntu:24.04 cat /bin/busybox > "$IN/busybox"; chmod +x "$
 docker run --rm -v "$TOP/tools":/src:ro -v "$IN/tools":/o mu300-kbuild sh -c '
   gcc -O2 -static -o /o/logdw/logdw /src/logdw/logdw.c &&
   gcc -O2 -static -o /o/bt-init/mu300-bt-init /src/bt-init/mu300-bt-init.c &&
-  mkdir -p /o/keys && gcc -O2 -static -o /o/keys/mu300-keys /src/keys/mu300-keys.c'
+  mkdir -p /o/keys && gcc -O2 -static -o /o/keys/mu300-keys /src/keys/mu300-keys.c &&
+  mkdir -p /o/carry && gcc -O2 -static -o /o/carry/mu300-carry /src/carry/mu300-carry.c &&
+  mkdir -p /o/pwcheck && gcc -O2 -static -o /o/pwcheck/mu300-pwcheck /src/pwcheck/mu300-pwcheck.c -lcrypt'
+# the password checker of the installers (tools/android-pwcheck.sh: never a program of the Linux system it checks):
+# it must know yescrypt, what Ubuntu's passwd writes (FINDINGS 126)
+H='$y$j9T$yozuPAQ4fDSQH5fJzaFQd/$Z6UKqnHQMcZqZNJ18QIV5mTrJ7raj2y7MDipRg8bUj.'
+[ "$(printf '%s\n%s\n' 'old secret 1' "$H" | docker run --rm -i -v "$IN/tools/pwcheck":/p:ro mu300-kbuild /p/mu300-pwcheck)" = MATCH ] ||
+    { echo "mu300-pwcheck does not check a yescrypt hash" >&2; exit 1; }
+# e2fsck for the boot ramdisk: init runs it on a root filesystem whose superblock records an error (FINDINGS 182)
+sh "$TOP/tools/e2fsck/build.sh" "$IN/tools/e2fsck/e2fsck" >/dev/null
 # adbd (adb over USB to Linux): static aarch64, from AOSP's sources (tools/adbd/build.sh)
 sh "$TOP/tools/adbd/build.sh" "$IN/tools/adbd/adbd" >/dev/null
 # cltest links against Android's libraries at build time only; use a local build when there is one
@@ -48,17 +103,23 @@ echo "==> kernel bundle"
 K=$D/kernel && mkdir -p "$K"
 cp -R "$IN/out/modules" "$K/modules"
 cp -R "$KOUT/modules-u30air" "$K/modules-u30air"
-# the devices this bundle runs on (mu300-update and the installers check it)
+# the devices this bundle runs on (mu300-update and the installers check it); not the V50: the only V50 known to run
+# this project (kano's) ran mainline, and its LED driver is mainline only (upstream/make-bundle.sh, FINDINGS 95)
 echo "f50 u30air" > "$K/devices"
 # what it can do that older bundles could not: 5.4 reads the SD card (FINDINGS 31j), so a system on the card may get
-# it; its init runs from either slot, so a Linux on slot a may get it (mu300-update checks both)
-printf 'sdcard\nlinux-slot\n' > "$K/features"
+# it; its init runs from either slot, so a Linux on slot a may get it (mu300-update checks both); the same init finds a
+# system in a GPT partition named mu300root (gpt-root, FINDINGS 178)
+printf 'sdcard\nlinux-slot\ngpt-root\n' > "$K/features"
 cp "$KOUT/Image" "$KOUT/modules.builtin" "$KOUT/modules.builtin.modinfo" "$IN/busybox" "$IN/tools/logdw/logdw" "$K/"
+# beside busybox for the installers' password check (the Magisk zips take both from here; FINDINGS 126)
+cp "$IN/tools/pwcheck/mu300-pwcheck" "$K/"
+# beside busybox for every boot ramdisk built from this bundle (install.sh, install.ps1, upstream/make-bundle.sh)
+cp "$IN/tools/e2fsck/e2fsck" "$K/"
 # the device-independent part of the boot ramdisk, which mu300-update puts behind the device's own ramdisk to update
 # the kernel and the boot image without a computer (same builder and file list as install.sh)
 python3 "$TOP/boot/build-boot-image.py" --generic-ramdisk --modules "$IN/out/modules" --busybox "$IN/busybox" \
   --device-modules "u30air=$KOUT/modules-u30air" \
-  --logdw "$IN/tools/logdw/logdw" --ueventd-perms "$TOP/android-vendor/ueventd-perms.sh" \
+  --logdw "$IN/tools/logdw/logdw" --e2fsck "$IN/tools/e2fsck/e2fsck" --ueventd-perms "$TOP/android-vendor/ueventd-perms.sh" \
   --out "$K/ramdisk-generic.lz4" >/dev/null
 tar -C "$K" -czf "$D/mu300-kernel.tar.gz" .
 rm -rf "$K"
@@ -83,7 +144,8 @@ for u in 24.04 26.04; do
     cltest=""; [ -f "$IN/tools/gpu/cltest" ] && cltest="-v $IN/tools/gpu/cltest:/cltest:ro"
     # shellcheck disable=SC2086
     docker run --rm -v "$B":/w -v "$IN/out/modules":/kmods:ro -v "$IN/out":/kout:ro -v "$IN/tools/logdw/logdw":/logdw:ro \
-      -v "$IN/tools/bt-init/mu300-bt-init":/bt-init:ro -v "$IN/tools/keys/mu300-keys":/keys:ro -v "$IN/tools/adbd/adbd":/adbd:ro $cltest \
+      -v "$IN/tools/bt-init/mu300-bt-init":/bt-init:ro -v "$IN/tools/keys/mu300-keys":/keys:ro -v "$IN/tools/adbd/adbd":/adbd:ro \
+      -v "$IN/tools/carry/mu300-carry":/carry:ro $cltest \
       -e MU300_VERSION="$TAG" mu300-ubuntu:$u bash /w/assemble.sh >/dev/null
     out=mu300-ubuntu-rootfs.tar.gz; [ $u = 24.04 ] || out=mu300-ubuntu-$u-rootfs.tar.gz
     mv "$B/mu300-ubuntu-$u-rootfs.tar.gz" "$D/$out"; rm -rf "$B"
@@ -108,19 +170,37 @@ sh "$TOP/tools/make-extra.sh" panel-offline "$D/mu300-extra-panel-offline.tar.gz
 
 echo "==> audit"
 fail=0
+list_of_image() { tar -tzf "$D/$1.tar.gz" | sed 's|^\./||'; }
 for a in mu300-kernel mu300-kernel-6.18 mu300-kernel-7.2 mu300-ubuntu-rootfs mu300-ubuntu-26.04-rootfs mu300-openwrt-rootfs \
          mu300-openwrt-luci-rootfs; do
     bad=$(tar -tzf "$D/$a.tar.gz" | sed 's|^\./||' | grep -E \
         -e '(^|/)lib/firmware/(wcnmodem|gnssmodem|wifi_board_config|bt_configure)' \
         -e '^opt/mu300/android/.+' -e '__properties__|dev-properties' \
         -e '(^|/)(libmali|libOpenCL|libGLES|libEGL|libvulkan)[^/]*\.so' \
-        -e '^etc/ssh/ssh_host_' -e '^etc/mu300/(hotspot|vpn|toolkit|mobile-data)\.conf$' -e '^etc/dropbear/dropbear_.*_host_key' \
+        -e '^etc/ssh/ssh_host_' -e '^etc/uhttpd\.key$' -e '^etc/mu300/(hotspot|vpn|toolkit|mobile-data)\.conf$' -e '^etc/mu300/update-source$' -e '^etc/dropbear/dropbear_.*_host_key' \
         -e '^opt/mu300/bin/(xray|sing-box|hev-socks5-tunnel|mihomo|mu300-vpn)$' -e '^opt/mu300/lib/vpn(/|$)' \
         -e '^etc/systemd/system/mu300-vpn\.service$' -e '^etc/init\.d/mu300-vpn$' -e '^etc/mu300/vpn\.conf\.example$' \
         | grep -vE '^opt/mu300/android/system/?$|^opt/mu300/android/system/bin/?$|^opt/mu300/android/system/bin/cltest$' || true)
     if [ -n "$bad" ]; then echo "$a contains files that must not be published:"; echo "$bad" | head -20; fail=1; fi
     mid=$(tar -xzOf "$D/$a.tar.gz" ./etc/machine-id 2>/dev/null || true)
     [ -z "$mid" ] || { echo "$a has a machine-id"; fail=1; }
+done
+# An update carries everything of the user's over with what the NEW image brings (mu300-update's carry block): each
+# image must have mu300-carry, a static busybox, the manifests of the releases before the first release with a four-field tag for its own system,
+# and the manifest of its own files - which must be the one this tool makes from the tarball (two implementations,
+# held against each other at every release). Without them an update would quietly keep only the list of places.
+# The manifest is published beside the image, too (mu300-<image>-rootfs.manifest.gz, in SHA256SUMS).
+for a in mu300-ubuntu-rootfs:usr/bin/busybox:ubuntu-24.04,ubuntu-26.04 mu300-ubuntu-26.04-rootfs:usr/bin/busybox:ubuntu-24.04,ubuntu-26.04 \
+         mu300-openwrt-rootfs:opt/mu300/bin/busybox:openwrt mu300-openwrt-luci-rootfs:opt/mu300/bin/busybox:openwrt-luci; do
+    old=${a##*:}; a=${a%:*}; bb=${a#*:}; a=${a%%:*}
+    l=$(list_of_image "$a")
+    for f in opt/mu300/bin/mu300-carry "$bb" etc/mu300/image-manifest.gz $(echo "$old" | tr ',' '\n' | sed 's|.*|opt/mu300/lib/image-manifests/&.gz|'); do
+        printf '%s\n' "$l" | grep -qx "$f" || { echo "$a lacks $f: an update to it would not carry everything over"; fail=1; }
+    done
+    [ "$(printf '%s\n' "$l" | grep -c '^opt/mu300/lib/image-manifests/.')" = "$(echo "$old" | tr ',' '\n' | wc -l | tr -d ' ')" ] ||
+        { echo "$a has manifests of another system in opt/mu300/lib/image-manifests"; fail=1; }
+    python3 "$TOP/tools/image-manifest.py" check "$D/$a.tar.gz" || fail=1
+    tar -xzOf "$D/$a.tar.gz" ./etc/mu300/image-manifest.gz > "$D/$a.manifest.gz" 2>/dev/null || { echo "$a: no manifest to publish"; fail=1; }
 done
 # the panel: everything of it is in the luci asset, and nothing of it (nor Aurora) in the plain OpenWrt one
 list_of() { tar -tzf "$D/$1.tar.gz" | sed 's|^\./||'; }
@@ -181,6 +261,17 @@ done
 for a in mu300-kernel mu300-kernel-6.18 mu300-kernel-7.2; do
     tar -xzOf "$D/$a.tar.gz" ./features 2>/dev/null | grep -qx sdcard || { echo "$a does not list sdcard in ./features"; fail=1; }
     tar -xzOf "$D/$a.tar.gz" ./features 2>/dev/null | grep -qx linux-slot || { echo "$a does not list linux-slot in ./features"; fail=1; }
+    tar -xzOf "$D/$a.tar.gz" ./features 2>/dev/null | grep -qx gpt-root || { echo "$a does not list gpt-root in ./features"; fail=1; }
+done
+# every generic ramdisk segment brings init's e2fsck: a root filesystem with recorded errors is checked before it is
+# mounted (FINDINGS 182)
+for a in mu300-kernel mu300-kernel-6.18 mu300-kernel-7.2; do
+    tar -xzOf "$D/$a.tar.gz" ./ramdisk-generic.lz4 > "$D/ramdisk.check" 2>/dev/null &&
+    python3 -c 'import importlib.util as u, sys
+s = u.spec_from_file_location("b", sys.argv[1]); b = u.module_from_spec(s); s.loader.exec_module(b)
+sys.exit("sbin/e2fsck" not in b.cpio_names(b.unlz4_legacy(open(sys.argv[2], "rb").read())))' \
+        "$TOP/boot/build-boot-image.py" "$D/ramdisk.check" || { echo "$a: its ramdisk-generic.lz4 has no sbin/e2fsck"; fail=1; }
+    rm -f "$D/ramdisk.check"
 done
 # a mainline bundle carries the kernel's own modules next to the vendor ones (upstream/build-modules.sh): one of each
 # kind - qdisc, filesystem, device mapper, USB modem, vhost - and the vendor Wi-Fi
@@ -190,11 +281,53 @@ for a in mu300-kernel-6.18 mu300-kernel-7.2; do
         printf '%s\n' "$l" | grep -qx "./modules/$m" || { echo "$a lacks modules/$m"; fail=1; }
     done
 done
+# Call audio is the audio extra's (https://github.com/dikeckaan/mu300-audio, mu300-extra install audio; FINDINGS 194):
+# no kernel bundle carries a driver of the Unisoc call-audio stack, and no image its programs or services. The 23 of
+# 5.4 and the 20 of mainline - mainline's sprd-dma.ko is the stack's AGCP DMA driver; 5.4's is the vendor kernel's
+# own DMA driver, which stays.
+AUDIO_KO="audio_mem agdsp_access audio_sipc sprd_audcp_boot sprd_audcp_dvfs audio-dsp-dump audio-pipe sprd_apipe
+mcdt_hw_r2p0 saudio sprd-dmaengine-pcm sprd-platform-pcm-routing sprd-compr-2stage-dma snd-soc-sprd-dai snd-soc-sprd-vaudio
+snd-soc-sprd-vbc-v4 snd-soc-sprd-vbc-fe snd-soc-sprd-codec-ump9620-power snd-soc-sprd-codec-ump9620-power-dev
+snd-soc-sprd-codec-ump9620 snd-soc-sprd-pa-ucp1301 snd-soc-sprd-dummy-codec snd-soc-sprd-card"
+for a in mu300-kernel mu300-kernel-6.18 mu300-kernel-7.2; do
+    l=$(tar -tzf "$D/$a.tar.gz")
+    extra=; [ "$a" = mu300-kernel ] || extra=sprd-dma
+    for m in $AUDIO_KO $extra; do
+        ! printf '%s\n' "$l" | grep -Eq "/$m\.ko\$" || { echo "$a carries $m.ko, which is the audio extra's"; fail=1; }
+    done
+done
+for m in mu300-ubuntu-rootfs mu300-ubuntu-26.04-rootfs mu300-openwrt-rootfs mu300-openwrt-luci-rootfs; do
+    [ -f "$D/$m.manifest.gz" ] || continue
+    ! gzip -dc "$D/$m.manifest.gz" | grep -Eq '(opt/mu300/bin/(mu300-audio-dsp|mu300-voice|pcmhost|ctlset|mu300-hfp)|systemd/system/mu300-(audio|voice)\.service|init\.d/mu300-(audio|voice)|modprobe\.d/mu300-audio\.conf)( |$)' ||
+        { echo "$m carries the audio extra's programs or services"; fail=1; }
+done
 [ $fail = 0 ] || { echo "audit failed, nothing published" >&2; exit 1; }
 rm -rf "$IN"
 # the updater itself: an older mu300-update fetches this one and continues with it
 cp "$TOP/rootfs/overlay/opt/mu300/bin/mu300-update" "$D/mu300-update"
-(cd "$D" && { shasum -a 256 *.tar.gz mu300-update 2>/dev/null || sha256sum *.tar.gz mu300-update; } > SHA256SUMS)
+# mu300-release: the tag, as a file, so that SHA256SUMS - and with it the signature - says which release these
+# checksums are of (mu300-update's tag_sha: a signed SHA256SUMS cannot be handed out as another release's)
+echo "$TAG" > "$D/mu300-release"
+(cd "$D" && { shasum -a 256 *.tar.gz *.manifest.gz mu300-update mu300-release 2>/dev/null || sha256sum *.tar.gz *.manifest.gz mu300-update mu300-release; } > SHA256SUMS)
+# The signature of SHA256SUMS (tools/sign-release.sh; mu300-update checks it where the system has the public key,
+# docs/FINDINGS.md 86): made when the release key is here - MU300_RELEASE_KEY, which the Release workflow takes from the
+# repository secret of that name, or MU300_RELEASE_KEY_FILE. The images of this release carry the public key when it
+# is in the tree; devices with it refuse a newer release that is not signed, so such a release is never published
+# without its signature.
+PUB=$TOP/rootfs/overlay/opt/mu300/lib/release.pub
+SIG=
+if [ -n "${MU300_RELEASE_KEY:-}${MU300_RELEASE_KEY_FILE:-}" ]; then
+    if [ -s "$PUB" ]; then sh "$TOP/tools/sign-release.sh" "$D/SHA256SUMS" "$PUB"
+    else
+        echo "signing without $PUB in the tree: no device checks this signature until the public key is committed" >&2
+        sh "$TOP/tools/sign-release.sh" "$D/SHA256SUMS"
+    fi
+    SIG=$D/SHA256SUMS.sig
+elif [ -s "$PUB" ]; then
+    echo "the images carry the release key ($PUB) and there is no MU300_RELEASE_KEY to sign with:" >&2
+    echo "devices would refuse this release. Nothing is published without its signature." >&2
+    [ "$PUBLISH" != --publish ] || exit 1
+fi
 ls -la "$D"
 
 [ "$PUBLISH" = --publish ] || { echo "built release/$TAG (run again with --publish to upload)"; exit 0; }
@@ -208,7 +341,7 @@ first with \`./install.sh --check\`.
 
 | file | contents |
 |---|---|
-| mu300-kernel.tar.gz | Linux 5.4.254 \`Image\` and modules (with the U30 Air's own in \`modules-u30air/\`), with the patches of \`kernel/patches\` (among them: no panic when a network namespace goes away, #103, and the Wi-Fi driver's routine lines no longer at error level, #140), static busybox and logdw for the boot image, and the generic boot ramdisk segment \`mu300-update\` uses |
+| mu300-kernel.tar.gz | Linux 5.4.254 \`Image\` and modules (with the U30 Air's own in \`modules-u30air/\`), with the patches of \`kernel/patches\` (among them: no panic when a network namespace goes away, #103, and the Wi-Fi driver's routine lines no longer at error level, #140), static busybox, logdw and e2fsck for the boot image, the installers' static password checker \`mu300-pwcheck\`, and the generic boot ramdisk segment \`mu300-update\` uses |
 | mu300-kernel-6.18.tar.gz | mainline Linux 6.18 (longterm) for \`mu300-update kernel 6.18\`: \`Image\`, modules, generic boot ramdisk segment; with BTF and the BPF JIT (so the VPN module's dae engine runs), FunctionFS (for adb) and card detect for the F50's SD slot (an empty slot is no longer polled, #181) |
 | mu300-kernel-7.2.tar.gz | mainline Linux 7.2 (newest stable) for \`mu300-update kernel 7.2\`: the same parts |
 | mu300-ubuntu-rootfs.tar.gz | Ubuntu 24.04 LTS root filesystem |
@@ -219,6 +352,8 @@ first with \`./install.sh --check\`.
 | mu300-extra-panel.tar.gz | the web panel for Ubuntu: Cockpit (Ubuntu's web console: terminal, logs, services, networking, storage) and the MU300 page (signal, mobile data, data usage, SMS, VPN, power and CPU, Wi-Fi, updates), on the LAN only: \`sudo mu300-extra install panel\` on the device (Cockpit from Ubuntu's archive), or the installer's question |
 | mu300-extra-panel-offline.tar.gz | the same with Cockpit's packages for Ubuntu 24.04 and 26.04, for a device that is not online: \`sudo mu300-extra install panel --from mu300-extra-panel-offline.tar.gz\` |
 | mu300-update | the on-device updater of this release (\`mu300-update apply\` switches to it before it changes anything) |
+| mu300-*-rootfs.manifest.gz | the list of each image's files (type, mode, owner, size, sha256), which the image also carries: an update reads it to tell the image's files from yours, and carries yours over |
+| mu300-magisk-*.zip | attached a few minutes later by the Magisk installers workflow, one per system and kernel. Two ways to use one: install it in **Magisk** on the device (no computer), or **unpack it on a computer** and run \`start.cmd\` / \`sh start.sh\` (\`start-gui\` for the window): the project's installer, with that system and kernel, offline (\`START-HERE.md\` in the zip; adb from Google's platform-tools is not included) |
 | (the VPN) | not part of this release: the VPN toolkit (\`mu300-vpn\`, module v2: the core with hev-socks5-tunnel, and the engines as extras: \`vpn-xray\`, \`vpn-singbox\`, \`vpn-mihomo\`, \`vpn-dae\`) is the module of https://github.com/dikeckaan/mu300-linux-vpn - \`mu300-extra install vpn\` on the device, or the installer's question, takes its latest release with the engines its profiles need; on OpenWrt with the panel the VPN menu drives it |
 
 The images contain **no proprietary files**: the installer pulls the Wi-Fi/Bluetooth firmware and the Android
@@ -236,10 +371,11 @@ Aurora (luci-theme-aurora 1.4.0) from https://github.com/eamonxg/luci-theme-auro
 News and releases: the Telegram channel https://t.me/mu300project
 EOF
 if gh release view "$TAG" -R "$REPO" >/dev/null 2>&1; then
-    gh release upload "$TAG" -R "$REPO" --clobber "$D"/*.tar.gz "$D/mu300-update" "$D/SHA256SUMS"
+    # shellcheck disable=SC2086
+    gh release upload "$TAG" -R "$REPO" --clobber "$D"/*.tar.gz "$D"/*.manifest.gz "$D/mu300-update" "$D/mu300-release" "$D/SHA256SUMS" $SIG
 else
     # shellcheck disable=SC2086
     gh release create "$TAG" -R "$REPO" --target "$commit" --title "MU300 Linux $TAG" --notes-file "$notes" $PRERELEASE \
-      "$D"/*.tar.gz "$D/mu300-update" "$D/SHA256SUMS"
+      "$D"/*.tar.gz "$D"/*.manifest.gz "$D/mu300-update" "$D/mu300-release" "$D/SHA256SUMS" $SIG
 fi
 rm -f "$notes"

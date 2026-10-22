@@ -13,6 +13,9 @@ msgstr "Seluler"
 msgid "Dual SIM"
 msgstr "Dual SIM"
 
+msgid "SIM settings"
+msgstr "Pengaturan SIM"
+
 msgid "Network locks"
 msgstr "Kunci jaringan"
 
@@ -36,6 +39,12 @@ msgstr "Penggunaan data"
 
 msgid "Device management"
 msgstr "Manajemen perangkat"
+
+msgid "Update"
+msgstr "Perbarui"
+
+msgid "Backup of settings"
+msgstr "Cadangan pengaturan"
 
 msgid "Languages"
 msgstr "Bahasa"
@@ -316,6 +325,75 @@ msgstr "Permintaan gagal"
 msgid "(empty)"
 msgstr "(kosong)"
 
+msgid "Passphrase (8 characters or more)"
+msgstr "Frasa sandi (8 karakter atau lebih)"
+
+msgid "The passphrase again"
+msgstr "Frasa sandi sekali lagi"
+
+msgid "Download the backup"
+msgstr "Unduh cadangan"
+
+msgid "Back up the settings"
+msgstr "Cadangkan pengaturan"
+
+msgid "One file with the hotspot, mobile data and the APN, the network locks, the VPN profiles and settings, SMS forwarding, the LAN address, the host name, the time zone and the SSH keys. It holds passwords: with a passphrase it is encrypted, and only that passphrase opens it again."
+msgstr "Satu berkas berisi hotspot, data seluler dan APN, kunci jaringan, profil dan pengaturan VPN, penerusan SMS, alamat LAN, nama host, zona waktu, dan kunci SSH. Berkas ini berisi kata sandi: dengan frasa sandi berkas dienkripsi, dan hanya frasa itu yang dapat membukanya lagi."
+
+msgid "Include the login password"
+msgstr "Sertakan kata sandi login"
+
+msgid "Passphrase, if the file is encrypted"
+msgstr "Frasa sandi, jika berkas terenkripsi"
+
+msgid "Show what would change"
+msgstr "Tampilkan apa yang akan berubah"
+
+msgid "Restore"
+msgstr "Pulihkan"
+
+msgid "The file is larger than 4 MiB"
+msgstr "Berkas lebih besar dari 4 MiB"
+
+msgid "The settings of the file replace these. The hotspot, mobile data or the LAN may restart, and this page may lose its connection for a moment."
+msgstr "Pengaturan dari berkas menggantikan yang ini. Hotspot, data seluler, atau LAN dapat dimulai ulang, dan halaman ini dapat kehilangan koneksi sesaat."
+
+msgid "Restore from a backup"
+msgstr "Pulihkan dari cadangan"
+
+msgid "Every value of the file is checked first; one that is refused and nothing is changed. What is the same is left alone, and no VPN profile, subscription or SSH key of this device is removed."
+msgstr "Setiap nilai berkas diperiksa lebih dulu; jika satu ditolak, tidak ada yang diubah. Yang sama dibiarkan, dan tidak ada profil VPN, langganan, atau kunci SSH perangkat ini yang dihapus."
+
+msgid "Keep this device's login password"
+msgstr "Pertahankan kata sandi login perangkat ini"
+
+msgid "Take a file of another device model"
+msgstr "Terima berkas dari model perangkat lain"
+
+msgid "The two passphrases differ"
+msgstr "Kedua frasa sandi berbeda"
+
+msgid "The passphrase needs 8 characters or more"
+msgstr "Frasa sandi perlu 8 karakter atau lebih"
+
+msgid "Saved (encrypted)"
+msgstr "Tersimpan (terenkripsi)"
+
+msgid "Saved. The file is not encrypted: it holds passwords, keep it safe."
+msgstr "Tersimpan. Berkas tidak terenkripsi: berisi kata sandi, simpan dengan aman."
+
+msgid "Choose a backup file first"
+msgstr "Pilih berkas cadangan dulu"
+
+msgid "Restoring…"
+msgstr "Memulihkan…"
+
+msgid "Restored"
+msgstr "Dipulihkan"
+
+msgid "The restore did not finish: see the lines above"
+msgstr "Pemulihan tidak selesai: lihat baris di atas"
+
 msgid "Loading…"
 msgstr "Memuat…"
 
@@ -388,6 +466,18 @@ msgstr "Hardware max"
 msgid "Frequencies in MHz."
 msgstr "Frequencies in MHz."
 
+msgid "Highlighted cores are online. A core taken offline stays offline, also after a reboot, until it is brought back. CPU0 always stays online."
+msgstr "Inti yang disorot sedang online. Inti yang dimatikan tetap offline, juga setelah mulai ulang, sampai dinyalakan kembali. CPU0 selalu tetap online."
+
+msgid "Low latency: on"
+msgstr "Latensi rendah: aktif"
+
+msgid "Low latency: off"
+msgstr "Latensi rendah: nonaktif"
+
+msgid "Low latency keeps CPU0 out of its idle states, as ZTE's U30 Air firmware does: Wi-Fi delays are much shorter, and the device draws more power. Off by default."
+msgstr "Latensi rendah menjaga CPU0 tidak masuk ke status diamnya, seperti firmware U30 Air dari ZTE: jeda Wi-Fi jauh lebih singkat, dan perangkat memakai lebih banyak daya. Nonaktif secara bawaan."
+
 msgid "Thermal"
 msgstr "Termal"
 
@@ -405,6 +495,111 @@ msgstr "Titik pemicu"
 
 msgid "Cooling devices"
 msgstr "Perangkat pendingin"
+
+msgid "Stress test started"
+msgstr "Uji stres dimulai"
+
+msgid "Saved: it takes effect at the next reboot"
+msgstr "Tersimpan: berlaku pada boot ulang berikutnya"
+
+msgid "CPU voltage offset (EXPERIMENTAL)"
+msgstr "Offset tegangan CPU (EKSPERIMENTAL)"
+
+msgid "Experimental: changing the CPU voltage can make the device unstable, corrupt your data and permanently damage your device. Use it entirely at your own risk."
+msgstr "Eksperimental: mengubah tegangan CPU dapat membuat perangkat tidak stabil, merusak data Anda, dan merusak perangkat Anda secara permanen. Gunakan sepenuhnya atas risiko Anda sendiri."
+
+msgid "CPU voltage offset unavailable"
+msgstr "Offset tegangan CPU tidak tersedia"
+
+msgid "Not available with this kernel (a mainline kernel of this release or later has it)."
+msgstr "Tidak tersedia dengan kernel ini (kernel mainline dari rilis ini atau yang lebih baru memilikinya)."
+
+msgid "Off: the stock voltages"
+msgstr "Mati: tegangan bawaan pabrik"
+
+msgid "Changes at the next reboot"
+msgstr "Berubah pada boot ulang berikutnya"
+
+msgid "Trial boot: kept once this boot has been up 10 minutes"
+msgstr "Boot percobaan: dipertahankan setelah boot ini berjalan 10 menit"
+
+msgid "Kept: this offset passed its trial boot"
+msgstr "Dipertahankan: offset ini lolos boot percobaannya"
+
+msgid "a boot with it ended without a clean shutdown"
+msgstr "sebuah boot dengannya berakhir tanpa pematian yang bersih"
+
+msgid "its trial boot ended before 10 minutes"
+msgstr "boot percobaannya berakhir sebelum 10 menit"
+
+msgid "invalid value"
+msgstr "nilai tidak valid"
+
+msgid "unknown SoC firmware"
+msgstr "firmware SoC tidak dikenal"
+
+msgid "refused by the kernel"
+msgstr "ditolak oleh kernel"
+
+msgid "the kernel could not start CPU scaling with it"
+msgstr "kernel tidak dapat memulai penskalaan CPU dengannya"
+
+msgid "Offsets in µV for the three CPU domains (cores 0-3, 4-6 and 7), in whole steps. A new offset takes effect at the next reboot, as a trial: it is kept once that boot has been up 10 minutes, and dropped (back to 0) if a boot with it ends in a crash, a watchdog reset or a power cut."
+msgstr "Offset dalam µV untuk tiga domain CPU (inti CPU 0-3, 4-6, dan 7), dalam langkah utuh. Offset baru berlaku pada boot ulang berikutnya sebagai percobaan: dipertahankan setelah boot itu berjalan 10 menit, dan dibuang (kembali ke 0) jika boot dengannya berakhir karena crash, reset watchdog, atau listrik padam."
+
+msgid "Running now (µV)"
+msgstr "Berjalan sekarang (µV)"
+
+msgid "Saved for the next boot (µV)"
+msgstr "Tersimpan untuk boot berikutnya (µV)"
+
+msgid "State"
+msgstr "Keadaan"
+
+msgid "Taken back automatically: %s µV (%s)"
+msgstr "Ditarik kembali otomatis: %s µV (%s)"
+
+msgid "The SoC firmware of this device is not one whose voltage encoding is known: only the stock voltages are possible."
+msgstr "Firmware SoC perangkat ini bukan salah satu yang pengodean tegangannya diketahui: hanya tegangan bawaan pabrik yang dimungkinkan."
+
+msgid "Domain"
+msgstr "Domain"
+
+msgid "Offset now (µV)"
+msgstr "Offset sekarang (µV)"
+
+msgid "Highest step"
+msgstr "Langkah tertinggi"
+
+msgid "New offset (µV)"
+msgstr "Offset baru (µV)"
+
+msgid "Limits: %d to %d µV, in steps of %d µV."
+msgstr "Batas: %d hingga %d µV, dengan langkah %d µV."
+
+msgid "Save for the next boot"
+msgstr "Simpan untuk boot berikutnya"
+
+msgid "Each offset must be a multiple of %d µV between %d and %d."
+msgstr "Setiap offset harus kelipatan %d µV antara %d dan %d."
+
+msgid "Type %s to confirm."
+msgstr "Ketik %s untuk mengonfirmasi."
+
+msgid "Back to the stock voltages"
+msgstr "Kembali ke tegangan bawaan pabrik"
+
+msgid "Type %s to confirm:"
+msgstr "Ketik %s untuk mengonfirmasi:"
+
+msgid "Run a 10-minute CPU stress test"
+msgstr "Jalankan uji stres CPU 10 menit"
+
+msgid "Test a new offset under load during its trial boot. The device may crash if the voltage is too low; the next boot then runs at the stock voltages."
+msgstr "Uji offset baru di bawah beban selama boot percobaannya. Perangkat dapat crash jika tegangan terlalu rendah; boot berikutnya lalu berjalan dengan tegangan bawaan pabrik."
+
+msgid "A stress test is running."
+msgstr "Uji stres sedang berjalan."
 
 msgid "USB role"
 msgstr "Peran USB"
@@ -583,6 +778,12 @@ msgstr "Hapus nilai yang tersimpan"
 msgid "Presets"
 msgstr "Prasetel"
 
+msgid "Form (URL-encoded)"
+msgstr "Formulir (dienkode URL)"
+
+msgid "Plain text"
+msgstr "Teks biasa"
+
 msgid "Received messages are sent on as they reach the SMS pool. A failed delivery is retried after 30 s, then after twice as long each time (an hour at most), ten times in all."
 msgstr "Pesan yang diterima diteruskan begitu sampai di pool SMS. Pengiriman yang gagal dicoba lagi setelah 30 dtk, lalu setiap kali setelah waktu dua kali lebih lama (paling lama satu jam), sepuluh kali seluruhnya."
 
@@ -621,12 +822,6 @@ msgstr "Alamat (http:// atau https://)"
 
 msgid "Body"
 msgstr "Isi"
-
-msgid "Form (URL-encoded)"
-msgstr "Formulir (dienkode URL)"
-
-msgid "Plain text"
-msgstr "Teks biasa"
 
 msgid "Fields: sender, time, text, device, message (the template filled in)"
 msgstr "Kolom: sender, time, text, device, message (templat yang sudah diisi)"
@@ -745,6 +940,9 @@ msgstr "Belum ada pengiriman"
 msgid "Test started with the saved settings; the result appears in the delivery log."
 msgstr "Uji dimulai dengan pengaturan tersimpan; hasilnya muncul di log pengiriman."
 
+msgid "Automatic without 2G (152)"
+msgstr "Otomatis tanpa 2G (152)"
+
 msgid "4G only"
 msgstr "Hanya 4G"
 
@@ -813,6 +1011,9 @@ msgstr "Durasi sesi"
 
 msgid "Registration"
 msgstr "Registrasi"
+
+msgid "Data roaming"
+msgstr "Roaming data"
 
 msgid "Bandwidth"
 msgstr "Lebar pita"
@@ -940,14 +1141,26 @@ msgstr "Menyambungkan data…"
 msgid "Turn off cellular radio"
 msgstr "Matikan radio seluler"
 
-msgid "Cellular connectivity will be interrupted."
-msgstr "Konektivitas seluler akan terputus."
+msgid "This SIM will have no calls, SMS or data, and its radio stays off after a reboot until you turn it on again."
+msgstr "SIM ini tidak akan bisa menelepon, SMS, atau data, dan radionya tetap mati setelah reboot sampai Anda menyalakannya lagi."
 
 msgid "Turn on cellular radio"
 msgstr "Nyalakan radio seluler"
 
-msgid "The SFUN power-on sequence will run (up to about 1 minute)."
-msgstr "Urutan penyalaan SFUN akan dijalankan (hingga sekitar 1 menit)."
+msgid "The radio of the SIM in use comes on and stays on after a reboot (up to about 1 minute)."
+msgstr "Radio SIM yang digunakan menyala dan tetap menyala setelah reboot (hingga sekitar 1 menit)."
+
+msgid "Turn data roaming off"
+msgstr "Matikan roaming data"
+
+msgid "While the SIM is registered on a roaming network, mobile data stays off; SMS, calls and the registration are not affected. Some SIMs report roaming at home (an MVNO, national roaming): there, data would stop as well."
+msgstr "Selama SIM terdaftar di jaringan roaming, data seluler tetap mati; SMS, panggilan, dan pendaftaran tidak terpengaruh. Beberapa SIM melaporkan roaming bahkan di dalam negeri (MVNO, roaming nasional): di sana data juga akan berhenti."
+
+msgid "Allow data roaming"
+msgstr "Izinkan roaming data"
+
+msgid "Mobile data is used on roaming networks too, which can cost extra. Some SIMs report roaming at home (an MVNO, national roaming) and need this to have data at all."
+msgstr "Data seluler juga digunakan di jaringan roaming, yang bisa menambah biaya. Beberapa SIM melaporkan roaming bahkan di dalam negeri (MVNO, roaming nasional) dan memerlukan ini agar mendapat data."
 
 msgid "Cellular connectivity may stop for 1–2 minutes."
 msgstr "Konektivitas seluler mungkin berhenti selama 1–2 menit."
@@ -1054,6 +1267,9 @@ msgstr "Anchor B%s"
 msgid "No serving cell"
 msgstr "Tidak ada sel layanan"
 
+msgid "Version %s is out: update"
+msgstr "Versi %s sudah keluar: perbarui"
+
 msgid "Not registered"
 msgstr "Tidak terdaftar"
 
@@ -1074,6 +1290,15 @@ msgstr "Hanya darurat"
 
 msgid "Status %s"
 msgstr "Status %s"
+
+msgid "Off: data held back while roaming"
+msgstr "Mati: data ditahan saat roaming"
+
+msgid "Allowed"
+msgstr "Diizinkan"
+
+msgid "Off"
+msgstr "Mati"
 
 msgid "LTE anchor"
 msgstr "Anchor LTE"
@@ -1224,9 +1449,6 @@ msgstr "Kode"
 
 msgid "Translated"
 msgstr "Diterjemahkan"
-
-msgid "State"
-msgstr "Keadaan"
 
 msgid "LuCI's own translations come from OpenWrt. This panel's translations other than Turkish and Chinese are machine (AI) translations; corrections are welcome."
 msgstr "Terjemahan LuCI sendiri berasal dari OpenWrt. Terjemahan panel ini selain bahasa Turki dan Mandarin adalah terjemahan mesin (AI); koreksi dipersilakan."
@@ -1594,14 +1816,20 @@ msgstr "0 % tidak pernah mengisi baterai (perangkat berjalan dari pengisi daya),
 msgid "80 % keeps the battery healthier on a device that stays plugged in."
 msgstr "80 % menjaga baterai tetap sehat pada perangkat yang terus tercolok."
 
+msgid "When the charger switches the device on"
+msgstr "Saat pengisi daya menyalakan perangkat"
+
+msgid "Charge only, until a key starts it"
+msgstr "Hanya mengisi daya, sampai tombol menyalakannya"
+
+msgid "Start normally"
+msgstr "Mulai secara normal"
+
 msgid "Keep as is"
 msgstr "Biarkan apa adanya"
 
 msgid "LTE only (5G off)"
 msgstr "Hanya LTE (5G mati)"
-
-msgid "Off"
-msgstr "Mati"
 
 msgid "On"
 msgstr "Hidup"
@@ -1795,6 +2023,78 @@ msgstr "Switch to SIM%d"
 # Source-language fallback for untranslated new controls.
 msgid "Use SIM%d at next boot"
 msgstr "Use SIM%d at next boot"
+
+msgid "Built-in SIM 1"
+msgstr "SIM bawaan 1"
+
+msgid "Built-in SIM 2"
+msgstr "SIM bawaan 2"
+
+msgid "Built-in SIM 3"
+msgstr "SIM bawaan 3"
+
+msgid "External SIM"
+msgstr "SIM eksternal"
+
+msgid "SIM card"
+msgstr "Kartu SIM"
+
+msgid "Built-in SIM 3 shares SIM2, the external SIM shares SIM1. The card chosen here is switched in before the modem starts, at the next boot; without a choice the cards stay as the bootloader sets them."
+msgstr "SIM bawaan 3 berbagi SIM2, SIM eksternal berbagi SIM1. Kartu yang dipilih di sini dialihkan sebelum modem menyala, pada boot berikutnya; tanpa pilihan, kartu tetap seperti yang diatur bootloader."
+
+msgid "As the bootloader sets them"
+msgstr "Seperti yang diatur bootloader"
+
+msgid "Applying the radio setting…"
+msgstr "Menerapkan pengaturan radio…"
+
+msgid "SIM settings are not available"
+msgstr "Pengaturan SIM tidak tersedia"
+
+msgid "Modem default"
+msgstr "Bawaan modem"
+
+msgid "SIM%d"
+msgstr "SIM%d"
+
+msgid "in use"
+msgstr "digunakan"
+
+msgid "Turn off the radio of SIM%d"
+msgstr "Matikan radio SIM%d"
+
+msgid "Radio"
+msgstr "Radio"
+
+msgid "VoLTE"
+msgstr "VoLTE"
+
+msgid "VoNR"
+msgstr "VoNR"
+
+msgid "Modem: %s"
+msgstr "Modem: %s"
+
+msgid "Sent to this SIM when its radio next starts."
+msgstr "Dikirim ke SIM ini saat radionya mulai lagi."
+
+msgid "VoLTE and VoNR for each SIM, kept across reboots and sent again whenever that SIM starts. VoLTE is on unless switched off; VoNR stays as the modem has it until set."
+msgstr "VoLTE dan VoNR untuk tiap SIM, tetap setelah reboot dan dikirim ulang setiap kali SIM itu mulai. VoLTE aktif kecuali dimatikan; VoNR tetap seperti di modem sampai diatur."
+
+msgid "All radios off (airplane mode)"
+msgstr "Semua radio mati (mode pesawat)"
+
+msgid "All radios on"
+msgstr "Semua radio menyala"
+
+msgid "No SIM will have calls, SMS or data, also after a reboot, until a radio is turned on again here or with the dashboard's radio button."
+msgstr "Tidak ada SIM yang bisa menelepon, SMS, atau data, juga setelah reboot, sampai radio dinyalakan lagi di sini atau dengan tombol radio di dasbor."
+
+msgid "Each SIM's radio stays as set here after a reboot. A SIM whose radio is off has no calls, SMS or data, and the device does not switch to it."
+msgstr "Radio tiap SIM tetap seperti diatur di sini setelah reboot. SIM yang radionya mati tidak bisa menelepon, SMS, atau data, dan perangkat tidak beralih ke SIM itu."
+
+msgid "The setting is saved, but the radio did not follow it yet."
+msgstr "Pengaturan tersimpan, tetapi radio belum mengikutinya."
 
 msgid "Recipient: number, e.g. 10086 or +86..."
 msgstr "Penerima: nomor, mis. 10086 atau +86..."
@@ -2045,6 +2345,402 @@ msgstr "Matikan"
 msgid "64 makes every packet leave like the device's own traffic"
 msgstr "Dengan 64 setiap paket keluar seperti lalu lintas perangkat itu sendiri"
 
+msgid "Check for updates"
+msgstr "Periksa pembaruan"
+
+msgid "Checking the file"
+msgstr "Memeriksa berkas"
+
+msgid "Update from a file"
+msgstr "Perbarui dari berkas"
+
+msgid "Back to the previous version"
+msgstr "Kembali ke versi sebelumnya"
+
+msgid "Back to the previous boot image"
+msgstr "Kembali ke image boot sebelumnya"
+
+msgid "Remove the previous version"
+msgstr "Hapus versi sebelumnya"
+
+msgid "Kernel change"
+msgstr "Ganti kernel"
+
+msgid "Starting…"
+msgstr "Memulai…"
+
+msgid "Downloading"
+msgstr "Mengunduh"
+
+msgid "All files are here and verified"
+msgstr "Semua berkas sudah ada dan terverifikasi"
+
+msgid "Unpacking the new system"
+msgstr "Membongkar sistem baru"
+
+msgid "Carrying over your settings"
+msgstr "Memindahkan pengaturan Anda"
+
+msgid "Writing down the packages you installed"
+msgstr "Mencatat paket yang Anda pasang"
+
+msgid "Switching to the new system"
+msgstr "Beralih ke sistem baru"
+
+msgid "Kernel and boot image"
+msgstr "Kernel dan image boot"
+
+msgid "Restart the device?"
+msgstr "Mulai ulang perangkat?"
+
+msgid "The device restarts now. The default boot is Android, so it starts Android: switch to Linux from there to start the updated system."
+msgstr "Perangkat dimulai ulang sekarang. Boot bawaan adalah Android, jadi Android yang berjalan: beralihlah ke Linux dari sana untuk menjalankan sistem yang sudah diperbarui."
+
+msgid "The device restarts now and is away for about a minute. If the new system does not start, the device goes back to Android by itself after the failed attempts."
+msgstr "Perangkat dimulai ulang sekarang dan tidak dapat diakses selama sekitar satu menit. Jika sistem baru tidak mau menyala, perangkat kembali ke Android dengan sendirinya setelah beberapa percobaan gagal."
+
+msgid "Restart"
+msgstr "Mulai ulang"
+
+msgid "Restarting… open this page again in about a minute."
+msgstr "Memulai ulang… buka lagi halaman ini sekitar satu menit lagi."
+
+msgid "Running for %s. It goes on when this page is closed; do not switch the device off."
+msgstr "Sudah berjalan %s. Proses tetap berlanjut saat halaman ini ditutup; jangan matikan perangkat."
+
+msgid "Done. Restart the device to start it."
+msgstr "Selesai. Mulai ulang perangkat untuk menjalankannya."
+
+msgid "Done. Nothing needs a restart."
+msgstr "Selesai. Tidak perlu mulai ulang."
+
+msgid "It did not finish, and part of it was done: read the log before you restart."
+msgstr "Tidak selesai, dan sebagian sudah dikerjakan: baca log sebelum memulai ulang."
+
+msgid "It did not finish. Nothing was changed; the log says why."
+msgstr "Tidak selesai. Tidak ada yang diubah; log menjelaskan sebabnya."
+
+msgid "Log"
+msgstr "Log"
+
+msgid "Restart now"
+msgstr "Mulai ulang sekarang"
+
+msgid "Later"
+msgstr "Nanti"
+
+msgid "Close"
+msgstr "Tutup"
+
+msgid "Updating is not available on this system"
+msgstr "Pembaruan tidak tersedia di sistem ini"
+
+msgid "Another update is running on the device"
+msgstr "Pembaruan lain sedang berjalan di perangkat"
+
+msgid "It was started outside this page (a terminal, the toolkit). Nothing can be started here until it has finished."
+msgstr "Proses ini dimulai dari luar halaman ini (terminal, toolkit). Tidak ada yang dapat dimulai di sini sampai proses itu selesai."
+
+msgid "Restart needed"
+msgstr "Perlu mulai ulang"
+
+msgid "This system was updated and still runs the old version. The new one starts at the next restart."
+msgstr "Sistem ini sudah diperbarui dan masih menjalankan versi lama. Versi baru berjalan pada mulai ulang berikutnya."
+
+msgid "Installed"
+msgstr "Terpasang"
+
+msgid "This system"
+msgstr "Sistem ini"
+
+msgid "Also on this device"
+msgstr "Juga ada di perangkat ini"
+
+msgid "Kernel"
+msgstr "Kernel"
+
+msgid "choice %s"
+msgstr "pilihan %s"
+
+msgid "Boot image"
+msgstr "Image boot"
+
+msgid "from the installer"
+msgstr "dari penginstal"
+
+msgid "Default boot"
+msgstr "Boot bawaan"
+
+msgid "Free space"
+msgstr "Ruang kosong"
+
+msgid "Release signatures"
+msgstr "Tanda tangan rilis"
+
+msgid "checked with the project's key"
+msgstr "diperiksa dengan kunci proyek"
+
+msgid "this system has no release key"
+msgstr "sistem ini tidak punya kunci rilis"
+
+msgid "The default boot is Android: a restart goes to Android, and Linux is started from there."
+msgstr "Boot bawaan adalah Android: mulai ulang masuk ke Android, dan Linux dijalankan dari sana."
+
+msgid "Linux is locked as the default boot: a failed start does not send the device to Android by itself, except the first starts of a new boot image."
+msgstr "Linux dikunci sebagai boot bawaan: kegagalan menyala tidak membuat perangkat masuk ke Android dengan sendirinya, kecuali pada beberapa kali penyalaan pertama image boot baru."
+
+msgid "If Linux fails to start %d times in a row, the device starts Android by itself."
+msgstr "Jika Linux gagal menyala %d kali berturut-turut, perangkat menjalankan Android dengan sendirinya."
+
+msgid "Report of the last update"
+msgstr "Laporan pembaruan terakhir"
+
+msgid "Online update"
+msgstr "Pembaruan daring"
+
+msgid "Asking GitHub…"
+msgstr "Menanyakan ke GitHub…"
+
+msgid "Checked %s ago"
+msgstr "Diperiksa %s yang lalu"
+
+msgid "Not checked yet"
+msgstr "Belum diperiksa"
+
+msgid "Mirror (release files)"
+msgstr "Cermin (berkas rilis)"
+
+msgid "Leave empty for GitHub."
+msgstr "Biarkan kosong untuk GitHub."
+
+msgid "Install the packages I added again after the update (needs the device online at the first start)"
+msgstr "Pasang lagi paket yang saya tambahkan setelah pembaruan (perangkat harus daring pada penyalaan pertama)"
+
+msgid "Pre-release"
+msgstr "Pra-rilis"
+
+msgid "Newest release"
+msgstr "Rilis terbaru"
+
+msgid "Release notes"
+msgstr "Catatan rilis"
+
+msgid "Download"
+msgstr "Unduhan"
+
+msgid "Free space needed"
+msgstr "Ruang kosong yang diperlukan"
+
+msgid "not enough: remove the previous version first"
+msgstr "tidak cukup: hapus dulu versi sebelumnya"
+
+msgid "A pre-release is a release still being tried: it can have faults a release does not. The previous version is kept all the same."
+msgstr "Pra-rilis adalah rilis yang masih dicoba: bisa saja ada kesalahan yang tidak ada pada rilis. Versi sebelumnya tetap disimpan."
+
+msgid "This system is newer than the newest release (a test release)."
+msgstr "Sistem ini lebih baru daripada rilis terbaru (rilis uji)."
+
+msgid "Up to date."
+msgstr "Sudah yang terbaru."
+
+msgid "This release is not signed, and this system checks signatures: it is not installed from here. Update from its file below, which asks you to confirm."
+msgstr "Rilis ini tidak ditandatangani, dan sistem ini memeriksa tanda tangan: rilis ini tidak dipasang dari sini. Perbarui dari berkasnya di bawah, yang meminta Anda mengonfirmasi."
+
+msgid "Update to %s"
+msgstr "Perbarui ke %s"
+
+msgid "Choose at least one system"
+msgstr "Pilih setidaknya satu sistem"
+
+msgid "Update to %s?"
+msgstr "Perbarui ke %s?"
+
+msgid "The device downloads %s, puts the new system beside the running one and switches to it at the next restart. Your settings are carried over and the previous version is kept. It takes several minutes; do not switch the device off."
+msgstr "Perangkat mengunduh %s, menaruh sistem baru di samping sistem yang sedang berjalan, lalu beralih ke sistem itu pada mulai ulang berikutnya. Pengaturan Anda dipindahkan dan versi sebelumnya disimpan. Prosesnya beberapa menit; jangan matikan perangkat."
+
+msgid "Also offer the pre-release %s"
+msgstr "Tawarkan juga pra-rilis %s"
+
+msgid "Systems to update:"
+msgstr "Sistem yang diperbarui:"
+
+msgid "GitHub could not be reached: the device has no internet connection, or GitHub did not answer. Without internet, update from a file below."
+msgstr "GitHub tidak dapat dihubungi: perangkat tidak punya koneksi internet, atau GitHub tidak menjawab. Tanpa internet, perbarui dari berkas di bawah."
+
+msgid "release"
+msgstr "rilis"
+
+msgid "For a device without internet: download the Magisk zip of a release for this system and this kernel on another computer, from the release page on GitHub, and upload it here. For this device that is:"
+msgstr "Untuk perangkat tanpa internet: unduh zip Magisk dari sebuah rilis untuk sistem ini dan kernel ini di komputer lain, dari halaman rilis di GitHub, lalu unggah di sini. Untuk perangkat ini berkasnya adalah:"
+
+msgid "Uploaded file"
+msgstr "Berkas yang diunggah"
+
+msgid "Checking the file…"
+msgstr "Memeriksa berkas…"
+
+msgid "It says it is"
+msgstr "Menurut berkas ini"
+
+msgid "kernel %s"
+msgstr "kernel %s"
+
+msgid "Signature"
+msgstr "Tanda tangan"
+
+msgid "signed with the project's release key"
+msgstr "ditandatangani dengan kunci rilis proyek"
+
+msgid "WRONG: it does not match the project's release key"
+msgstr "SALAH: tidak cocok dengan kunci rilis proyek"
+
+msgid "not signed"
+msgstr "tidak ditandatangani"
+
+msgid "cannot be checked on this system"
+msgstr "tidak dapat diperiksa di sistem ini"
+
+msgid "Its system is not installed on this device."
+msgstr "Sistem dalam berkas ini tidak terpasang di perangkat ini."
+
+msgid "It is the other Ubuntu release, not the one installed."
+msgstr "Ini rilis Ubuntu yang lain, bukan yang terpasang."
+
+msgid "It carries another kernel than this device uses. Take the zip for kernel %s, or change the kernel first."
+msgstr "Berkas ini membawa kernel yang berbeda dari yang dipakai perangkat ini. Ambil zip untuk kernel %s, atau ganti kernelnya dulu."
+
+msgid "Its kernel does not run on this model."
+msgstr "Kernelnya tidak berjalan di model ini."
+
+msgid "The file is damaged: its contents do not match their checksums."
+msgstr "Berkas rusak: isinya tidak cocok dengan checksum-nya."
+
+msgid "Its signature is wrong. This file does not come from the project as it is; it is never installed."
+msgstr "Tanda tangannya salah. Berkas ini tidak berasal dari proyek dalam keadaan aslinya; berkas ini tidak akan pernah dipasang."
+
+msgid "This file cannot be used here."
+msgstr "Berkas ini tidak dapat dipakai di sini."
+
+msgid "Compare the SHA-256 with the one in SHA256SUMS-magisk on the release page: it is the only proof of where an unsigned file comes from."
+msgstr "Bandingkan SHA-256 dengan yang ada di SHA256SUMS-magisk pada halaman rilis: hanya itu bukti asal sebuah berkas yang tidak ditandatangani."
+
+msgid "This release is installed already; the update would only refresh the boot image."
+msgstr "Rilis ini sudah terpasang; pembaruan hanya akan menulis ulang image boot."
+
+msgid "I know this file is not signed: nothing proves that it comes from the project. I compared its SHA-256 myself and want it installed."
+msgstr "Saya tahu berkas ini tidak ditandatangani: tidak ada yang membuktikan bahwa berkas ini berasal dari proyek. Saya sudah membandingkan sendiri SHA-256-nya dan ingin berkas ini dipasang."
+
+msgid "I know this is %s, older than the installed %s, and want to go back to it."
+msgstr "Saya tahu ini %s, lebih lama daripada %s yang terpasang, dan ingin kembali ke versi itu."
+
+msgid "This is not a release file of this project: a Magisk zip of a release is expected."
+msgstr "Ini bukan berkas rilis proyek ini: yang diharapkan adalah zip Magisk dari sebuah rilis."
+
+msgid "Update from this file"
+msgstr "Perbarui dari berkas ini"
+
+msgid "Tick the confirmations above first"
+msgstr "Centang dulu konfirmasi di atas"
+
+msgid "The device puts the system of this file beside the running one and switches to it at the next restart. Your settings are carried over and the previous version is kept. It takes several minutes; do not switch the device off."
+msgstr "Perangkat menaruh sistem dari berkas ini di samping sistem yang sedang berjalan, lalu beralih ke sistem itu pada mulai ulang berikutnya. Pengaturan Anda dipindahkan dan versi sebelumnya disimpan. Prosesnya beberapa menit; jangan matikan perangkat."
+
+msgid "Check the file"
+msgstr "Periksa berkas"
+
+msgid "Remove the file"
+msgstr "Hapus berkas"
+
+msgid "Previous version"
+msgstr "Versi sebelumnya"
+
+msgid "No previous version is kept on this device."
+msgstr "Tidak ada versi sebelumnya yang disimpan di perangkat ini."
+
+msgid "replaced %s"
+msgstr "diganti pada %s"
+
+msgid "I want the previous system back; what I changed since the update stays in the version I leave."
+msgstr "Saya ingin sistem sebelumnya kembali; yang saya ubah sejak pembaruan tetap berada di versi yang saya tinggalkan."
+
+msgid "Back to the previous version?"
+msgstr "Kembali ke versi sebelumnya?"
+
+msgid "The previous system (%s) becomes the one that starts at the next restart. The version you leave is not kept; settings you changed since the update are not carried back."
+msgstr "Sistem sebelumnya (%s) menjadi sistem yang berjalan pada mulai ulang berikutnya. Versi yang Anda tinggalkan tidak disimpan; pengaturan yang Anda ubah sejak pembaruan tidak ikut dibawa kembali."
+
+msgid "Go back"
+msgstr "Kembali"
+
+msgid "The previous version is the one running now: restart first."
+msgstr "Versi sebelumnya adalah yang sedang berjalan sekarang: mulai ulang dulu."
+
+msgid "I want the previous kernel and boot image back."
+msgstr "Saya ingin kernel dan image boot sebelumnya kembali."
+
+msgid "Back to the previous boot image?"
+msgstr "Kembali ke image boot sebelumnya?"
+
+msgid "The previous boot image (%s) is written to the Linux slot and starts at the next restart. If it does not start, the device goes back to Android by itself."
+msgstr "Image boot sebelumnya (%s) ditulis ke slot Linux dan berjalan pada mulai ulang berikutnya. Jika tidak mau menyala, perangkat kembali ke Android dengan sendirinya."
+
+msgid "I do not need to go back: delete the previous system to free its space."
+msgstr "Saya tidak perlu kembali: hapus sistem sebelumnya untuk mengosongkan ruangnya."
+
+msgid "Remove the previous version?"
+msgstr "Hapus versi sebelumnya?"
+
+msgid "The kept copy of the previous system is deleted for good. After that there is no going back to it from this page."
+msgstr "Salinan sistem sebelumnya yang disimpan akan dihapus selamanya. Setelah itu tidak bisa lagi kembali ke sistem itu dari halaman ini."
+
+msgid "the vendor kernel"
+msgstr "kernel vendor"
+
+msgid "mainline"
+msgstr "mainline"
+
+msgid "not with Ubuntu 26.04"
+msgstr "tidak dengan Ubuntu 26.04"
+
+msgid "Change the kernel"
+msgstr "Ganti kernel"
+
+msgid "This kernel is the one in use"
+msgstr "Kernel ini sedang dipakai"
+
+msgid "Change the kernel to %s?"
+msgstr "Ganti kernel ke %s?"
+
+msgid "The device downloads that kernel from the newest release and writes a new boot image; it starts at the next restart. The previous boot image is kept, and if the new one does not start the device goes back to Android by itself. The device must be online."
+msgstr "Perangkat mengunduh kernel itu dari rilis terbaru dan menulis image boot baru; kernel itu berjalan pada mulai ulang berikutnya. Image boot sebelumnya disimpan, dan jika yang baru tidak mau menyala, perangkat kembali ke Android dengan sendirinya. Perangkat harus daring."
+
+msgid "Start Android at the next restart"
+msgstr "Jalankan Android pada mulai ulang berikutnya"
+
+msgid "Start Android at the next restart?"
+msgstr "Jalankan Android pada mulai ulang berikutnya?"
+
+msgid "The next restart, and the ones after it, start Android instead of Linux. Linux is started again from Android (the Magisk module's Action button, or mu300-linux)."
+msgstr "Mulai ulang berikutnya, dan yang sesudahnya, menjalankan Android, bukan Linux. Linux dijalankan lagi dari Android (tombol Action modul Magisk, atau mu300-linux)."
+
+msgid "Start Android next"
+msgstr "Jalankan Android berikutnya"
+
+msgid "What an update keeps"
+msgstr "Yang dipertahankan pembaruan"
+
+msgid "An update puts the system of the new release in place and carries over what is yours: the settings, the accounts and their passwords, the device's keys and the home directories. Packages you installed yourself are written down and installed again at the first start, once the device is online. The previous version stays on the device until you remove it, so you can go back."
+msgstr "Pembaruan memasang sistem dari rilis baru dan memindahkan milik Anda: pengaturan, akun beserta kata sandinya, kunci perangkat, dan direktori home. Paket yang Anda pasang sendiri dicatat dan dipasang lagi pada penyalaan pertama, setelah perangkat daring. Versi sebelumnya tetap ada di perangkat sampai Anda menghapusnya, sehingga Anda bisa kembali."
+
+msgid "The wiki's Updating page lists exactly what is kept."
+msgstr "Halaman Pembaruan di wiki memuat daftar persis apa saja yang dipertahankan."
+
+msgid "Choose a file first"
+msgstr "Pilih berkas dulu"
+
+msgid "Uploading: %s of %s"
+msgstr "Mengunggah: %s dari %s"
+
 msgid "running"
 msgstr "berjalan"
 
@@ -2078,9 +2774,6 @@ msgstr "Tidak ada profil yang berjalan di atasnya."
 msgid "Removed"
 msgstr "Dihapus"
 
-msgid "Check for updates"
-msgstr "Periksa pembaruan"
-
 msgid "Each engine is an extra of its own: install only the ones your profiles need. Xray runs vless, vmess, trojan and ss links (with hev-socks5-tunnel), sing-box the same links and its own JSON, mihomo Clash subscriptions, dae hysteria2, tuic and the rest on newer kernels. WireGuard and OpenVPN are packages of the system."
 msgstr "Setiap mesin adalah ekstra tersendiri: pasang hanya yang dibutuhkan profil Anda. Xray menjalankan tautan vless, vmess, trojan, dan ss (dengan hev-socks5-tunnel), sing-box tautan yang sama dan JSON-nya sendiri, mihomo langganan Clash, dae hysteria2, tuic, dan lainnya pada kernel yang lebih baru. WireGuard dan OpenVPN adalah paket sistem."
 
@@ -2089,9 +2782,6 @@ msgstr "Unduhan berukuran puluhan MB per mesin: pada data seluler, ini memotong 
 
 msgid "The available versions come from the latest release of the VPN module."
 msgstr "Versi yang tersedia berasal dari rilis terbaru modul VPN."
-
-msgid "Update"
-msgstr "Perbarui"
 
 msgid "system package"
 msgstr "paket sistem"
@@ -2261,9 +2951,6 @@ msgstr "Mulai"
 msgid "Stop"
 msgstr "Hentikan"
 
-msgid "Restart"
-msgstr "Mulai ulang"
-
 msgid "Stop the VPN?"
 msgstr "Hentikan VPN?"
 
@@ -2342,8 +3029,8 @@ msgstr "Penjaga IPv6"
 msgid "Active: IPv6 outside the tunnel is refused"
 msgstr "Aktif: IPv6 di luar terowongan ditolak"
 
-msgid "While the VPN is up, IPv6 never leaves beside a tunnel that does not carry it: it is refused at once, so programs and LAN clients fall back to IPv4 instead of leaking or waiting. Automatic: WireGuard uses the IPv6 addresses of its config, the other engines stay IPv4."
-msgstr "Saat VPN aktif, IPv6 tidak pernah keluar di samping terowongan yang tidak membawanya: langsung ditolak, sehingga program dan klien LAN beralih ke IPv4 alih-alih bocor atau menunggu. Otomatis: WireGuard memakai alamat IPv6 dari konfigurasinya, mesin lain tetap IPv4."
+msgid "While the VPN is up, IPv6 never leaves beside a tunnel that does not carry it: it is refused at once, so programs and LAN clients fall back to IPv4 instead of leaking or waiting. Automatic: WireGuard and OpenVPN use the IPv6 addresses of their config; Xray, sing-box and mihomo are asked at every start whether IPv6 works through the tunnel, and carry it only then; dae stays IPv4."
+msgstr "Saat VPN aktif, IPv6 tidak pernah keluar di samping terowongan yang tidak membawanya: langsung ditolak, sehingga program dan klien LAN beralih ke IPv4 alih-alih bocor atau menunggu. Otomatis: WireGuard dan OpenVPN memakai alamat IPv6 dari konfigurasinya; untuk Xray, sing-box, dan mihomo, setiap kali mulai diperiksa apakah IPv6 berfungsi melalui terowongan, dan hanya saat itu IPv6 dibawa; dae tetap IPv4."
 
 msgid "%d ms"
 msgstr "%d ms"
@@ -2440,9 +3127,6 @@ msgstr "Profil ini berasal dari langganan: penyegaran berikutnya menimpa perubah
 
 msgid "Config of %s"
 msgstr "Konfigurasi %s"
-
-msgid "Close"
-msgstr "Tutup"
 
 msgid "Rename"
 msgstr "Ganti nama"
@@ -2812,23 +3496,74 @@ msgstr "The CPU adapter gave no valid reply"
 msgid "Invalid CPU profile"
 msgstr "Invalid CPU profile"
 
+msgid "Invalid CPU core"
+msgstr "Inti CPU tidak valid"
+
+msgid "Unknown CPU operation"
+msgstr "Unknown CPU operation"
+
+msgid "Unknown CPU voltage operation"
+msgstr "Operasi tegangan CPU tidak dikenal"
+
+msgid "Invalid CPU voltage request"
+msgstr "Permintaan tegangan CPU tidak valid"
+
+msgid "Invalid CPU voltage offset"
+msgstr "Offset tegangan CPU tidak valid"
+
+msgid "Type the confirmation word to apply a voltage offset"
+msgstr "Ketik kata konfirmasi untuk menerapkan offset tegangan"
+
+msgid "Invalid stress test length"
+msgstr "Durasi uji stres tidak valid"
+
 msgid "The packages adapter gave no valid reply"
 msgstr "Adaptor paket tidak memberi balasan yang valid"
 
 msgid "Invalid packages operation"
 msgstr "Operasi paket tidak valid"
 
+msgid "The sizes parameter must be 0 or 1"
+msgstr "Parameter sizes harus 0 atau 1"
+
+msgid "The update adapter gave no valid reply"
+msgstr "Adaptor pembaruan tidak memberi jawaban yang valid"
+
+msgid "Unknown update operation"
+msgstr "Operasi pembaruan tidak dikenal"
+
+msgid "Invalid update request"
+msgstr "Permintaan pembaruan tidak valid"
+
+msgid "The backup tool gave no valid reply"
+msgstr "Alat cadangan tidak memberi jawaban yang valid"
+
+msgid "Mobile data integration is not provided by this platform"
+msgstr "Integrasi data seluler tidak disediakan oleh platform ini"
+
+msgid "The SIM settings could not be read"
+msgstr "Pengaturan SIM tidak dapat dibaca"
+
+msgid "Radio control is not provided by this platform"
+msgstr "Platform ini tidak menyediakan kontrol radio"
+
+msgid "A SIM radio change is already running"
+msgstr "Perubahan radio SIM sedang berjalan"
+
 # Source-language fallback for untranslated new controls.
 msgid "Invalid SIM setting"
 msgstr "Invalid SIM setting"
 
-# Source-language fallback for untranslated new controls.
-msgid "Enable hot switching; reboot if channels are unavailable or wait until idle"
-msgstr "Enable hot switching; reboot if channels are unavailable or wait until idle"
+msgid "The modem did not take the setting; nothing was saved"
+msgstr "Modem tidak menerima pengaturan; tidak ada yang disimpan"
 
 # Source-language fallback for untranslated new controls.
 msgid "SIM control failed"
 msgstr "SIM control failed"
+
+# Source-language fallback for untranslated new controls.
+msgid "Enable hot switching; reboot if channels are unavailable or wait until idle"
+msgstr "Enable hot switching; reboot if channels are unavailable or wait until idle"
 
 msgid "Request too large"
 msgstr "Permintaan terlalu besar"
@@ -2983,12 +3718,18 @@ msgstr "Jumlah baris adalah 1 sampai 1000"
 msgid "The log could not be read"
 msgstr "Log tidak dapat dibaca"
 
+msgid "The radio of this SIM is switched off in its settings"
+msgstr "Radio SIM ini dimatikan di pengaturannya"
+
 # Source-language fallback for untranslated new controls.
 msgid "Use SIM control or reboot for managed dual-SIM radio"
 msgstr "Use SIM control or reboot for managed dual-SIM radio"
 
-msgid "Radio did not come up"
-msgstr "Radio tidak menyala"
+msgid "The radio did not follow its setting"
+msgstr "Radio tidak mengikuti pengaturannya"
+
+msgid "The data roaming setting could not be saved"
+msgstr "Pengaturan roaming data tidak dapat disimpan"
 
 msgid "Expected on or off"
 msgstr "Diharapkan on atau off"
@@ -3011,8 +3752,26 @@ msgstr "The CPU profile could not be read"
 msgid "The CPU profile could not be set"
 msgstr "The CPU profile could not be set"
 
-msgid "Unknown CPU operation"
-msgstr "Unknown CPU operation"
+msgid "The CPU core could not be switched"
+msgstr "Inti CPU tidak dapat dialihkan"
+
+msgid "Invalid low latency setting"
+msgstr "Pengaturan latensi rendah tidak valid"
+
+msgid "The low latency setting could not be applied"
+msgstr "Pengaturan latensi rendah tidak dapat diterapkan"
+
+msgid "The CPU voltage offset could not be read"
+msgstr "Offset tegangan CPU tidak dapat dibaca"
+
+msgid "The CPU voltage offset was refused"
+msgstr "Offset tegangan CPU ditolak"
+
+msgid "The CPU voltage offset could not be turned off"
+msgstr "Offset tegangan CPU tidak dapat dimatikan"
+
+msgid "The stress test could not be started"
+msgstr "Uji stres tidak dapat dimulai"
 
 msgid "USB role adapter is not executable"
 msgstr "Adaptor peran USB tidak dapat dieksekusi"
@@ -3223,3 +3982,45 @@ msgstr "TTL tidak dapat diatur"
 
 msgid "Unknown TTL operation"
 msgstr "Operasi TTL tidak dikenal"
+
+msgid "An update task is already running"
+msgstr "Tugas pembaruan sudah berjalan"
+
+msgid "The task could not be started"
+msgstr "Tugas tidak dapat dimulai"
+
+msgid "The updater gave no valid reply"
+msgstr "Pembaru tidak memberi jawaban yang valid"
+
+msgid "This needs confirmation"
+msgstr "Ini memerlukan konfirmasi"
+
+msgid "Check for updates first"
+msgstr "Periksa pembaruan terlebih dahulu"
+
+msgid "The upload directory is not safe; nothing was changed"
+msgstr "Direktori unggahan tidak aman; tidak ada yang diubah"
+
+msgid "Not enough memory for this upload"
+msgstr "Memori tidak cukup untuk unggahan ini"
+
+msgid "Not enough free space on the Linux partition"
+msgstr "Ruang kosong di partisi Linux tidak cukup"
+
+msgid "The file was not checked; upload it again"
+msgstr "Berkas belum diperiksa; unggah lagi"
+
+msgid "This file is not for this device"
+msgstr "Berkas ini bukan untuk perangkat ini"
+
+msgid "The signature of this file is wrong"
+msgstr "Tanda tangan berkas ini salah"
+
+msgid "This file is not signed: that needs confirmation"
+msgstr "Berkas ini tidak ditandatangani: perlu konfirmasi"
+
+msgid "This file is older than what is installed: that needs confirmation"
+msgstr "Berkas ini lebih lama daripada yang terpasang: perlu konfirmasi"
+
+msgid "The release source was not changed"
+msgstr "Sumber rilis tidak diubah"

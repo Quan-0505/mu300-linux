@@ -22,8 +22,9 @@ concurrency:
 
 jobs:
   zips:
-    # only the project's releases (vYYYY.MM.DD): a test build for an issue, published as a pre-release under another
-    # tag (test-issue-102), is neither announced nor given Magisk zips
+    # only the project's releases (vYYYY.MM.DD.N; up to v2026.10.27 vYYYY.MM.DD - docs/FINDINGS.md 125): a test build
+    # for an issue, published as a pre-release under another tag (test-issue-102), is neither announced nor given
+    # Magisk zips
     if: startsWith(github.event.release.tag_name || github.event.inputs.tag, 'v')
     runs-on: ubuntu-latest
     env:
@@ -47,8 +48,10 @@ jobs:
       - name: Release assets
         run: |
           mkdir -p "release/$TAG"
+          # (SHA256SUMS.sig: a signed release's signature goes into every zip beside SHA256SUMS; none: nothing)
+          # (mu300-*.manifest.gz: from v2026.10.16.1 on, the images' manifests are in SHA256SUMS too - #224)
           gh release download "$TAG" -R "$GITHUB_REPOSITORY" -D "release/$TAG" \
-            -p SHA256SUMS -p 'mu300-*.tar.gz' -p mu300-update
+            -p SHA256SUMS -p SHA256SUMS.sig -p 'mu300-*.tar.gz' -p 'mu300-*.manifest.gz' -p mu300-update -p mu300-release
           (cd "release/$TAG" && sha256sum -c SHA256SUMS)
       - name: Build
         run: sh tools/make-magisk-zips.sh "release/$TAG" out "$TAG"
@@ -104,10 +107,12 @@ jobs:
           git push -q --force "$remote" "HEAD:refs/heads/$TAG"
           echo "pushed: https://raw.githubusercontent.com/$MIRROR_REPO/$TAG/manifest.json"
           keep=$(gh api "repos/$GITHUB_REPOSITORY/releases?per_page=30" --jq '[.[] | select(.draft | not) | select(.tag_name | startswith("v"))] | [(map(select(.prerelease | not)) | .[0].tag_name), (map(select(.prerelease)) | .[0].tag_name)] | .[] | select(. != null)')
+          # the mirror's default branch cannot be deleted (GitHub refuses, and the step failed on it)
+          default=$(git ls-remote --symref "$remote" HEAD | awk '$1 == "ref:" { sub("^refs/heads/", "", $2); print $2 }')
           for b in $(git ls-remote --heads "$remote" | awk '{ sub("^refs/heads/", "", $2); print $2 }'); do
             case "$b" in v[0-9]*) ;; *) continue ;; esac
             case "$b" in *[!0-9A-Za-z._-]*) continue ;; esac
-            [ "$b" != "$TAG" ] || continue
+            [ "$b" != "$TAG" ] && [ "$b" != "$default" ] || continue
             echo "$keep" | grep -qxF "$b" && continue
-            git push -q "$remote" --delete "$b" && echo "removed the mirror of $b"
+            git push -q "$remote" --delete "$b" && echo "removed the mirror of $b" || echo "could not remove the mirror of $b"
           done

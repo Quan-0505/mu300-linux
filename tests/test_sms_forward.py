@@ -16,8 +16,9 @@ import unittest
 from helpers import TOP, ShellTest
 from test_mu300dash_security import JSONFILTER
 
-FWD = TOP / 'openwrt' / 'luci-overlay' / 'opt' / 'mu300' / 'bin' / 'mu300-sms-forward'
+FWD = TOP / 'rootfs' / 'overlay' / 'opt' / 'mu300' / 'bin' / 'mu300-sms-forward'
 HTTP_UC = TOP / 'openwrt' / 'luci-overlay' / 'opt' / 'mu300' / 'lib' / 'sms-forward-http.uc'
+HTTP_SH = TOP / 'rootfs' / 'overlay' / 'opt' / 'mu300' / 'lib' / 'sms-forward-http.sh'
 ADAPTER = TOP / 'openwrt' / 'luci-app-mu300' / 'root' / 'usr' / 'libexec' / 'unisoc-modem' / 'forward'
 DASH = TOP / 'openwrt' / 'luci-app-mu300' / 'root' / 'usr' / 'libexec' / 'rpcd' / 'mu300dash'
 
@@ -262,6 +263,34 @@ class Forwarder(ShellTest):
             for f in ('argv.log',):
                 self.assertNotIn('Merhaba', (self.tmp / f).read_text())
             self.assertNotIn('Merhaba', (self.run_dir / 'log').read_text())
+
+    def test_the_pages_body_presets_are_what_the_services_take(self):
+        """Issue #259: the placeholder was Feishu's body, which WeCom refuses (errcode 40008) behind an HTTP 200. The
+        page's body presets: WeCom/DingTalk and Feishu/Lark, each a JSON body the forwarder fills into one valid
+        document of that service's shape, with the answer check that service needs (one of the check presets)."""
+        import re
+        view = (TOP / 'openwrt/luci-app-mu300/htdocs/luci-static/resources/view/mu300/forward.js').read_text()
+        bodies = dict(re.findall(r"(\w+): \[ '(\{[^']*\})', '[^']*' \]", view))
+        checks = dict(re.findall(r"(\w+): \[ '\{[^']*\}', '([^']*)' \]", view))
+        self.assertEqual(set(bodies), {'wecom', 'feishu'})
+        presets = re.findall(r"E\('option', \{ 'value': '([^']*=[^']*)' \}", view)
+        self.assertEqual(checks, {'wecom': 'errcode=0', 'feishu': 'code=0'})
+        self.assertTrue(set(checks.values()) <= set(presets))
+        self.assertIn("E('option', { 'value': 'wecom' }, [ 'WeCom, DingTalk' ])", view)
+        self.assertIn("E('option', { 'value': 'feishu' }, [ 'Feishu, Lark' ])", view)
+        self.assertNotIn('\'{"msg_type":"text","content":{"text":"{message}"}}\')', view)   # not the placeholder
+        self.assertIn("format.value = 'json';", view)
+        self.assertIn('if (!expect.value.trim()) expect.value = b[1];', view)   # a check of the user's is kept
+        pool_msg(self.pool, 8, self.HOSTILE_SENDER, self.HOSTILE_TEXT)
+        message = f'{self.HOSTILE_SENDER}: {self.HOSTILE_TEXT}'
+        want = {'wecom': {'msgtype': 'text', 'text': {'content': message}},
+                'feishu': {'msg_type': 'text', 'content': {'text': message}}}
+        for shell in self.each_shell():
+            for name, body in bodies.items():
+                with self.subTest(preset=name):
+                    [(_url, headers, sent)] = self.deliver_one(shell, webhook_body=body, webhook_format='json')
+                    self.assertEqual(headers['Content-Type'], 'application/json; charset=utf-8')
+                    self.assertEqual(json.loads(sent), want[name])
 
     def test_custom_form_and_text_bodies(self):
         from urllib.parse import parse_qs
@@ -762,12 +791,62 @@ class Forwarder(ShellTest):
             self.fwd(shell, 'enqueue', '1', '2', '3')
             self.fwd(shell, 'run')
             sent = sorted((p.read_text(encoding='utf-8') for p in self.tmp.glob('sms-stdin.*')), key=len)
-            self.assertEqual(sorted(sent), sorted(['a' * 157 + '...', 'ş' * 67 + '...']))
-            self.assertEqual((self.tmp / 'sms-argv.log').read_text().splitlines(),
-                             ['send --stdin +905550000000'] * 2)
+            # the number on stdin's first line, the text after it: nothing of either in an argument (ps shows those)
+            self.assertEqual(sorted(sent), sorted(['+905550000000\n' + 'a' * 157 + '...', '+905550000000\n' + 'ş' * 67 + '...']))
+            self.assertEqual((self.tmp / 'sms-argv.log').read_text().splitlines(), ['send --stdin'] * 2)
             res = {l[1]: l[3:] for l in self.log()}
             self.assertEqual(res['3'], ['failed', 'the sender is the forwarding number'])
             self.assertEqual((res['1'][0], res['2'][0]), ('sent', 'sent'))
+
+    def test_a_runtime_directory_of_someone_else_is_refused(self):
+        # a link where the RAM directory should be (made by someone else, pointing anywhere): nothing is written
+        other = self.tmp / 'elsewhere'
+        other.mkdir()
+        for shell in self.each_shell():
+            link = self.tmp / 'linked-run'
+            link.unlink(missing_ok=True)
+            link.symlink_to(other)
+            self.write_conf(enabled=1, webhook=1, webhook_url='https://hook.example.com/x')
+            r = self.fwd(shell, 'test', MU300_FWD_RUN=link)
+            self.assertNotEqual(r.returncode, 0)
+            self.assertIn('not a directory of our own', r.stderr)
+            self.assertEqual(list(other.iterdir()), [])
+
+    def test_ubuntu_sms_target_on_stdin_only(self):
+        # Ubuntu: no mu300-sms, the sms command's send --stdin; neither the number nor the text in its arguments
+        pool_msg(self.pool, 1, '+905551112233', 'Kod 4321')
+        self.stub('sms', 'printf "%s\\n" "$*" >> "$STUBLOG/ubsms-argv.log"; cat > "$STUBLOG/ubsms-stdin"; echo "sent (reference 3)"')
+        for shell in self.each_shell():
+            self.fresh()
+            (self.tmp / 'ubsms-argv.log').unlink(missing_ok=True)
+            self.write_conf(enabled=1, sms=1, sms_number='+905550000000', template='{text}')
+            self.fwd(shell, 'enqueue', '1', MU300_SMS_BIN=self.tmp / 'no-mu300-sms')
+            self.fwd(shell, 'run', MU300_SMS_BIN=self.tmp / 'no-mu300-sms')
+            self.assertEqual((self.tmp / 'ubsms-argv.log').read_text().splitlines(), ['send --stdin'])
+            self.assertEqual((self.tmp / 'ubsms-stdin').read_text(encoding='utf-8'), '+905550000000\nKod 4321')
+            self.assertEqual(self.log()[-1][3], 'sent')
+
+    def test_curl_helper_keeps_secrets_out_of_its_arguments(self):
+        # Ubuntu's HTTP client: curl gets the URL and the headers in its configuration on stdin, the body in a file
+        self.stub('curl', 'printf "%s\\n" "$*" >> "$STUBLOG/curl-argv.log"; cat > "$STUBLOG/curl-conf"; '
+                          'for a in "$@"; do :; done; f=$(sed -n \'s/^data-binary = "@\\(.*\\)"$/\\1/p\' "$STUBLOG/curl-conf"); '
+                          'cp "$f" "$STUBLOG/curl-body"; ls -ld "$(dirname "$f")" > "$STUBLOG/curl-dir"; printf 200')
+        req = 'https://api.example.com/bot123:SECRETtok/send?x=1\nAuthorization: Bearer hdrSECRET\nContent-Type: application/json\n\n{"t":"msg"}'
+        for shell in self.each_shell():
+            r = subprocess.run(shell + [str(HTTP_SH)], input=req, capture_output=True, text=True,
+                               env=self.env(MU300_FWD_TMP=self.tmp), timeout=30)
+            self.assertEqual(r.stdout, 'status 200\n', r.stderr)
+            argv = (self.tmp / 'curl-argv.log').read_text()
+            self.assertEqual(argv.splitlines()[-1], '-K -')
+            for secret in ('SECRETtok', 'hdrSECRET', 'msg'):
+                self.assertNotIn(secret, argv)
+            conf = (self.tmp / 'curl-conf').read_text()
+            self.assertIn('url = "https://api.example.com/bot123:SECRETtok/send?x=1"', conf)
+            self.assertIn('header = "Authorization: Bearer hdrSECRET"', conf)
+            self.assertEqual((self.tmp / 'curl-body').read_text(), '{"t":"msg"}')
+            self.assertTrue((self.tmp / 'curl-dir').read_text().startswith('drwx------'))
+            # the request's directory is gone afterwards
+            self.assertEqual([d for d in self.tmp.iterdir() if d.name.startswith('http.')], [])
 
     def test_sms_target_retries_a_modem_refusal(self):
         pool_msg(self.pool, 1, '+905551112233', 'x')
@@ -944,6 +1023,18 @@ class Adapter(ShellTest):
             self.assertEqual((st['queued'], st['running'], st['email_available']), (2, 1, 0))
             self.assertEqual(st['log'][0], {'time': 1791000001, 'id': 'test', 'target': 'telegram', 'result': 'failed',
                                             'detail': 'HTTP 4"01'})
+
+    def test_check_mode_checks_everything_and_writes_nothing(self):
+        # mu300-backup's check of a restore (FINDINGS 155): the same rules, no file written
+        for shell in self.each_shell():
+            self.conf.parent.mkdir(exist_ok=True)
+            self.conf.unlink(missing_ok=True)
+            r = self.adapter(shell, 'set', stdin=json.dumps(self.FULL), MU300_FWD_CHECK='1')
+            self.assertEqual(json.loads(r.stdout), {'ok': 1, 'checked': 1})
+            self.assertFalse(self.conf.exists())
+            r = self.adapter(shell, 'set', stdin=json.dumps(dict(self.FULL, webhook_url='ftp://x')), MU300_FWD_CHECK='1')
+            self.assertEqual(json.loads(r.stdout)['ok'], 0)
+            self.assertFalse(self.conf.exists())
 
     def test_an_empty_secret_keeps_the_saved_one_and_clear_removes_it(self):
         for shell in self.each_shell():

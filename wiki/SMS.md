@@ -37,7 +37,9 @@ Use **Cellular -> SMS** in the panel: read, send and delete. There a pool daemon
 ## SMS forwarding
 
 On OpenWrt with the control panel, **Cellular > SMS forwarding** passes incoming messages on to a webhook (JSON or a
-form), a Telegram chat or another phone by SMS. It is off until you turn it on. Each target has a template
+form), a Telegram chat or another phone by SMS. On Ubuntu the same settings are on Cockpit's MU300 page (SMS tab);
+there a service looks at the SIM for new messages every 20 s while forwarding is on, and only messages that arrive
+while it is on are passed on. It is off until you turn it on. Each target has a template
 (`{sender}`, `{time}`, `{text}`, `{device}`) and can filter by sender and keyword; there is a "Send test" button and
 a delivery log, and failed deliveries are retried with a growing wait. Tokens, passwords and the webhook's address
 stay in `/etc/mu300/sms-forward.conf` (root only) and never appear in a log. E-mail forwarding needs `msmtp`, which
@@ -102,5 +104,8 @@ shift. Sending picks GSM 7-bit when every character fits, UCS-2 otherwise. Detai
 
 ## Voice calls
 
-Not available: the board has no speaker or microphone, and call audio through the modem's audio DSP is work in
-progress that does not carry sound yet. See [Hardware Notes](Hardware-Notes#no-sound-no-screen).
+The board has no speaker or microphone. A call's audio can go through the modem's audio DSP, to the device's own taps
+on the call (play into it, record from it) or a Bluetooth headset, with the audio extra: `sudo mu300-extra install
+audio` ([mu300-audio](https://github.com/dikeckaan/mu300-audio): the drivers of every kernel, the call scripts, and the
+DSP image fetched with its pinned sha256).
+See [Hardware Notes](Hardware-Notes#no-sound-no-screen).

@@ -1,6 +1,6 @@
 # Hardware Notes
 
-**In one sentence:** the F50 and the U30 Air are the same small Unisoc computer inside, and getting Linux to run on it
+**In one sentence:** the F50 and the U30 Air (and the experimental V50) are the same small Unisoc computer inside, and getting Linux to run on it
 meant borrowing a few of Android's own programs and working around some quirky hardware.
 
 This is a friendly summary of [docs/FINDINGS.md](https://github.com/dikeckaan/mu300-linux/blob/main/docs/FINDINGS.md), the
@@ -19,6 +19,7 @@ project's lab notebook (symptom, cause, fix for every problem met). Section numb
 | GPU | Mali-G57 |
 | Bootloader | Unisoc LK, Trusty TEE, A/B slots |
 | U30 Air extras | 4050 mAh battery, SGM41511 (bq25601) charger, fuel gauge, NFC tag, Wi-Fi key |
+| V50 extras (experimental, §95) | two SIM slots, NFC, AW9523B LED controller; no battery |
 
 ## Where the memory goes (§27)
 
@@ -73,9 +74,12 @@ watchdog in the power co-processor was never told to stand down, because that me
 
 ## No sound, no screen
 
-* **Sound (§24, §24b):** the board has no speaker path and no microphone; nothing answers at the amplifier's address.
-  The whole Unisoc audio stack builds and loads, but no audio moves, and a call without audio ends after about 20 s, as
-  under Android on this board. Work in progress, not in releases.
+* **Sound (§24-24e, §188):** the board has no speaker path and no microphone; nothing answers at the amplifier's
+  address. Call audio runs through the modem's audio DSP with a DSP image (the ZTE Voyage 41S image is the one
+  measured): the other side hears what is played into the call, and the downlink can be recorded. The drivers and the
+  call scripts are the audio extra, [mu300-audio](https://github.com/dikeckaan/mu300-audio), for all three kernels:
+  `sudo mu300-extra install audio` (§194). The kernels keep only what no module can bring: the DSP's memory reserved
+  at boot and the ALSA/ASoC core.
 * **Screen:** HDMI over USB-C does not work, because the USB-C power-delivery chip never answers. The device is headless.
 
 ## A rare boot hang on 6.18 (§31m, open)
@@ -99,8 +103,11 @@ the device lands in Android about 20 minutes later. The cause is still open.
   off; on battery alone the boost supplies the 5 V as before.
 * **Charging boot:** a start caused by plugging in a charger stays a charging boot (LED blinking, hotspot and modem
   down) until the Wi-Fi key is pressed.
-* **LEDs (§33f):** battery (white: Linux is up), network (blue 4G, white 5G, red no service), Wi-Fi (white 2.4 GHz, blue
-  5 GHz). `sudo mu300-led test` shows which is which.
+* **LEDs (§33f, §151):** battery as ZTE's firmware (white from 60 %, blue from 10 %, red below 10 %; steady on the
+  battery, breathing while it charges, steady white when full on the charger; on the charger no LED times out, and
+  the red does not either), network (the SIM in use as ZTE's firmware, §154: white the nano-SIM,
+  blue the eSIM, blinking while a live switch goes to it; red no service), Wi-Fi (white 5 GHz, blue
+  2.4 GHz, as ZTE's firmware and its guide, §152). `sudo mu300-led test` shows which is which.
 * **Heat alarm:** the battery LED flashes red, white, blue in turn when the chip reaches 85 °C or the battery 50 °C
   (`thermal-guard`). On the F50 the network LED does this.
 * **Buttons:** power: a short press wakes the LEDs, held 3 s shuts down. Wi-Fi key: switches 2.4 / 5 GHz, held 3 s turns
@@ -109,6 +116,12 @@ the device lands in Android about 20 minutes later. The cause is still open.
   password into the tag (also `url`, `text`, `clear`, `on`/`off`).
 * **USB host (§33e):** `sudo mu300-usb host` with an OTG adapter, on the mainline kernels: flash drives (FAT, exFAT),
   keyboards, mice, USB modems and Ethernet adapters. `sudo mu300-usb device` goes back (the default at every boot).
+* **USB-C power delivery (§150, EXPERIMENTAL, off by default):** `sudo mu300-usb pd on` (mainline kernels) hands the
+  port to the kernel's Type-C/PD stack (TCPM, the `ump9620-tcpc` module, after kano's port): a computer makes it a
+  device, an OTG adapter or a USB device a host with 5 V out, and a PD dock with its own charger charges it while
+  `sudo mu300-usb host` asks the dock for the host role (USB ports and Ethernet on the dock). Only 5 V, at most 2 A in
+  and 400 mA out; the charger refuses 5 V out while anything else supplies VBUS. `sudo mu300-usb pd off` goes back
+  to the manual host mode; `mu300-usb pd status` shows the roles. Not tested on a device yet.
 * **Address:** `192.168.78.1`, so an F50 (`192.168.77.1`) and a U30 Air can be plugged into one computer (§33b).
 
 ## F50 specifics
@@ -116,6 +129,23 @@ the device lands in Android about 20 minutes later. The cause is still open.
 * USB only (no battery); its USB port is its power supply, so no USB host mode.
 * LEDs: network (blue 4G, white 5G, red no service) and Wi-Fi (on while the hotspot is up).
 * An SD card slot that can hold the Linux filesystem.
+
+## ZTE V50 (MU3351): experimental (§95)
+
+The V50 is the F50's platform (`ums9620_2h10_feimao`, T760) with two SIM slots, NFC and three front lamps. kano
+(kanoqwq) ported the project to it in his line; **nobody here has a V50 or has tested one**.
+
+* **How Linux tells it:** its device tree has an AW9523B LED controller at 0x5b on I2C3, which no F50's or U30 Air's
+  has (both checked: no such node). The installers take only model `V50`, device `MU3351`, platform `ums9620`.
+* **Kernel:** mainline (6.18 or 7.2) of a release whose bundle names the V50; never 5.4. It runs as an F50 does
+  otherwise, USB-powered, no battery: no charger is bound (patch 0016 binds the 0x1a charger only with the U30 Air's
+  charger policy service, which the V50 lacks).
+* **LEDs:** NET1 is the network lamp (blue 4G, white 5G, red no service), the Wi-Fi lamp white on 5 GHz and blue on
+  2.4 GHz, NET2 dark; `sudo mu300-led test` lights each, the raw channels are `aw9523b:pin0`-`15`.
+* **eMMC:** its host is kept awake (patch 0017): kano lost files under mainline until he did that.
+* **Not yet:** the second SIM (the dual-SIM code is the U30 Air's), NFC (another reset line than the U30 Air's), SIM
+  selection.
+* **Address:** `192.168.79.1`.
 
 ## Odd numbers that are normal
 

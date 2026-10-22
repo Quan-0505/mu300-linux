@@ -3,12 +3,13 @@
 # the kernel's own modules next to them (upstream/out/modules, flat).
 # Run inside the mu300-mainline-build container: bash /work/build-modules.sh [module-dir...]
 set -eo pipefail
-KV=${KV:-6.18.56}
+KV=${KV:-6.18.57}
 K=/src/linux-$KV
 O=/src/out-$KV
 OUT=/work/${OUTDIR:-out}   # as in build.sh
 # every out-of-tree module, in dependency order (wlan/bt use wcn_bsp, the PMIC watchdog and Mali the modem's headers;
-# mu300_thermal, the stock virtual thermal zone, needs only the kernel)
+# mu300_thermal, the stock virtual thermal zone, needs only the kernel). The call-audio stack is not here: it is the
+# audio extra's (https://github.com/dikeckaan/mu300-audio, built against this tree's build kit; FINDINGS 194)
 mods=${*:-wcn_bsp sprd_wlan_combo sprdbt_tty sprd_modem sprd_pmic_wdt mali mu300_thermal}
 mkdir -p $OUT/modules
 # a full build starts clean, so no module of another kernel release ends up next to the new ones
@@ -27,6 +28,13 @@ find "$O/mod-install/lib/modules" -name '*.ko' -exec basename {} \; | sort > $O/
 # each other
 tr - _ < $O/modules.in-tree | sort > $O/modules.in-tree.names
 [ -z "$(uniq -d $O/modules.in-tree.names)" ] || { echo "in-tree modules share a name: $(uniq -d $O/modules.in-tree.names)" >&2; exit 1; }
+# none of them may load by itself on the boards: udev loads what matches a node of the vendor device tree
+krel=$(cat $O/include/config/kernel.release)
+depmod -b "$O/mod-install" "$krel"
+python3 /work/check-dt-modules.py "$O/mod-install/lib/modules/$krel/modules.alias" /work/dt-compatibles.txt \
+    $(sed 's/#.*//' /work/dt-modules-allowed.txt)
+# depmod's index of them, for make-bundle.sh's check of the on-demand guard (check-autoload-blocked.py)
+cp "$O/mod-install/lib/modules/$krel/modules.dep" "$O/mod-install/lib/modules/$krel/modules.alias" $OUT/
 find "$O/mod-install/lib/modules" -name '*.ko' -exec cp {} $OUT/modules/ \;
 extra=
 for m in $mods; do

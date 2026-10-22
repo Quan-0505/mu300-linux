@@ -118,14 +118,18 @@ esac
         self.assertFalse((self.tmp / 'etc/mu300/sim-migration/mu300-sim-slot.migrated').exists())
 
     def test_selection_refuses_other_devices(self):
+        # (the U30 Air outside OpenWrt's native backend; the V50 boots SIM2 as the F50 does since FINDINGS 204,
+        # tests/test_v50_sim.py)
         device = self.tmp / 'mu300-device'
-        device.write_text('#!/bin/sh\necho u30air\n')
-        device.chmod(0o755)
-        for shell in self.each_shell():
+        for shell, name in [(s, n) for s in self.each_shell() for n in ('u30air',)]:
+            device.write_text(f'#!/bin/sh\necho {name}\n')
+            device.chmod(0o755)
+            self.choice.write_text('0\n')
+            self.state.unlink(missing_ok=True)
             r = self.script(shell, BIN / 'mu300-sim', 'select', 'internal',
                             MU300_SIM_ROOT=self.tmp, MU300_DEVICE_CMD=device)
             self.assertNotEqual(r.returncode, 0)
-            self.assertIn('F50 only', r.stderr)
+            self.assertIn('F50 and V50 only', r.stderr)
             self.assertEqual(self.choice.read_text().strip(), '0')
             status = self.script(shell, BIN / 'mu300-sim', 'status', '--json',
                                  MU300_SIM_ROOT=self.tmp, MU300_DEVICE_CMD=device)
@@ -508,7 +512,7 @@ Promise.resolve(o.load('wan')).then((cur) => {
 
     def test_the_other_options_are_still_there(self):
         o = self.options({'sim': {'slot': 0, 'wanted': 0, 'slot1_supported': 0}}, '0')
-        self.assertEqual(o['others'], ['sim_slot', 'apn_internal', 'pdptype_internal', 'apn', 'pdptype',
+        self.assertEqual(o['others'], ['sim_slot', 'apn_internal', 'pdptype_internal', 'roaming_internal', 'apn', 'pdptype', 'roaming',
                                        'username', 'password', 'auth', 'peerdns', 'dns'])
 
     def paint(self, sim):

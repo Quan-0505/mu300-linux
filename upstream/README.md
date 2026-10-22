@@ -1,6 +1,6 @@
 # Mainline (LTS) kernel on the MU300
 
-Mainline **Linux 6.18.56** (the current longterm series) runs Ubuntu 24.04 and OpenWrt 25.12 on the ZTE F50 /
+Mainline **Linux 6.18.57** (the current longterm series) runs Ubuntu 24.04 and OpenWrt 25.12 on the ZTE F50 /
 MU300 (Unisoc UMS9620): all 8 CPUs (4×A55, 4×A76), eMMC, USB NCM + ACM, the 5 GHz hotspot, Bluetooth, the modem
 with mobile data (downlink and uplink), SMS, the VPN, the Mali GPU, thermal/cpufreq, the PMIC watchdog and
 reboot. `docs/FINDINGS.md` 31-31f has what it took and what is still open.
@@ -27,17 +27,28 @@ merged) describes the same GIC/UART/timer layout; this device is derived from th
 ## Build and test
 ```sh
 docker build -t mu300-mainline-build upstream/
-docker volume create mu300-mainline   # build.sh fetches linux-$KV (default 6.18.56) into it, checked against kernel.org
+docker volume create mu300-mainline   # build.sh fetches linux-$KV (default 6.18.57) into it, signatures checked (keys/)
 docker run --rm -v mu300-mainline:/src -v "$PWD/upstream":/work mu300-mainline-build bash /work/build.sh
 docker run --rm -v mu300-mainline:/src -v "$PWD/upstream":/work mu300-mainline-build bash /work/build-modules.sh
 upstream/make-bundle.sh mu300-kernel-6.18.tar.gz        # Image for LK, generic ramdisk segment, modules
 # on the device: MU300_KERNEL_BUNDLE=/path/mu300-kernel-6.18.tar.gz mu300-update boot
 ```
-The build stops on anything that drifts silently: a patch that neither applies nor is applied, a config option
+The build stops on a kernel tarball whose signatures do not check out (`verify-kernel-src.sh`: kernel.org's signed
+`sha256sums.asc` and the releaser's `tar.sign`, against the keys pinned in `keys/`, FINDINGS 161) and on anything
+that drifts silently: a patch that neither applies nor is applied, a config option
 Kconfig does not take (unless listed in `config-ignored.txt`), a port edit whose anchor moved, or a module whose
 vermagic does not match the kernel. `tools/make-release.sh` packages the same bundle as `mu300-kernel-6.18.tar.gz`.
 
-The config is allnoconfig plus `mu300-mainline.config`: what the board and the boot need is built in, along with
+The config is allnoconfig plus `mu300-mainline.config`, and then `all-modules.py` (FINDINGS 163): every other
+tristate option the boards can use becomes a module - USB devices of every class, filesystems, netfilter, protocols,
+crypto, block, media, iio, hwmon - while what the fragment built in stays built in (checked), bools change only where
+`all-modules.config` opens a family, and `all-modules.exclude` keeps out test/debug code, PCI cards, and the drivers
+of chips only a board's device tree wires up. `check-dt-modules.py` then fails the build if a module would bind to a
+node of the vendor device tree (`dt-compatibles.txt`) by itself. `MU300_ALL_MODULES=0` builds the fragment alone.
+On the devices `mu300-modprobe-guard` (the kernel's module helper from boot on; FINDINGS 163) keeps the modules of
+`/opt/mu300/lib/autoload-blocked` (rare protocols, filesystems, line disciplines) from being loaded on demand;
+root loads them with `modprobe NAME`.
+In the fragment, what the board and the boot need is built in, along with
 KVM (`/dev/kvm`; the CPUs start at EL2); what only matters once used - netfilter extras, tunnels, IPsec, tc,
 filesystems, USB modems/adapters/Wi-Fi sticks, device mapper - is a module. `build-modules.sh` installs the
 kernel's own modules (stripped) flat into `out/modules` next to the vendor ones, and the bundle ships them all;
@@ -57,11 +68,13 @@ boot/flash-trial.sh boot-mainline.img      # slot b only, falls back to Android
   PMIC reset works (30 s cycle instead of the ~320 s PM power cut).
 * `debug/install-probe.py` (`MU300_PROBE_STAGE=N` for `build.sh`): resets at a chosen boot stage; the cycle time tells
   whether the stage was reached. This located the custom-DTB hang in `setup_machine_fdt`.
+* `MU300_CMDLINE_EXTRA="..."` for `build.sh`: kernel arguments appended to the forced `CONFIG_CMDLINE` of a test build
+  (the bootloader's command line is not read), e.g. `sdhci_sprd.fail_hs400es=1` (FINDINGS 160). Never in a release.
 
 ## Newer kernels (7.x)
 
-The whole port - kernel and all 31 out-of-tree modules - also builds against **7.2.10**, the newest stable release
-(2026-10-11), from the same sources as 6.18, and runs on the device: four boots out of four (2026-09-27) with the
+The whole port - kernel and all its out-of-tree modules - also builds against **7.2.11**, the newest stable release
+(2026-10-15), from the same sources as 6.18, and runs on the device: four boots out of four (2026-09-27) with the
 Wi-Fi access point, mobile data (18.7 MB/s), Bluetooth, the Mali GPU, cpufreq and the modem's AT channel working,
 and no warning or oops in the log. (7.2 is a stable, not a longterm release: 6.18 stays the base, 7.x is how the
 next jump is kept small.) One source serves both:
@@ -76,7 +89,7 @@ next jump is kept small.) One source serves both:
   release, so the next break shows up as a red run rather than at the next jump.
 
 Releases carry it as `mu300-kernel-7.2.tar.gz`: `sudo mu300-update kernel 7.2` on the device, or choice 3 in the
-installer. It is built next to 6.18: `OUTDIR=out-7.2 KV=7.2.10` for `build.sh` and `build-modules.sh`, and
+installer. It is built next to 6.18: `OUTDIR=out-7.2 KV=7.2.11` for `build.sh` and `build-modules.sh`, and
 `MU300_UPSTREAM_OUT=upstream/out-7.2` for `make-bundle.sh`; `tools/make-release.sh` packs both.
 
 ## Remaining mainline work (as of 2026-09-26)
@@ -89,7 +102,10 @@ installer. It is built next to 6.18: `OUTDIR=out-7.2 KV=7.2.10` for `build.sh` a
   Ubuntu boot that died early before the crash capture existed (31d) is unexplained, and has not recurred in the
   reboot loops since (Ubuntu 6/6, OpenWrt 4/4).
 - Power-off works through the PMIC (FINDINGS 31h); on a powered USB port the battery-less F50 starts again.
-- Audio: not ported (it does not work on 5.4 either).
+- Audio: call audio is ported (FINDINGS 188): the Unisoc AGDSP stack of 5.4 for 6.18 and 7.2. Since FINDINGS 194 it
+  is the audio extra's ([mu300-audio](https://github.com/dikeckaan/mu300-audio), `mu300-extra install audio`): its
+  drivers are built there against each kernel's build kit; what stays here is the DSP's memory reservation
+  (`patches/0022`) and the ASoC/ALSA core options of `mu300-mainline.config`.
 
 ## Earlier status notes
 Clocks, pinctrl, power domains, USB 3.1 gadget, eMMC, PCIe, thermal, cpufreq, watchdog, LEDs and Wi-Fi/BT are
@@ -100,7 +116,7 @@ working (see the status below). What is still missing:
 - **PM co-processor**: without Android's `modem_control` the board powers off after ~290 s, so the vendor chroot is
   still required.
 - ~~**GPU**~~: works since 2026-09-19 (DDK r40p0 ported to 6.18, OpenCL verified on the device).
-- **Audio**: not started.
+- **Audio**: ported 2026-10-17 (FINDINGS 188).
 - **Bluetooth**: built as an out-of-tree module, untested on 6.18.
 
 ## Modem on 6.18: working (2026-09-19)
@@ -192,6 +208,9 @@ Fixes needed on top of the port:
   lines (three of its six banks): `patches/0014` maps them all, so the slot is detected by interrupt and an empty
   slot is left alone (issue #181: polled, it was initialised once a second and filled the log with "Got command
   interrupt ... even though no command operation was in progress" register dumps).
+- eMMC bring-up: some units fail HS400ES at a cold boot (`mmc_select_hs400es failed, error -84` on every attempt,
+  issue #226). `patches/0021` drops a failed timing from the host's caps, so mmc_rescan's next attempt takes HS200,
+  then HS/DDR52, then HS, and the board boots (FINDINGS 160).
 - UMP9620 PMIC watchdog, armed by LK for 300 s, is disabled by `ump9620-pmic-wdt-off`.
 - Userspace config: cgroups/namespaces/seccomp, bridge, nftables, IPv6, zram.
 - Thermal: vendor `sprd_thermal_r5p0` (19 on-die zones) with calibration from the UMS9620 eFuse; the eFuse

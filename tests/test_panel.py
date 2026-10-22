@@ -1,7 +1,7 @@
 """The web panel for Ubuntu, the panel extra (rootfs/panel): Cockpit and the MU300 page. mu300-update's checks of the
 extra's tarball, mu300-extra install (online from the release, offline --from), remove and link against a fake
 partition and a fake system (MU300_SYSROOT) with apt-get, systemctl and systemd-run stubbed; mu300-panel itself (its
-configuration: the LAN bridge only; info's JSON; the hotspot, its password on stdin); the firewall that keeps port
+configuration: the LAN address only, never waiting for br-lan; info's JSON; the hotspot, its password on stdin); the firewall that keeps port
 9090 off the uplink; the page's manifest and translations; the page's JavaScript under Node against stub command
 outputs (argument arrays, secrets on stdin, text never as HTML); and `sms json`."""
 import io
@@ -42,6 +42,9 @@ def panel_tarball(path, release='v2026.10.20', debs=(), extra=(), name='panel'):
 
 # apt-get: records its arguments; an install "installs" Cockpit (cockpit-ws appears in the fake system)
 APT = ('echo "apt-get $*" >> "$STUBLOG/apt"; '
+       # --download-only: one package into the Dir::Cache::archives given (unless APT_FAIL), nothing installed
+       'case " $* " in *" --download-only "*) [ -z "$APT_FAIL" ] || exit 1; '
+       'd=$(printf "%s\\n" "$@" | sed -n "s/^Dir::Cache::archives=//p"); : > "$d/cockpit-ws_314-1_arm64.deb"; exit 0 ;; esac; '
        'case " $* " in *" install "*) mkdir -p "$MU300_SYSROOT/usr/lib/cockpit" && : > "$MU300_SYSROOT/usr/lib/cockpit/cockpit-ws" '
        '&& chmod 755 "$MU300_SYSROOT/usr/lib/cockpit/cockpit-ws" ;; *" purge "*) rm -f "$MU300_SYSROOT/usr/lib/cockpit/cockpit-ws" ;; esac; '
        '[ -z "$APT_FAIL" ]')
@@ -118,13 +121,29 @@ class PanelExtra(ExtrasBase):
             self.assertNotIn('26.04', apt)
             self.assertNotIn('update', apt)
             page, conf, drop = self.installed_files()
-            self.assertEqual(os.path.realpath(page), os.path.realpath(self.panel() / 'cockpit/mu300'))
+            # a copy every user can read (the extras on the disk are root's alone): never a link into the disk
+            self.assertFalse(page.is_symlink())
+            src = self.panel() / 'cockpit/mu300'
+            self.assertEqual(sorted(x.name for x in page.iterdir()), sorted(x.name for x in src.iterdir()))
+            for f in page.iterdir():
+                self.assertEqual(f.read_bytes(), (src / f.name).read_bytes())
+                self.assertEqual(f.stat().st_mode & 0o777, 0o644, f)
+            self.assertEqual(page.stat().st_mode & 0o777, 0o755)
+            # a newer page in the extra is copied over at the next link; a link of an older panel is replaced
+            (src / 'mu300.js').write_text('// new\n')
+            self.assertEqual(self.ex(shell, 'link').returncode, 0)
+            self.assertEqual((page / 'mu300.js').read_text(), '// new\n')
+            shutil.rmtree(page)
+            page.symlink_to(src)
+            self.assertEqual(self.ex(shell, 'link').returncode, 0)
+            self.assertTrue(page.is_dir() and not page.is_symlink())
             self.assertIn('LoginTo = false', conf.read_text())
             self.assertIn('IdleTimeout = 15', conf.read_text())
             self.assertEqual([l for l in drop.read_text().splitlines() if not l.startswith('#')],
-                             ['[Socket]', 'ListenStream=', 'ListenStream=9090', 'BindToDevice=br-lan'])
+                             ['[Socket]', 'ListenStream=', 'ListenStream=192.168.77.1:9090', 'FreeBind=yes',
+                              'IPAddressDeny=any', 'IPAddressAllow=localhost 192.168.77.0/24'])
             self.assertTrue((self.links / 'mu300-panel').is_symlink())
-            self.assertIn('restart cockpit.socket', self.log('systemctl'))
+            self.assertIn('--no-block restart cockpit.socket', self.log('systemctl'))
 
     def test_offline_copies_are_checked(self):
         d = self.tmp / 'dir'
@@ -152,9 +171,18 @@ class PanelExtra(ExtrasBase):
             r = self.ex(shell, 'install', 'panel')
             self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
             apt = self.log('apt').splitlines()
-            self.assertEqual(apt[0], 'apt-get update -q')
-            self.assertTrue(apt[1].endswith('install -y -q --no-install-recommends -o Dpkg::Options::=--force-confold '
-                                            'cockpit-ws cockpit-system cockpit-bridge'), apt)
+            # bounded: offline, an apt-get update without limits waited more than 10 minutes
+            self.assertTrue(apt[0].startswith('apt-get update '), apt)
+            for o in ('Acquire::http::Timeout=10', 'Acquire::https::Timeout=10', 'Acquire::Retries=0'):
+                self.assertIn(o, apt[0])
+            # downloaded into the extra, installed from there, and kept for the restore after an update
+            self.assertIn('--download-only', apt[1])
+            self.assertIn('Dir::Cache::archives=', apt[1])
+            self.assertIn('/disk/extra/panel/.debs-new -o', apt[1])
+            self.assertIn('Acquire::http::Timeout=10', apt[1])
+            self.assertTrue(apt[2].endswith('/disk/extra/panel/.debs-new/cockpit-ws_314-1_arm64.deb'), apt)
+            self.assertTrue((self.panel() / 'debs/24.04/cockpit-ws_314-1_arm64.deb').is_file())
+            self.assertFalse((self.panel() / '.debs-new').exists())
             # the configuration was in place before the packages (their postinst starts the socket)
             self.assertTrue(self.installed_files()[2].is_file())
 
@@ -213,7 +241,97 @@ class PanelExtra(ExtrasBase):
             self.assertIn(f'{self.panel()}/bin/mu300-panel restore', run)
             self.assertEqual(self.log('apt'), '')                  # the boot never runs apt itself
             page, conf, drop = self.installed_files()
-            self.assertTrue(page.is_symlink() and conf.is_file() and drop.is_file())
+            self.assertTrue(page.is_dir() and conf.is_file() and drop.is_file())
+
+    def test_link_moves_an_old_device_bound_socket_to_the_lan_address(self):
+        # the panel of v2026.10.17.3 bound the socket to br-lan (BindToDevice): systemd made it wait for the device,
+        # which mu300-lan creates only after basic.target - 90 s at every boot, then the socket failed (F50, 7.2.11)
+        off = panel_tarball(self.tmp / 'p.tar.gz', debs=[('24.04', 'cockpit-ws_314-1_arm64.deb')])
+        old = '# mu300-panel (the panel extra)\n[Socket]\nListenStream=\nListenStream=9090\nBindToDevice=br-lan\n'
+        for shell in self.each_shell():
+            self.reset(shell)
+            self.ex(shell, 'install', 'panel', '--from', off)
+            drop = self.installed_files()[2]
+            drop.write_text(old)
+            (self.root / 'etc/mu300').mkdir(parents=True, exist_ok=True)
+            (self.root / 'etc/mu300/lan.conf').write_text('LAN_IP="192.168.90.1"\n')
+            self.log('systemctl')
+            self.assertEqual(self.ex(shell, 'link').returncode, 0)
+            body = [l for l in drop.read_text().splitlines() if not l.startswith('#')]
+            self.assertEqual(body, ['[Socket]', 'ListenStream=', 'ListenStream=192.168.90.1:9090', 'FreeBind=yes',
+                                   'IPAddressDeny=any', 'IPAddressAllow=localhost 192.168.90.0/24'])
+            self.assertNotIn('BindToDevice', drop.read_text())
+            sc = self.log('systemctl').splitlines()
+            self.assertEqual(sc[0], 'systemctl daemon-reload')
+            # never waits for the socket: link runs in mu300-fixups, before sysinit.target, and the socket after it
+            self.assertIn('systemctl --no-block restart cockpit.socket', sc)
+            # a LAN_IP that is no address: the device's default, as lan-start would refuse it
+            (self.root / 'etc/mu300/lan.conf').write_text('LAN_IP=$(reboot)\n')
+            self.ex(shell, 'link')
+            self.assertIn('ListenStream=192.168.77.1:9090', drop.read_text())
+            # never a wildcard: a lan.conf without LAN_IP, or none at all, is the default too
+            for conf in ('LAN_IP=\n', None):
+                if conf is None:
+                    (self.root / 'etc/mu300/lan.conf').unlink()
+                else:
+                    (self.root / 'etc/mu300/lan.conf').write_text(conf)
+                self.ex(shell, 'link')
+                listen = [l for l in drop.read_text().splitlines() if l.startswith('ListenStream=')]
+                self.assertEqual(listen, ['ListenStream=', 'ListenStream=192.168.77.1:9090'])
+            (self.root / 'etc/mu300/lan.conf').write_text('LAN_IP=192.168.77.1\n')
+            (self.root / 'etc/mu300/lan.conf').unlink()
+
+    def test_update_rewrites_the_drop_in_of_the_new_system(self):
+        # mu300-update apply, after the systems and extras are in place: the carried drop-in of an older panel is
+        # rewritten in the new Ubuntu, so its first boot does not wait for br-lan; a system without the panel is left
+        off = panel_tarball(self.tmp / 'p.tar.gz')
+        ub = self.disk / 'ubuntu'
+        (ub / 'etc/os-release').write_text('ID=ubuntu\nVERSION_ID="24.04"\n')
+        (ub / 'opt/mu300/bin').mkdir(parents=True)
+        shutil.copy(BIN / 'mu300-lan-ip', ub / 'opt/mu300/bin/mu300-lan-ip')
+        (ub / 'opt/mu300/bin/mu300-device').write_text('#!/bin/sh\necho u30air\n')
+        (ub / 'opt/mu300/bin/mu300-device').chmod(0o755)
+        drop = ub / 'etc/systemd/system/cockpit.socket.d/mu300-listen.conf'
+        for shell in self.each_shell():
+            self.reset(shell)
+            self.up(shell, f'extra_unpack panel "{off}"')
+            drop.parent.mkdir(parents=True, exist_ok=True)
+            drop.write_text('[Socket]\nListenStream=\nListenStream=9090\nBindToDevice=br-lan\n')
+            r = self.up(shell, 'panel_configure "ubuntu openwrt"; echo "rc=$?"')
+            self.assertIn('rc=0', r.stdout, r.stderr)
+            self.assertIn('ListenStream=192.168.78.1:9090\nFreeBind=yes\nIPAddressDeny=any\n'
+                          'IPAddressAllow=localhost 192.168.78.0/24', drop.read_text())
+            self.assertNotIn('BindToDevice', drop.read_text())
+            self.assertFalse((self.disk / 'openwrt/etc/systemd').exists())
+            self.assertEqual(self.log('systemctl'), '')             # files only: the running system is not touched
+            self.assertFalse((self.root / 'etc/systemd').exists())
+
+    def test_after_an_update_offline_cockpit_comes_from_the_kept_packages(self):
+        # online install (packages kept), then an update: the release's online extra (no debs) replaces the extra and
+        # a new system has no Cockpit; offline, the restore installs it from the kept packages without the archive
+        self.serve('v2026.10.20', assets={'mu300-extra-panel.tar.gz': panel_tarball(self.tmp / 'on.tar.gz')})
+        self.versions('v2026.10.20')
+        new = panel_tarball(self.tmp / 'new.tar.gz', release='v2026.10.21')
+        for shell in self.each_shell():
+            self.reset(shell)
+            self.assertEqual(self.ex(shell, 'install', 'panel').returncode, 0)
+            self.up(shell, f'extra_unpack panel "{new}"')
+            self.assertEqual((self.panel() / 'release').read_text().strip(), 'v2026.10.21')
+            self.assertTrue((self.panel() / 'debs/24.04/cockpit-ws_314-1_arm64.deb').is_file())
+            self.assertFalse((self.disk / 'extra/.panel.old').exists())
+            shutil.rmtree(self.root / 'usr', ignore_errors=True)
+            self.log('apt')
+            env = dict(MU300_SYSROOT=self.root, MU300_PANEL_DIR=self.panel(), MU300_RUN=self.tmp / 'run',
+                       MU300_PANEL_RETRY=0, MU300_PANEL_TRIES=2)
+            r = self.script(shell, CMD, 'restore', **env)
+            self.assertEqual(r.returncode, 0, r.stderr)
+            apt = self.log('apt')
+            self.assertIn('/disk/extra/panel/debs/24.04/cockpit-ws_314-1_arm64.deb', apt)
+            self.assertNotIn('update', apt)
+            # an offline extra brings its own packages: those win over the kept ones
+            off = panel_tarball(self.tmp / 'off.tar.gz', debs=[('24.04', 'cockpit-ws_360-1_arm64.deb')])
+            self.up(shell, f'extra_unpack panel "{off}"')
+            self.assertEqual(sorted(x.name for x in (self.panel() / 'debs/24.04').iterdir()), ['cockpit-ws_360-1_arm64.deb'])
 
     def test_restore_installs_and_stops_trying(self):
         off = panel_tarball(self.tmp / 'p.tar.gz')
@@ -225,6 +343,9 @@ class PanelExtra(ExtrasBase):
             r = self.script(shell, CMD, 'restore', APT_FAIL=1, **env)
             self.assertNotEqual(r.returncode, 0)
             self.assertEqual(self.log('apt').count('update'), 3)
+            # what to do instead, said plainly
+            self.assertIn('mu300-extra install panel --from FILE', r.stderr)
+            self.assertIn('offline', r.stderr)
             r = self.script(shell, CMD, 'restore', **env)
             self.assertEqual(r.returncode, 0, r.stderr)
             self.assertTrue((self.root / 'usr/lib/cockpit/cockpit-ws').exists())
@@ -272,7 +393,7 @@ class Command(ShellTest):
             self.assertEqual(r.returncode, 0, r.stderr)
             i = json.loads(r.stdout)
             self.assertEqual(i['device'], 'u30air')
-            self.assertEqual(i['mobile_data'], {'service': 'active', 'address': '10.0.0.2/30'})
+            self.assertEqual(i['mobile_data'], {'service': 'active', 'address': '10.0.0.2/30', 'roaming': None})
             self.assertEqual(i['signal']['rat'], 'LTE')
             self.assertEqual(i['signal']['registration'], 'roaming')
             self.assertEqual((i['signal']['rsrp'], i['signal']['rsrq']), (-80, -4.5))
@@ -290,6 +411,18 @@ class Command(ShellTest):
             (self.tmp / 'device').write_text('f50\n')
             self.assertIsNone(json.loads(self.script(shell, CMD, 'info').stdout)['battery'])
             (self.tmp / 'device').write_text('u30air\n')
+
+    def test_info_data_roaming(self):
+        """FINDINGS 120: mobile-data roaming --json as it is; anything else (an older mobile-data's usage text) null."""
+        for shell in self.each_shell():
+            self.stub('mobile-data', '[ "$*" = "roaming --json" ] || exit 2\n'
+                      'echo \'{"allowed":false,"held":true,"slot":0,"per_sim":false,"slots":[false,false]}\'')
+            i = json.loads(self.script(shell, CMD, 'info').stdout)
+            self.assertEqual(i['mobile_data']['roaming'], {'allowed': False, 'held': True, 'slot': 0, 'per_sim': False,
+                                                           'slots': [False, False]})
+            self.stub('mobile-data', 'echo "usage: mobile-data up" >&2; echo \'"x"\'; exit 2')
+            self.assertIsNone(json.loads(self.script(shell, CMD, 'info').stdout)['mobile_data']['roaming'])
+            (self.stubs / 'mobile-data').unlink()
 
     def test_hotspot_set(self):
         conf = self.root / 'etc/mu300/hotspot.conf'
@@ -328,9 +461,18 @@ class Static(unittest.TestCase):
         self.assertNotIn('9090', FIREWALL.read_text())
         # the Wi-Fi uplink is closed the same way
         self.assertIn('iifname "%s" counter drop', (BIN / 'wifi-client').read_text())
-        # and Cockpit listens on the LAN bridge only
+        # and Cockpit listens on the LAN address only - from the start of the boot (FreeBind), never bound to br-lan
+        # (BindToDevice makes the socket wait for the device, which comes after basic.target: a 90 s stall)
         cmd = CMD.read_text()
-        self.assertIn("printf '[Socket]\\nListenStream=\\nListenStream=9090\\nBindToDevice=br-lan\\n'", cmd)
+        self.assertIn("printf '[Socket]\\nListenStream=\\nListenStream=%s:9090\\nFreeBind=yes\\n' \"$_ip\"", cmd)
+        self.assertIn("printf 'IPAddressDeny=any\\nIPAddressAllow=localhost %s.0/24\\n'", cmd)
+        self.assertFalse([l for l in cmd.splitlines() if 'BindToDevice=' in l and not l.lstrip().startswith('#')])
+        # a LAN address changed while the device runs moves the socket along
+        lan = (BIN / 'lan-start').read_text()
+        self.assertIn('grep -qx "ListenStream=$LAN_IP:9090" "$CP"', lan)
+        self.assertIn('mu300-panel link', lan)
+        # an update rewrites it in the new systems
+        self.assertIn('panel_configure "$todo"', (BIN / 'mu300-update').read_text())
 
     def test_manifest_and_page(self):
         m = json.loads((PAGE / 'manifest.json').read_text())
@@ -361,7 +503,7 @@ class Static(unittest.TestCase):
         rel = (TOP / 'tools/make-release.sh').read_text()
         self.assertIn('make-extra.sh" panel "$D/mu300-extra-panel.tar.gz"', rel)
         self.assertIn('make-extra.sh" panel-offline "$D/mu300-extra-panel-offline.tar.gz"', rel)
-        self.assertIn('EXTRAS="vpn lang vpn-mihomo panel vpn-xray vpn-singbox vpn-dae"', (BIN / 'mu300-update').read_text())
+        self.assertIn('EXTRAS="vpn lang vpn-mihomo panel vpn-xray vpn-singbox vpn-dae audio"', (BIN / 'mu300-update').read_text())
         sh = (TOP / 'install.sh').read_text()
         self.assertIn('adb push "$EXTRA_PANEL" $T/mu300-extra-panel.tar.gz', sh)
         self.assertIn("Install the web panel for Ubuntu (about 24 MB more to download, 50 MB on the device)? (yes/no)')\" no", sh)
@@ -371,153 +513,321 @@ class Static(unittest.TestCase):
 
 @unittest.skipUnless(shutil.which('node'), 'Node.js is needed for the page tests')
 class Page(unittest.TestCase):
-    """mu300.js under Node: a small DOM, and a cockpit object whose spawn records the argument arrays and answers
-    from a table of stub outputs."""
+    """mu300.js under Node: a small DOM, and a cockpit object whose spawn records the argument arrays and the stdin,
+    and answers as mu300-api would from a table of answers per method (a method not in it is unknown-method)."""
 
     HARNESS = r'''
 const fs = require('fs');
 const calls = [];
 class Node_ { constructor(tag) { this.tag = tag; this.children = []; this.attrs = {}; this.on = {}; this._text = '';
-    this.classList = { toggle: () => {}, add: () => {}, remove: () => {} }; this.disabled = false; this.value = ''; }
+    this.classList = { toggle: () => {}, add: () => {}, remove: () => {} }; this.disabled = false; this.value = ''; this.checked = false; }
   appendChild(c) { this.children.push(c); c.parent = this; return c; }
   insertBefore(c) { this.children.unshift(c); return c; }
   removeChild(c) { this.children = this.children.filter((x) => x !== c); return c; }
   get firstChild() { return this.children[0] || null; }
+  get parentNode() { return this.parent || null; }
   setAttribute(k, v) { this.attrs[k] = v; if (k === 'id') ids[v] = this; } getAttribute(k) { return this.attrs[k]; }
   addEventListener(t, f) { (this.on[t] = this.on[t] || []).push(f); }
-  click() { (this.on.click || []).forEach((f) => f()); }
+  click() { (this.on.click || []).forEach((f) => f({ target: this })); }
   set textContent(t) { this.children = []; this._text = String(t); } get textContent() { return this._text + this.children.map((c) => c.textContent).join(''); }
   set id(v) { this.setAttribute('id', v); } set className(v) { this.attrs.class = v; }
 }
 const ids = {};
 const text = (t) => { const n = new Node_('#text'); n._text = t; return n; };
 const document = { readyState: 'complete', createElement: (t) => new Node_(t), createTextNode: text,
-  getElementById: (i) => ids[i] || null, querySelectorAll: () => [], addEventListener: () => {} };
+  getElementById: (i) => ids[i] || null, querySelectorAll: () => [], addEventListener: () => {}, body: new Node_('body') };
 ids.app = new Node_('div');
 const find = (n, pred) => { if (pred(n)) return n; for (const c of n.children || []) { const r = find(c, pred); if (r) return r; } return null; };
 const all = (n, pred, out = []) => { if (pred(n)) out.push(n); (n.children || []).forEach((c) => all(c, pred, out)); return out; };
+const btn = (root, label) => find(root, (n) => n.tag === 'button' && n.textContent === label);
 const OUT = __OUT__;
 function spawn(argv, opts) {
   const call = { argv: argv, opts: opts, input: undefined };
   calls.push(call);
-  const key = argv.join(' ');
-  const hit = Object.keys(OUT).find((k) => key.startsWith(k));
-  const p = new Promise((res, rej) => setTimeout(() => hit === undefined ? rej({ problem: 'not-found' }) : res(OUT[hit]), 0));
+  let cb = null;
+  const p = new Promise((res, rej) => setTimeout(() => {
+    let req = {};
+    try { req = JSON.parse(call.input || '{}'); } catch (e) { req = 'bad'; }
+    call.req = req;
+    let a = OUT[argv[1]];
+    if (typeof a === 'function') a = a(req);
+    if (a === undefined) a = { ok: 0, error: 'unknown-method' };
+    const s = JSON.stringify(a) + '\n';
+    if (cb) cb(s);
+    if (a.ok === 1) res(cb ? '' : s); else rej({ problem: null, exit_status: 1, message: '' });
+  }, 0));
   p.input = (d) => { call.input = d; return p; };
-  p.stream = () => p;
+  p.stream = (f) => { cb = f; return p; };
   return p;
 }
 const cockpit = { gettext: (s) => s, spawn: spawn, format: (f, ...a) => f.replace(/\$(\d)/g, (m, i) => a[i]),
   file: () => ({ read: () => Promise.resolve('Inter-|\n eth0: 100 1 0 0 0 0 0 0 200 2 0 0 0 0 0 0\n') }),
-  location: { path: [], go: (p) => { cockpit.location.path = p; } }, translate: () => {}, addEventListener: () => {} };
-const window = { confirm: () => true };
+  location: { path: [], go: (p) => { cockpit.location.path = p; } }, translate: () => {}, addEventListener: () => {},
+  permission: () => ({ allowed: __ADMIN__, addEventListener: () => {} }) };
+const window = { confirm: () => true, prompt: () => 'New name' };
 global.TextEncoder = TextEncoder;
-const setInterval_ = () => 0;
-new Function('cockpit', 'document', 'window', 'setInterval', 'clearInterval', fs.readFileSync(process.argv[2], 'utf8'))(
-  cockpit, document, window, setInterval_, () => {});
-window.MU300 = window.MU300;
-const flush = () => new Promise((r) => setTimeout(r, 5));
-(async function() { __BODY__ })().then((r) => process.stdout.write(JSON.stringify({ result: r, calls: calls })),
-  (e) => { console.error(e); process.exit(1); });
+new Function('cockpit', 'document', 'window', 'setInterval', 'clearInterval', 'setTimeout', fs.readFileSync(process.argv[2], 'utf8'))(
+  cockpit, document, window, () => 0, () => {}, (f, ms) => (ms > 100 ? 0 : setTimeout(f, ms)));
+const flush = async (n = 4) => { for (let i = 0; i < n; i++) await new Promise((r) => setTimeout(r, 2)); };
+(async function() { await flush(); __BODY__ })().then((r) => process.stdout.write(JSON.stringify({ result: r,
+  calls: calls.map((c) => ({ argv: c.argv, opts: c.opts, req: c.req })) })), (e) => { console.error(e); process.exit(1); });
 '''
 
+    METHODS = ['hello', 'overview', 'data.get', 'sms.list', 'at.send', 'traffic.get', 'wifi.get', 'vpn.status', 'cpu.get',
+               'system.get', 'extra.list', 'backup.export']
     OUT = {
-        'mu300-panel info': json.dumps({'device': 'u30air', 'version': 'v1', 'mobile_data': {'service': 'active'},
-                                        'signal': {'operator': '<img src=x onerror=alert(1)>', 'rat': 'LTE'},
-                                        'battery': None, 'temperatures': [], 'cpu': None,
-                                        'hotspot': {'ssid': 'MU300'}}),
-        'mu300-traffic json': json.dumps({'today': {'rx': 1, 'tx': 1}}),
-        'sms json': json.dumps({'messages': [{'index': [1, 2], 'sender': '<b>x</b>', 'time': 't', 'parts': 2,
-                                              'text': 'hello'}, {'index': ['3;CFUN=0'], 'sender': 'y', 'time': 't',
-                                                                 'parts': 1, 'text': 'z'}]}),
-        'sms send': 'sent', 'sms delete': 'deleted',
-        'mu300-vpn status --json': json.dumps({'enabled': False, 'running': False}),
-        'mu300-vpn profile list --json': json.dumps([{'id': 'ok-1', 'name': 'A', 'type': 'xray'},
-                                                     {'id': '../x', 'name': 'B', 'type': 'xray'}]),
-        'mu300-vpn profile use': 'used', 'mu300-panel hotspot-set': 'hotspot', 'wifi-client': 'status',
-        # the VPN module is installed (mu300-extra's test, the page runs it as test -x); a stub table without this
-        # key is a device without the module
-        'test -x /mnt/mu300-disk/extra/vpn/bin/mu300-vpn': '',
+        'hello': {'ok': 1, 'methods': METHODS, 'features': {'locks': False}, 'job': {'kind': '', 'state': 'none'}},
+        'overview': {'ok': 1, 'device': 'f50', 'release': 'v1', 'data': {'state': 'up', 'iface': 'sipa_eth0'},
+                     'signal': {'operator': '<img src=x onerror=alert(1)>', 'rat': 'LTE'}, 'temperatures': [],
+                     'hotspot': {'ssid': 'MU300', 'enabled': True}, 'traffic': {'today': {'rx': 1, 'tx': 1}}},
+        'vpn.status': {'ok': 1, 'installed': True, 'status': {'enabled': False, 'running': False, 'kill_switch': {'setting': True}}},
+        'vpn.profiles': {'ok': 1, 'profiles': [{'id': 'ok-1', 'name': 'A', 'type': 'xray'}, {'id': '../x', 'name': 'B', 'type': 'xray'}]},
+        'vpn.subs': {'ok': 1, 'subscriptions': []}, 'vpn.settings': {'ok': 1, 'settings': {'IPV6': 'auto'}},
+        'vpn.use': {'ok': 1}, 'vpn.add': {'ok': 1, 'id': 'p-2'}, 'vpn.install': {'ok': 1, 'job': 'vpn-install'},
+        'job.status': {'ok': 1, 'job': {'kind': 'vpn-install', 'state': 'done', 'rc': 0, 'text': 'installed', 'next': 1}},
+        'sms.list': {'ok': 1, 'data': {'messages': [{'index': [1, 2], 'sender': '<b>x</b>', 'time': 't', 'parts': 2, 'text': 'hello'},
+                                                    {'index': ['3;CFUN=0'], 'sender': 'y', 'time': 't', 'parts': 1, 'text': 'z'}]}},
+        'sms.send': {'ok': 1, 'text': 'sent'}, 'sms.delete': {'ok': 1},
+        'wifi.get': {'ok': 1, 'enabled': True, 'ssid': 'Net', 'band': '5', 'channel': 'auto', 'channels': {'5': [36], '2.4': [1]},
+                     'password_set': True, 'hidden': False, 'clients': []},
+        'wifi.set': {'ok': 1, 'restart': True}, 'wificlient.status': {'ok': 1, 'active': False, 'text': ''},
+        'wificlient.join': {'ok': 1, 'job': 'wifi-join'},
+        'at.send': {'ok': 1, 'rc': 0, 'text': '+CSQ: 20,99\nOK'},
+        'data.get': {'ok': 1, 'state': 'up', 'apn': 'internet', 'pdp': 'IP', 'auth': '', 'user': '', 'password_set': True,
+                     'sim': None, 'roaming': None, 'roaming_switch': False},
+        'data.set': {'ok': 1, 'restart': True},
     }
 
-    def run_page(self, body, out=None):
-        h = self.HARNESS.replace('__OUT__', json.dumps(self.OUT if out is None else out)).replace('__BODY__', body)
+    def run_page(self, body, out=None, admin='true'):
+        h = (self.HARNESS.replace('__OUT__', json.dumps(self.OUT if out is None else out)).replace('__BODY__', body)
+             .replace('__ADMIN__', admin))
         r = subprocess.run(['node', '-', str(PAGE / 'mu300.js')], input=h, capture_output=True, text=True)
         self.assertEqual(r.returncode, 0, r.stderr)
         return json.loads(r.stdout)
 
-    def test_overview_shows_values_as_text(self):
-        out = self.run_page("await flush(); await flush(); return document.getElementById('app').textContent;")
+    def api_calls(self, out, method=None):
+        return [(c['argv'][1], c['req']) for c in out['calls'] if method is None or c['argv'][1] == method]
+
+    def test_every_call_is_mu300_api_with_the_request_on_stdin(self):
+        out = self.run_page("await flush(); return document.getElementById('app').textContent;")
+        # values from the device are text, never markup
         self.assertIn('<img src=x onerror=alert(1)>', out['result'])
-        argvs = [c['argv'] for c in out['calls']]
-        self.assertIn(['mu300-panel', 'info'], argvs)
-        self.assertTrue(all(c['opts'] == {'superuser': 'try', 'err': 'message'} for c in out['calls']))
+        for c in out['calls']:
+            self.assertEqual(c['argv'][0], '/opt/mu300/bin/mu300-api')
+            self.assertEqual(len(c['argv']), 2)
+            self.assertEqual(c['opts'], {'superuser': 'try', 'err': 'message'})
+        self.assertEqual(self.api_calls(out)[0], ('hello', {}))
+        self.assertIn('overview', [m for m, _ in self.api_calls(out)])
+
+    def test_tabs_follow_the_devices_methods(self):
+        body = r"""await flush();
+return all(ids.app, (n) => n.tag === 'button' && n.attrs['data-tab']).map((n) => n.attrs['data-tab']);"""
+        self.assertEqual(self.run_page(body)['result'], ['overview', 'mobile', 'sms', 'at', 'usage', 'wifi', 'vpn', 'power',
+                                                         'system', 'updates', 'backup'])
+        # an older mu300-api: only what it has (the VPN tab is there whenever vpn.status is: installed or not)
+        old = dict(self.OUT, hello=dict(self.OUT['hello'], methods=['hello', 'overview', 'vpn.status', 'sms.list']))
+        self.assertEqual(self.run_page(body, old)['result'], ['overview', 'sms', 'vpn'])
+
+    def test_without_administrative_access_the_page_says_so(self):
+        out = self.run_page("await flush(); return document.getElementById('mu-main').textContent;", admin='false')
+        self.assertIn('Administrative access is off', out['result'])
+        self.assertEqual(self.api_calls(out), [])
+        # the access is on but mu300-api still says not-root: the same
+        nr = dict(self.OUT, hello={'ok': 0, 'error': 'not-root'})
+        out = self.run_page("await flush(); return document.getElementById('mu-main').textContent;", nr, admin='null')
+        self.assertIn('Administrative access is off', out['result'])
 
     def test_sms_send_and_delete(self):
-        out = self.run_page(r'''
-window.MU300.show('sms'); await flush(); await flush();
+        out = self.run_page(r"""
+window.MU300.show('sms'); await flush();
 ids['mu-sms-number'].value = '+905551112233'; ids['mu-sms-text'].value = 'hi $(reboot); `id`';
-find(ids['mu-sms-send'], (n) => n.tag === 'button').click(); await flush();
-ids['mu-sms-number'].value = '123; reboot'; find(ids['mu-sms-send'], (n) => n.tag === 'button').click(); await flush();
-all(ids['mu-sms-list'], (n) => n.tag === 'button' && n.textContent === 'Delete')[0].click(); await flush(); await flush();
-return document.getElementById('app').textContent;''')
-        argvs = [c['argv'] for c in out['calls']]
-        self.assertIn(['sms', 'send', '+905551112233', 'hi $(reboot); `id`'], argvs)
-        self.assertFalse(any(a[:2] == ['sms', 'send'] and a[2] == '123; reboot' for a in argvs))
+btn(ids['mu-sms-send'], 'Send').click(); await flush();
+ids['mu-sms-number'].value = '123; reboot'; btn(ids['mu-sms-send'], 'Send').click(); await flush();
+all(ids['mu-sms-list'], (n) => n.tag === 'button' && n.textContent === 'Delete')[0].click(); await flush(8);
+return document.getElementById('app').textContent;""")
+        sends = [r for m, r in self.api_calls(out, 'sms.send')]
+        self.assertEqual(sends, [{'number': '+905551112233', 'text': 'hi $(reboot); `id`'}])
         # the newest first: the message with the bad index is the first Delete; its index is never sent
-        deletes = [a for a in argvs if a[:2] == ['sms', 'delete']]
-        self.assertTrue(all(len(a) == 3 and a[2].isdigit() for a in deletes), deletes)
+        deletes = [r for m, r in self.api_calls(out, 'sms.delete')]
+        self.assertTrue(all(set(d) == {'id'} and d['id'].isdigit() for d in deletes), deletes)
         self.assertIn('<b>x</b>', out['result'])
 
-    def test_secrets_go_on_stdin(self):
-        out = self.run_page(r'''
+    def test_secrets_are_in_the_request_only(self):
+        out = self.run_page(r"""
 window.MU300.show('wifi'); await flush();
-ids['mu-hs-ssid'].value = 'Net'; ids['mu-hs-psk'].value = 'secret123';
-find(ids['mu-hotspot'], (n) => n.tag === 'button').click(); await flush();
+ids['mu-hs-ssid'].value = 'Net2'; ids['mu-hs-psk'].value = 'secret123';
+btn(ids['mu-hotspot'], 'Save and restart the hotspot').click(); await flush();
 ids['mu-wc-ssid'].value = 'Cafe'; ids['mu-wc-psk'].value = 'cafepass';
-all(ids['mu-wifi-client'], (n) => n.tag === 'button')[0].click(); await flush();
-return null;''')
-        calls = {' '.join(c['argv']): c.get('input') for c in out['calls']}
-        self.assertEqual(calls['mu300-panel hotspot-set Net'], 'secret123\n')
-        self.assertEqual(calls['wifi-client connect Cafe -'], 'cafepass\n')
-        self.assertFalse(any('secret123' in k or 'cafepass' in k for k in calls))
+btn(ids['mu-wifi-client'], 'Join').click(); await flush();
+window.MU300.show('mobile'); await flush();
+ids['mu-apn-pw'].value = 'apnpass1'; btn(ids['mu-apn'], 'Save').click(); await flush();
+return null;""")
+        self.assertEqual(self.api_calls(out, 'wifi.set'), [('wifi.set', {'ssid': 'Net2', 'password': 'secret123'})])
+        self.assertEqual(self.api_calls(out, 'wificlient.join'), [('wificlient.join', {'ssid': 'Cafe', 'password': 'cafepass'})])
+        self.assertEqual(self.api_calls(out, 'data.set')[0][1]['password'], 'apnpass1')
+        for c in out['calls']:
+            self.assertFalse(any(s in ' '.join(c['argv']) for s in ('secret123', 'cafepass', 'apnpass1')))
 
-    def test_vpn_profile_ids_are_checked(self):
-        out = self.run_page(r'''await flush();
-window.MU300.show('vpn'); await flush(); await flush(); await flush();
-all(ids['mu-vpn-profiles'], (n) => n.tag === 'button').forEach((b) => b.click()); await flush();
-return null;''')
-        uses = [c['argv'] for c in out['calls'] if c['argv'][:3] == ['mu300-vpn', 'profile', 'use']]
-        self.assertEqual(uses, [['mu300-vpn', 'profile', 'use', 'ok-1']])
+    def test_vpn_profile_ids_are_checked_and_a_link_is_a_link(self):
+        out = self.run_page(r"""
+window.MU300.show('vpn'); await flush(8);
+all(ids['mu-vpn-profiles'], (n) => n.tag === 'button' && n.textContent === 'Use').forEach((b) => b.click()); await flush();
+ids['mu-vpn-data'].value = ' vless://abc@host:443?x=y#n '; btn(ids['mu-vpn-profiles'], 'Add').click(); await flush();
+return null;""")
+        self.assertEqual(self.api_calls(out, 'vpn.use'), [('vpn.use', {'id': 'ok-1'})])
+        self.assertEqual(self.api_calls(out, 'vpn.add'), [('vpn.add', {'source': 'link', 'data': 'vless://abc@host:443?x=y#n'})])
 
-    def test_the_vpn_tab_only_with_the_module(self):
-        body = r'''await flush(); await flush();
-const tabs = all(ids.app, (n) => n.tag === 'button' && n.attrs['data-tab']).map((n) => n.attrs['data-tab']);
-window.MU300.show('vpn'); await flush(); await flush();
-return { tabs: tabs, shown: cockpit.location.path[0], main: document.getElementById('mu-main').textContent };'''
-        check = ['test', '-x', '/mnt/mu300-disk/extra/vpn/bin/mu300-vpn']
-        # with the module (its mu300-vpn in the vpn extra, mu300-extra's test): the tab, and the VPN page opens
-        out = self.run_page(body)
-        self.assertIn('vpn', out['result']['tabs'])
-        self.assertEqual(out['result']['shown'], 'vpn')
-        self.assertIn(check, [c['argv'] for c in out['calls']])
-        # without it: no tab, no word of a VPN, and the VPN page is not to be had - the overview opens instead
-        without = {k: v for k, v in self.OUT.items() if k[:7] != 'test -x'}
-        out = self.run_page(body, without)
-        self.assertNotIn('vpn', out['result']['tabs'])
-        self.assertEqual(sorted(out['result']['tabs']), ['overview', 'power', 'sms', 'updates', 'wifi'])
-        self.assertEqual(out['result']['shown'], 'overview')
-        self.assertNotIn('VPN', out['result']['main'])
-        self.assertNotIn('VPN', ''.join(t for t in self.run_page(
-            "await flush(); return document.getElementById('app').textContent;", without)['result']))
-        self.assertFalse([c['argv'] for c in out['calls'] if c['argv'][0] == 'mu300-vpn'])
+    def test_vpn_not_installed_offers_the_module_and_follows_the_job(self):
+        out = dict(self.OUT)
+        out['vpn.status'] = {'ok': 1, 'installed': False, 'extra': True}
+        r = self.run_page(r"""
+window.MU300.show('vpn'); await flush();
+const t = ids['mu-vpn'].textContent;
+btn(ids['mu-vpn'], 'Install the VPN module').click(); await flush(8);
+return [t, document.getElementById('mu-job').textContent];""", out)
+        self.assertIn('The VPN module is not installed', r['result'][0])
+        self.assertIn(('vpn.install', {}), self.api_calls(r))
+        self.assertIn(('job.status', {'from': 0}), self.api_calls(r))
+        self.assertIn('installed', r['result'][1])
+
+    def test_sim_radio_and_voice(self):
+        out = dict(self.OUT, hello=dict(self.OUT['hello'], methods=self.METHODS + ['radio.get', 'radio.set', 'voice.get', 'voice.set']))
+        out['radio.get'] = {'ok': 1, 'radio': {'enabled': [True, False], 'all_off': False, 'active': 0, 'slot1_supported': 1}}
+        out['radio.set'] = {'ok': 1, 'text': ''}
+        out['voice.get'] = {'ok': 1, 'voice': {'slot': 0, 'slots': [{'volte': True, 'vonr': None}, {'volte': False, 'vonr': True}], 'live': None}}
+        out['voice.set'] = {'ok': 1, 'text': ''}
+        r = self.run_page(r"""
+window.MU300.show('mobile'); await flush(8);
+btn(ids['mu-radio'], 'All radios off (airplane mode)').click(); await flush();
+all(ids['mu-radio'], (n) => n.tag === 'button' && n.textContent === 'Turn on')[0].click(); await flush();
+all(ids['mu-voice'], (n) => n.tag === 'button' && n.textContent === 'Turn on')[0].click(); await flush();
+return null;""", out)
+        self.assertEqual([q for m, q in self.api_calls(r, 'radio.set')], [{'slot': 'all', 'state': 'off'}, {'slot': 2, 'state': 'on'}])
+        self.assertEqual([q for m, q in self.api_calls(r, 'voice.set')], [{'slot': 1, 'kind': 'vonr', 'state': 'on'}])
+
+    LOCKS = {'ok': 1, 'data': {'auto_apply': 1, 'ts': 1700000000, 'mode': {'label': 'auto'}, 'endc': '1',
+                               'lte': {'locked': ''}, 'nr': {'locked': '78'}, 'cell': '', 'cells': ['nr:627264,393'],
+                               'caps': {'nr': '1,5,6,8,28,41,78', 'lte': '1,3,5,8,34,38,39,40,41'}}}
+
+    def parity(self):
+        out = dict(self.OUT, hello=dict(self.OUT['hello'], methods=self.METHODS + [
+            'lock.get', 'lock.set', 'sim.state', 'sms.forward', 'sms.forward_set', 'sms.forward_test', 'sms.forward_log_clear',
+            'at.history', 'usb.net', 'lan.get'], features={'locks': True, 'forward': True, 'usb_net': True}))
+        out['lock.get'] = self.LOCKS
+        out['lock.set'] = {'ok': 1, 'data': {'ok': 1, 'started': 1, 'queued': 0}}
+        out['sim.state'] = {'ok': 1, 'state': 'absent', 'slot': 2}
+        out['sms.forward'] = {'ok': 1, 'data': {'ok': 1, 'enabled': 1, 'template': '{text}', 'webhook': 1, 'webhook_url_set': 1,
+                                                'webhook_url_hint': 'https://hook.example.com/...', 'webhook_format': 'json',
+                                                'telegram_token_set': 1, 'telegram_token_hint': '123:...', 'email_available': 0,
+                                                'queued': 2, 'log': [{'time': 1, 'id': '7', 'target': 'webhook', 'result': 'sent',
+                                                                      'detail': '<i>HTTP 200</i>'}]}}
+        out['sms.forward_set'] = {'ok': 1}
+        out['sms.forward_test'] = {'ok': 1, 'started': True}
+        out['sms.forward_log_clear'] = {'ok': 1}
+        out['at.history'] = {'ok': 1, 'history': [{'time': '10-18 01:00:00', 'command': 'AT+COPS?'}]}
+        out['usb.net'] = {'ok': 1, 'mode': 'ecm', 'once': True, 'now': 'ncm'}
+        out['lan.get'] = {'ok': 1, 'ip': '192.168.79.1', 'usb_role_switch': False, 'adb': {'state': 'on', 'auth': 'open'}}
+        out['system.get'] = {'ok': 1, 'release': 'v1'}
+        out['data.get'] = dict(self.OUT['data.get'], sim={'active': 2, 'default': 2, 'slot1_supported': 1})
+        return out
+
+    def test_locks(self):
+        r = self.run_page(r"""
+window.MU300.show('mobile'); await flush(10);
+const t = ids['mu-locks'].textContent;
+ids['mu-lock-mode'].value = '4g'; btn(ids['mu-locks'], 'Apply').click(); await flush();
+ids['mu-lock-nr-41'].checked = true; btn(ids['mu-locks'], 'Apply NR bands').click(); await flush();
+btn(ids['mu-locks'], 'Apply LTE bands').click(); await flush();
+ids['mu-lock-arfcn'].value = '627264'; ids['mu-lock-pci'].value = '393'; btn(ids['mu-locks'], 'Lock this cell').click(); await flush();
+ids['mu-lock-arfcn'].value = '62x'; btn(ids['mu-locks'], 'Lock this cell').click(); await flush();
+btn(ids['mu-locks'], 'Turn EN-DC off').click(); await flush();
+btn(ids['mu-locks'], 'Do not apply at startup').click(); await flush();
+btn(ids['mu-locks'], 'Reset all to automatic').click(); await flush();
+return t;""", self.parity())
+        self.assertIn('n78', r['result'])
+        self.assertIn('NR ARFCN 627264, PCI 393', r['result'])
+        self.assertIn(('lock.get', {}), self.api_calls(r))
+        self.assertEqual([q for m, q in self.api_calls(r, 'lock.set')], [
+            {'kind': 'mode', 'val': '4g'}, {'kind': 'nr', 'val': '41,78'}, {'kind': 'lte', 'val': ''},
+            {'kind': 'cell', 'val': 'nr:627264,393'}, {'kind': 'endc', 'val': 'off'}, {'kind': 'auto_apply', 'val': 'off'},
+            {'kind': 'reset', 'val': 'auto'}])
+
+    def test_sim_card_state(self):
+        r = self.run_page(r"""
+window.MU300.show('mobile'); await flush(10);
+const t = ids['mu-sim'].textContent;
+btn(ids['mu-sim'], 'Ask the card').click(); await flush(6);
+return t;""", self.parity())
+        self.assertIn('Card (SIM 2)No card in this slot', r['result'])
+        self.assertEqual([q for m, q in self.api_calls(r, 'sim.state')], [{}, {'fresh': True}])
+
+    def test_forwarding(self):
+        r = self.run_page(r"""
+window.MU300.show('sms'); await flush(10);
+const t = ids['mu-sms-forward'].textContent + ids['mu-sms-forward-log'].textContent;
+ids['mu-fwd-body-preset'].value = 'wecom'; (ids['mu-fwd-body-preset'].on.change || []).forEach((f) => f({}));
+ids['mu-fwd-telegram_token'].value = '987:' + 'B'.repeat(30); ids['mu-fwd-webhook_url-clear'].checked = true;
+btn(ids['mu-sms-forward'], 'Save').click(); await flush(8);
+btn(ids['mu-sms-forward'], 'Send a test').click(); await flush();
+btn(ids['mu-sms-forward-log'], 'Clear the log').click(); await flush();
+return t;""", self.parity())
+        self.assertIn('Saved: https://hook.example.com/...', r['result'])
+        self.assertIn('<i>HTTP 200</i>', r['result'])
+        sets = [q for m, q in self.api_calls(r, 'sms.forward_set')]
+        self.assertEqual(len(sets), 1)
+        q = sets[0]
+        self.assertEqual((q['enabled'], q['webhook'], q['telegram']), (True, True, False))
+        self.assertEqual(q['webhook_body'], '{"msgtype":"text","text":{"content":"{message}"}}')
+        self.assertEqual((q['webhook_expect'], q['webhook_format']), ('errcode=0', 'json'))
+        self.assertEqual(q['telegram_token'], '987:' + 'B' * 30)
+        self.assertEqual(q['clear'], 'webhook_url')
+        self.assertEqual(q['webhook_url'], '')
+        self.assertIn(('sms.forward_test', {}), self.api_calls(r))
+        self.assertIn(('sms.forward_log_clear', {}), self.api_calls(r))
+        for c in r['calls']:
+            self.assertNotIn('BBBBBBBB', ' '.join(c['argv']))
+
+    def test_at_history_and_usb_network(self):
+        r = self.run_page(r"""
+window.MU300.show('at'); await flush(8);
+const h = ids['mu-at-history'].textContent;
+btn(ids['mu-at-history'], 'AT+COPS?').click();
+const v = ids['mu-at-cmd'].value;
+window.MU300.show('system'); await flush(10);
+const u = ids['mu-usbnet'].textContent;
+ids['mu-usbnet-mode'].value = 'rndis'; ids['mu-usbnet-scope'].value = 'once';
+btn(ids['mu-usbnet'], 'Save (used at the next boot)').click(); await flush();
+ids['mu-usbnet-mode'].value = 'default';
+btn(ids['mu-usbnet'], 'Save (used at the next boot)').click(); await flush();
+return [h, v, u];""", self.parity())
+        self.assertIn('10-18 01:00:00', r['result'][0])
+        self.assertEqual(r['result'][1], 'AT+COPS?')
+        self.assertIn('ECM (that boot only)', r['result'][2])
+        self.assertEqual([q for m, q in self.api_calls(r, 'usb.net') if q], [{'mode': 'rndis', 'scope': 'once'}, {'mode': 'default'}])
+
+    def test_errors_are_worded(self):
+        out = self.run_page(r"""
+const M = window.MU300;
+return [M.errText({ code: 'not-root' }), M.errText({ code: 'bad-value', detail: 'ssid' }), M.errText({ code: 'failed', detail: 'no SIM' }),
+        M.errText({ problem: 'not-found' })];""")
+        self.assertIn('administrative access', out['result'][0])
+        self.assertEqual(out['result'][1:], ['Not a valid value: ssid', 'no SIM', 'The command is not on this system.'])
 
     def test_helpers(self):
-        out = self.run_page(r'''const M = window.MU300;
+        out = self.run_page(r"""const M = window.MU300;
 return [M.netDev('Inter-|\n  lo: 1 0 0 0 0 0 0 0 2 0\n sipa_eth0: 300 5 0 0 0 0 0 0 400 6 0 0 0 0 0 0\n'),
-        M.fmtBytes(1536), M.fmtRate(125000), M.errText({ problem: 'not-found' })];''')
+        M.fmtBytes(1536), M.fmtRate(125000), M.mask('8612345678901234')];""")
         self.assertEqual(out['result'], [{'lo': {'rx': 1, 'tx': 2}, 'sipa_eth0': {'rx': 300, 'tx': 400}}, '1.5 KiB',
-                                         '1.0 Mbit/s', 'The command is not on this system.'])
+                                         '1.0 Mbit/s', '8612****234'])
+
+    def test_every_page_renders(self):
+        """each tab against answers of the right shape, and against a device that refuses everything"""
+        for out in (None, {'hello': self.OUT['hello']}):
+            r = self.run_page(r"""const res = {};
+for (const t of ['overview', 'mobile', 'sms', 'at', 'usage', 'wifi', 'vpn', 'power', 'system', 'updates', 'backup']) {
+  window.MU300.show(t); await flush(8); res[t] = document.getElementById('mu-main').textContent.length; }
+return res;""", out)
+            self.assertTrue(all(v > 0 for v in r['result'].values()), r['result'])
 
 
 class SmsJson(ShellTest):

@@ -13,6 +13,9 @@ msgstr "Mobil şəbəkə"
 msgid "Dual SIM"
 msgstr "Dual SIM"
 
+msgid "SIM settings"
+msgstr "SIM ayarları"
+
 msgid "Network locks"
 msgstr "Şəbəkə kilidləri"
 
@@ -36,6 +39,12 @@ msgstr "Məlumat istifadəsi"
 
 msgid "Device management"
 msgstr "Cihazın idarəsi"
+
+msgid "Update"
+msgstr "Yenilə"
+
+msgid "Backup of settings"
+msgstr "Ayarların ehtiyat nüsxəsi"
 
 msgid "Languages"
 msgstr "Dillər"
@@ -316,6 +325,75 @@ msgstr "Sorğu uğursuz oldu"
 msgid "(empty)"
 msgstr "(boş)"
 
+msgid "Passphrase (8 characters or more)"
+msgstr "Parol ifadəsi (ən azı 8 simvol)"
+
+msgid "The passphrase again"
+msgstr "Parol ifadəsi yenidən"
+
+msgid "Download the backup"
+msgstr "Nüsxəni endir"
+
+msgid "Back up the settings"
+msgstr "Ayarların nüsxəsini çıxar"
+
+msgid "One file with the hotspot, mobile data and the APN, the network locks, the VPN profiles and settings, SMS forwarding, the LAN address, the host name, the time zone and the SSH keys. It holds passwords: with a passphrase it is encrypted, and only that passphrase opens it again."
+msgstr "Hotspot, mobil data və APN, şəbəkə kilidləri, VPN profilləri və ayarları, SMS yönləndirmə, LAN ünvanı, host adı, saat qurşağı və SSH açarları olan bir fayl. İçində parollar var: parol ifadəsi ilə şifrələnir və onu yalnız həmin ifadə yenidən açır."
+
+msgid "Include the login password"
+msgstr "Giriş parolunu daxil et"
+
+msgid "Passphrase, if the file is encrypted"
+msgstr "Fayl şifrəlidirsə, parol ifadəsi"
+
+msgid "Show what would change"
+msgstr "Nəyin dəyişəcəyini göstər"
+
+msgid "Restore"
+msgstr "Bərpa et"
+
+msgid "The file is larger than 4 MiB"
+msgstr "Fayl 4 MiB-dan böyükdür"
+
+msgid "The settings of the file replace these. The hotspot, mobile data or the LAN may restart, and this page may lose its connection for a moment."
+msgstr "Fayldakı ayarlar bunları əvəz edir. Hotspot, mobil data və ya LAN yenidən başlaya bilər və bu səhifə bir anlıq bağlantını itirə bilər."
+
+msgid "Restore from a backup"
+msgstr "Ehtiyat nüsxədən bərpa et"
+
+msgid "Every value of the file is checked first; one that is refused and nothing is changed. What is the same is left alone, and no VPN profile, subscription or SSH key of this device is removed."
+msgstr "Faylın hər dəyəri əvvəlcə yoxlanılır; biri rədd edilsə, heç nə dəyişmir. Eyni olanlara toxunulmur və bu cihazın heç bir VPN profili, abunəliyi və ya SSH açarı silinmir."
+
+msgid "Keep this device's login password"
+msgstr "Bu cihazın giriş parolunu saxla"
+
+msgid "Take a file of another device model"
+msgstr "Başqa cihaz modelinin faylını qəbul et"
+
+msgid "The two passphrases differ"
+msgstr "İki parol ifadəsi fərqlidir"
+
+msgid "The passphrase needs 8 characters or more"
+msgstr "Parol ifadəsi ən azı 8 simvol olmalıdır"
+
+msgid "Saved (encrypted)"
+msgstr "Saxlanıldı (şifrəli)"
+
+msgid "Saved. The file is not encrypted: it holds passwords, keep it safe."
+msgstr "Saxlanıldı. Fayl şifrəli deyil: içində parollar var, onu təhlükəsiz saxlayın."
+
+msgid "Choose a backup file first"
+msgstr "Əvvəlcə ehtiyat nüsxə faylını seçin"
+
+msgid "Restoring…"
+msgstr "Bərpa edilir…"
+
+msgid "Restored"
+msgstr "Bərpa edildi"
+
+msgid "The restore did not finish: see the lines above"
+msgstr "Bərpa başa çatmadı: yuxarıdakı sətirlərə baxın"
+
 msgid "Loading…"
 msgstr "Yüklənir…"
 
@@ -388,6 +466,18 @@ msgstr "Hardware max"
 msgid "Frequencies in MHz."
 msgstr "Frequencies in MHz."
 
+msgid "Highlighted cores are online. A core taken offline stays offline, also after a reboot, until it is brought back. CPU0 always stays online."
+msgstr "Vurğulanan nüvələr onlayndır. Söndürülmüş nüvə yenidən açılana qədər, yenidən başladıqdan sonra da oflayn qalır. CPU0 həmişə onlayn qalır."
+
+msgid "Low latency: on"
+msgstr "Aşağı gecikmə: açıq"
+
+msgid "Low latency: off"
+msgstr "Aşağı gecikmə: bağlı"
+
+msgid "Low latency keeps CPU0 out of its idle states, as ZTE's U30 Air firmware does: Wi-Fi delays are much shorter, and the device draws more power. Off by default."
+msgstr "Aşağı gecikmə, ZTE-nin U30 Air proqram təminatında olduğu kimi, CPU0-ı boşda qalma vəziyyətlərindən kənarda saxlayır: Wi-Fi gecikmələri xeyli qısalır, cihaz isə daha çox enerji sərf edir. Standart olaraq bağlıdır."
+
 msgid "Thermal"
 msgstr "İstilik"
 
@@ -405,6 +495,111 @@ msgstr "Keçid nöqtələri"
 
 msgid "Cooling devices"
 msgstr "Soyutma cihazları"
+
+msgid "Stress test started"
+msgstr "Stress testi başladıldı"
+
+msgid "Saved: it takes effect at the next reboot"
+msgstr "Yadda saxlanıldı: növbəti yenidən başlatmada qüvvəyə minir"
+
+msgid "CPU voltage offset (EXPERIMENTAL)"
+msgstr "CPU gərginlik ofseti (EKSPERİMENTAL)"
+
+msgid "Experimental: changing the CPU voltage can make the device unstable, corrupt your data and permanently damage your device. Use it entirely at your own risk."
+msgstr "Eksperimental: CPU gərginliyini dəyişmək cihazı qeyri-sabit edə, məlumatlarınızı korlaya və cihazınıza daimi zərər verə bilər. Bütün risk tamamilə sizin üzərinizdədir."
+
+msgid "CPU voltage offset unavailable"
+msgstr "CPU gərginlik ofseti əlçatan deyil"
+
+msgid "Not available with this kernel (a mainline kernel of this release or later has it)."
+msgstr "Bu nüvə ilə əlçatan deyil (bu buraxılışın və ya daha yenisinin mainline nüvəsində var)."
+
+msgid "Off: the stock voltages"
+msgstr "Söndürülüb: zavod gərginlikləri"
+
+msgid "Changes at the next reboot"
+msgstr "Növbəti yenidən başlatmada dəyişir"
+
+msgid "Trial boot: kept once this boot has been up 10 minutes"
+msgstr "Sınaq açılışı: bu açılış 10 dəqiqə işlədikdən sonra saxlanılır"
+
+msgid "Kept: this offset passed its trial boot"
+msgstr "Saxlanıldı: bu ofset sınaq açılışından keçdi"
+
+msgid "a boot with it ended without a clean shutdown"
+msgstr "onunla edilən açılış düzgün söndürülmədən başa çatdı"
+
+msgid "its trial boot ended before 10 minutes"
+msgstr "onun sınaq açılışı 10 dəqiqədən əvvəl başa çatdı"
+
+msgid "invalid value"
+msgstr "yanlış dəyər"
+
+msgid "unknown SoC firmware"
+msgstr "naməlum SoC proqram təminatı"
+
+msgid "refused by the kernel"
+msgstr "nüvə tərəfindən rədd edildi"
+
+msgid "the kernel could not start CPU scaling with it"
+msgstr "nüvə onunla CPU tezlik tənzimləməsini başlada bilmədi"
+
+msgid "Offsets in µV for the three CPU domains (cores 0-3, 4-6 and 7), in whole steps. A new offset takes effect at the next reboot, as a trial: it is kept once that boot has been up 10 minutes, and dropped (back to 0) if a boot with it ends in a crash, a watchdog reset or a power cut."
+msgstr "Üç CPU domeni (0-3, 4-6 və 7 CPU nüvələri) üçün µV ilə ofsetlər, tam addımlarla. Yeni ofset növbəti yenidən başlatmada sınaq kimi qüvvəyə minir: həmin açılış 10 dəqiqə işlədikdən sonra saxlanılır, onunla edilən açılış çökmə, watchdog sıfırlanması və ya elektrik kəsilməsi ilə bitərsə, ləğv edilir (0-a qayıdır)."
+
+msgid "Running now (µV)"
+msgstr "İndi işləyən (µV)"
+
+msgid "Saved for the next boot (µV)"
+msgstr "Növbəti açılış üçün saxlanılıb (µV)"
+
+msgid "State"
+msgstr "Vəziyyət"
+
+msgid "Taken back automatically: %s µV (%s)"
+msgstr "Avtomatik geri götürüldü: %s µV (%s)"
+
+msgid "The SoC firmware of this device is not one whose voltage encoding is known: only the stock voltages are possible."
+msgstr "Bu cihazın SoC proqram təminatı gərginlik kodlaşdırması məlum olanlardan deyil: yalnız zavod gərginlikləri mümkündür."
+
+msgid "Domain"
+msgstr "Domen"
+
+msgid "Offset now (µV)"
+msgstr "İndiki ofset (µV)"
+
+msgid "Highest step"
+msgstr "Ən yüksək addım"
+
+msgid "New offset (µV)"
+msgstr "Yeni ofset (µV)"
+
+msgid "Limits: %d to %d µV, in steps of %d µV."
+msgstr "Hədlər: %d ilə %d µV arası, %d µV addımlarla."
+
+msgid "Save for the next boot"
+msgstr "Növbəti açılış üçün saxla"
+
+msgid "Each offset must be a multiple of %d µV between %d and %d."
+msgstr "Hər ofset %d µV-un misli olmalı və %d ilə %d arasında olmalıdır."
+
+msgid "Type %s to confirm."
+msgstr "Təsdiqləmək üçün %s yazın."
+
+msgid "Back to the stock voltages"
+msgstr "Zavod gərginliklərinə qayıt"
+
+msgid "Type %s to confirm:"
+msgstr "Təsdiqləmək üçün %s yazın:"
+
+msgid "Run a 10-minute CPU stress test"
+msgstr "10 dəqiqəlik CPU stress testi işlət"
+
+msgid "Test a new offset under load during its trial boot. The device may crash if the voltage is too low; the next boot then runs at the stock voltages."
+msgstr "Yeni ofseti sınaq açılışı zamanı yük altında yoxlayın. Gərginlik çox aşağı olarsa, cihaz çökə bilər; onda növbəti açılış zavod gərginlikləri ilə işləyir."
+
+msgid "A stress test is running."
+msgstr "Stress testi işləyir."
 
 msgid "USB role"
 msgstr "USB rolu"
@@ -583,6 +778,12 @@ msgstr "Saxlanmış dəyəri sil"
 msgid "Presets"
 msgstr "Hazır seçimlər"
 
+msgid "Form (URL-encoded)"
+msgstr "Forma (URL kodlu)"
+
+msgid "Plain text"
+msgstr "Sadə mətn"
+
 msgid "Received messages are sent on as they reach the SMS pool. A failed delivery is retried after 30 s, then after twice as long each time (an hour at most), ten times in all."
 msgstr "Alınan mesajlar SMS hovuzuna çatan kimi yönləndirilir. Uğursuz göndəriş 30 san sonra, sonra hər dəfə iki dəfə uzun müddətdən sonra (ən çox bir saat) təkrarlanır, cəmi on dəfə."
 
@@ -621,12 +822,6 @@ msgstr "Ünvan (http:// və ya https://)"
 
 msgid "Body"
 msgstr "Gövdə"
-
-msgid "Form (URL-encoded)"
-msgstr "Forma (URL kodlu)"
-
-msgid "Plain text"
-msgstr "Sadə mətn"
 
 msgid "Fields: sender, time, text, device, message (the template filled in)"
 msgstr "Sahələr: sender, time, text, device, message (doldurulmuş şablon)"
@@ -745,6 +940,9 @@ msgstr "Hələ çatdırılma yoxdur"
 msgid "Test started with the saved settings; the result appears in the delivery log."
 msgstr "Test saxlanmış ayarlarla başladı; nəticə çatdırılma jurnalında görünəcək."
 
+msgid "Automatic without 2G (152)"
+msgstr "Avtomatik, 2G olmadan (152)"
+
 msgid "4G only"
 msgstr "Yalnız 4G"
 
@@ -813,6 +1011,9 @@ msgstr "Sessiya müddəti"
 
 msgid "Registration"
 msgstr "Qeydiyyat"
+
+msgid "Data roaming"
+msgstr "Məlumat rouminqi"
 
 msgid "Bandwidth"
 msgstr "Bant genişliyi"
@@ -940,14 +1141,26 @@ msgstr "Məlumat bağlantısı qurulur…"
 msgid "Turn off cellular radio"
 msgstr "Mobil radionu söndür"
 
-msgid "Cellular connectivity will be interrupted."
-msgstr "Mobil bağlantı kəsiləcək."
+msgid "This SIM will have no calls, SMS or data, and its radio stays off after a reboot until you turn it on again."
+msgstr "Bu SIM-də zəng, SMS və ya data olmayacaq; radiosu yenidən başladıqdan sonra da siz yenidən açana qədər sönülü qalır."
 
 msgid "Turn on cellular radio"
 msgstr "Mobil radionu yandır"
 
-msgid "The SFUN power-on sequence will run (up to about 1 minute)."
-msgstr "SFUN yandırma ardıcıllığı icra olunacaq (təxminən 1 dəqiqəyədək)."
+msgid "The radio of the SIM in use comes on and stays on after a reboot (up to about 1 minute)."
+msgstr "İstifadədəki SIM-in radiosu açılır və yenidən başladıqdan sonra da açıq qalır (təxminən 1 dəqiqəyə qədər)."
+
+msgid "Turn data roaming off"
+msgstr "Məlumat rouminqini söndür"
+
+msgid "While the SIM is registered on a roaming network, mobile data stays off; SMS, calls and the registration are not affected. Some SIMs report roaming at home (an MVNO, national roaming): there, data would stop as well."
+msgstr "SIM rouminq şəbəkəsində qeydiyyatda olduğu müddətdə mobil məlumat söndürülü qalır; SMS, zənglər və qeydiyyat təsirlənmir. Bəzi SIM-lər evdə də rouminq bildirir (MVNO, milli rouminq): orada da məlumat dayanar."
+
+msgid "Allow data roaming"
+msgstr "Məlumat rouminqinə icazə ver"
+
+msgid "Mobile data is used on roaming networks too, which can cost extra. Some SIMs report roaming at home (an MVNO, national roaming) and need this to have data at all."
+msgstr "Mobil məlumat rouminq şəbəkələrində də istifadə olunur, bu əlavə xərc yarada bilər. Bəzi SIM-lər evdə də rouminq bildirir (MVNO, milli rouminq) və ümumiyyətlə məlumat üçün buna ehtiyac duyur."
 
 msgid "Cellular connectivity may stop for 1–2 minutes."
 msgstr "Mobil bağlantı 1–2 dəqiqəlik dayana bilər."
@@ -1054,6 +1267,9 @@ msgstr "Lövbər B%s"
 msgid "No serving cell"
 msgstr "Xidmət edən hüceyrə yoxdur"
 
+msgid "Version %s is out: update"
+msgstr "%s versiyası çıxıb: yenilə"
+
 msgid "Not registered"
 msgstr "Qeydiyyatda deyil"
 
@@ -1074,6 +1290,15 @@ msgstr "Yalnız təcili zənglər"
 
 msgid "Status %s"
 msgstr "Status %s"
+
+msgid "Off: data held back while roaming"
+msgstr "Söndürülüb: rouminqdə məlumat dayandırıldı"
+
+msgid "Allowed"
+msgstr "İcazə verilib"
+
+msgid "Off"
+msgstr "Söndürülüb"
 
 msgid "LTE anchor"
 msgstr "LTE lövbəri"
@@ -1224,9 +1449,6 @@ msgstr "Kod"
 
 msgid "Translated"
 msgstr "Tərcümə olunub"
-
-msgid "State"
-msgstr "Vəziyyət"
 
 msgid "LuCI's own translations come from OpenWrt. This panel's translations other than Turkish and Chinese are machine (AI) translations; corrections are welcome."
 msgstr "LuCI-nin öz tərcümələri OpenWrt-dən gəlir. Bu panelin türk və Çin dillərindən başqa tərcümələri maşın (AI) tərcümələridir; düzəlişlər məmnuniyyətlə qəbul edilir."
@@ -1594,14 +1816,20 @@ msgstr "0 % batareyanı heç vaxt doldurmur (cihaz şarj cihazından işləyir),
 msgid "80 % keeps the battery healthier on a device that stays plugged in."
 msgstr "80 % daim şəbəkədə qalan cihazda batareyanı daha sağlam saxlayır."
 
+msgid "When the charger switches the device on"
+msgstr "Şarj cihazı cihazı işə saldıqda"
+
+msgid "Charge only, until a key starts it"
+msgstr "Yalnız şarj, düymə işə salana qədər"
+
+msgid "Start normally"
+msgstr "Normal başlat"
+
 msgid "Keep as is"
 msgstr "Olduğu kimi saxla"
 
 msgid "LTE only (5G off)"
 msgstr "Yalnız LTE (5G söndürülüb)"
-
-msgid "Off"
-msgstr "Söndürülüb"
 
 msgid "On"
 msgstr "Aktiv"
@@ -1795,6 +2023,78 @@ msgstr "Switch to SIM%d"
 # Source-language fallback for untranslated new controls.
 msgid "Use SIM%d at next boot"
 msgstr "Use SIM%d at next boot"
+
+msgid "Built-in SIM 1"
+msgstr "Daxili SIM 1"
+
+msgid "Built-in SIM 2"
+msgstr "Daxili SIM 2"
+
+msgid "Built-in SIM 3"
+msgstr "Daxili SIM 3"
+
+msgid "External SIM"
+msgstr "Xarici SIM"
+
+msgid "SIM card"
+msgstr "SIM kart"
+
+msgid "Built-in SIM 3 shares SIM2, the external SIM shares SIM1. The card chosen here is switched in before the modem starts, at the next boot; without a choice the cards stay as the bootloader sets them."
+msgstr "Daxili SIM 3 SIM2 ilə, xarici SIM isə SIM1 ilə paylaşılır. Burada seçilən kart növbəti açılışda modem işə düşməzdən əvvəl qoşulur; seçim olmadıqda kartlar yükləyicinin qurduğu kimi qalır."
+
+msgid "As the bootloader sets them"
+msgstr "Yükləyicinin qurduğu kimi"
+
+msgid "Applying the radio setting…"
+msgstr "Radio ayarı tətbiq olunur…"
+
+msgid "SIM settings are not available"
+msgstr "SIM ayarları mövcud deyil"
+
+msgid "Modem default"
+msgstr "Modemin öz ayarı"
+
+msgid "SIM%d"
+msgstr "SIM%d"
+
+msgid "in use"
+msgstr "istifadədə"
+
+msgid "Turn off the radio of SIM%d"
+msgstr "SIM%d radiosunu söndür"
+
+msgid "Radio"
+msgstr "Radio"
+
+msgid "VoLTE"
+msgstr "VoLTE"
+
+msgid "VoNR"
+msgstr "VoNR"
+
+msgid "Modem: %s"
+msgstr "Modem: %s"
+
+msgid "Sent to this SIM when its radio next starts."
+msgstr "Bu SIM-in radiosu növbəti dəfə başlayanda ona göndərilir."
+
+msgid "VoLTE and VoNR for each SIM, kept across reboots and sent again whenever that SIM starts. VoLTE is on unless switched off; VoNR stays as the modem has it until set."
+msgstr "Hər SIM üçün VoLTE və VoNR: yenidən başladıqdan sonra saxlanılır və həmin SIM hər başlayanda yenidən göndərilir. VoLTE söndürülməyibsə açıqdır; VoNR təyin olunana qədər modemdəki kimi qalır."
+
+msgid "All radios off (airplane mode)"
+msgstr "Bütün radiolar sönülü (təyyarə rejimi)"
+
+msgid "All radios on"
+msgstr "Bütün radiolar açıq"
+
+msgid "No SIM will have calls, SMS or data, also after a reboot, until a radio is turned on again here or with the dashboard's radio button."
+msgstr "Heç bir SIM-də zəng, SMS və ya data olmayacaq, yenidən başladıqdan sonra da, radio burada və ya paneldəki radio düyməsi ilə yenidən açılana qədər."
+
+msgid "Each SIM's radio stays as set here after a reboot. A SIM whose radio is off has no calls, SMS or data, and the device does not switch to it."
+msgstr "Hər SIM-in radiosu yenidən başladıqdan sonra burada təyin edildiyi kimi qalır. Radiosu sönülü SIM-də zəng, SMS və data olmur və cihaz ona keçmir."
+
+msgid "The setting is saved, but the radio did not follow it yet."
+msgstr "Ayar saxlanıldı, lakin radio hələ ona uyğunlaşmadı."
 
 msgid "Recipient: number, e.g. 10086 or +86..."
 msgstr "Alıcı: nömrə, məs. 10086 və ya +86..."
@@ -2045,6 +2345,402 @@ msgstr "Söndür"
 msgid "64 makes every packet leave like the device's own traffic"
 msgstr "64 ilə hər paket cihazın öz trafiki kimi çıxır"
 
+msgid "Check for updates"
+msgstr "Yeniləmələri yoxla"
+
+msgid "Checking the file"
+msgstr "Fayl yoxlanılır"
+
+msgid "Update from a file"
+msgstr "Fayldan yeniləmə"
+
+msgid "Back to the previous version"
+msgstr "Əvvəlki versiyaya qayıdış"
+
+msgid "Back to the previous boot image"
+msgstr "Əvvəlki açılış obrazına qayıdış"
+
+msgid "Remove the previous version"
+msgstr "Əvvəlki versiyanın silinməsi"
+
+msgid "Kernel change"
+msgstr "Nüvənin dəyişdirilməsi"
+
+msgid "Starting…"
+msgstr "Başlayır…"
+
+msgid "Downloading"
+msgstr "Endirilir"
+
+msgid "All files are here and verified"
+msgstr "Bütün fayllar yerindədir və yoxlanılıb"
+
+msgid "Unpacking the new system"
+msgstr "Yeni sistem açılır"
+
+msgid "Carrying over your settings"
+msgstr "Ayarların köçürülür"
+
+msgid "Writing down the packages you installed"
+msgstr "Quraşdırdığın paketlərin siyahısı yazılır"
+
+msgid "Switching to the new system"
+msgstr "Yeni sistemə keçid"
+
+msgid "Kernel and boot image"
+msgstr "Nüvə və açılış obrazı"
+
+msgid "Restart the device?"
+msgstr "Cihaz yenidən başladılsın?"
+
+msgid "The device restarts now. The default boot is Android, so it starts Android: switch to Linux from there to start the updated system."
+msgstr "Cihaz indi yenidən başlayır. Standart açılış Android-dir, ona görə Android başlayacaq: yenilənmiş sistemi başlatmaq üçün oradan Linux-a keç."
+
+msgid "The device restarts now and is away for about a minute. If the new system does not start, the device goes back to Android by itself after the failed attempts."
+msgstr "Cihaz indi yenidən başlayır və təxminən bir dəqiqə əlçatmaz olacaq. Yeni sistem başlamasa, uğursuz cəhdlərdən sonra cihaz özü Android-ə qayıdır."
+
+msgid "Restart"
+msgstr "Yenidən başlat"
+
+msgid "Restarting… open this page again in about a minute."
+msgstr "Yenidən başlayır… təxminən bir dəqiqədən sonra bu səhifəni yenidən aç."
+
+msgid "Running for %s. It goes on when this page is closed; do not switch the device off."
+msgstr "%s ərzində işləyir. Bu səhifə bağlananda da davam edir; cihazı söndürmə."
+
+msgid "Done. Restart the device to start it."
+msgstr "Hazırdır. Dəyişikliklərin qüvvəyə minməsi üçün cihazı yenidən başlat."
+
+msgid "Done. Nothing needs a restart."
+msgstr "Hazırdır. Yenidən başlatmağa ehtiyac yoxdur."
+
+msgid "It did not finish, and part of it was done: read the log before you restart."
+msgstr "Bitmədi və işin bir hissəsi artıq görülüb: yenidən başlatmazdan əvvəl jurnalı oxu."
+
+msgid "It did not finish. Nothing was changed; the log says why."
+msgstr "Bitmədi. Heç nə dəyişdirilməyib; səbəbi jurnalda yazılıb."
+
+msgid "Log"
+msgstr "Jurnal"
+
+msgid "Restart now"
+msgstr "İndi yenidən başlat"
+
+msgid "Later"
+msgstr "Sonra"
+
+msgid "Close"
+msgstr "Bağla"
+
+msgid "Updating is not available on this system"
+msgstr "Bu sistemdə yeniləmə mümkün deyil"
+
+msgid "Another update is running on the device"
+msgstr "Cihazda başqa yeniləmə işləyir"
+
+msgid "It was started outside this page (a terminal, the toolkit). Nothing can be started here until it has finished."
+msgstr "Bu səhifədən kənarda başladılıb (terminaldan və ya alətlər dəstindən). O bitənədək burada heç nə başlatmaq olmaz."
+
+msgid "Restart needed"
+msgstr "Yenidən başlatma lazımdır"
+
+msgid "This system was updated and still runs the old version. The new one starts at the next restart."
+msgstr "Bu sistem yenilənib, amma hələ köhnə versiya işləyir. Yenisi növbəti yenidən başlatmada başlayacaq."
+
+msgid "Installed"
+msgstr "Quraşdırılıb"
+
+msgid "This system"
+msgstr "Bu sistem"
+
+msgid "Also on this device"
+msgstr "Bu cihazda həmçinin"
+
+msgid "Kernel"
+msgstr "Nüvə"
+
+msgid "choice %s"
+msgstr "seçim %s"
+
+msgid "Boot image"
+msgstr "Açılış obrazı"
+
+msgid "from the installer"
+msgstr "quraşdırıcıdan"
+
+msgid "Default boot"
+msgstr "Standart açılış"
+
+msgid "Free space"
+msgstr "Boş yer"
+
+msgid "Release signatures"
+msgstr "Buraxılış imzaları"
+
+msgid "checked with the project's key"
+msgstr "layihənin açarı ilə yoxlanılır"
+
+msgid "this system has no release key"
+msgstr "bu sistemdə buraxılış açarı yoxdur"
+
+msgid "The default boot is Android: a restart goes to Android, and Linux is started from there."
+msgstr "Standart açılış Android-dir: yenidən başlatma Android-i açır, Linux isə oradan başladılır."
+
+msgid "Linux is locked as the default boot: a failed start does not send the device to Android by itself, except the first starts of a new boot image."
+msgstr "Linux standart açılış kimi kilidlənib: uğursuz başlanğıc cihazı özü-özünə Android-ə göndərmir, yeni açılış obrazının ilk başlanğıcları istisnadır."
+
+msgid "If Linux fails to start %d times in a row, the device starts Android by itself."
+msgstr "Linux ardıcıl %d dəfə başlamasa, cihaz özü Android-i başladır."
+
+msgid "Report of the last update"
+msgstr "Son yeniləmənin hesabatı"
+
+msgid "Online update"
+msgstr "İnternetdən yeniləmə"
+
+msgid "Asking GitHub…"
+msgstr "GitHub-dan soruşulur…"
+
+msgid "Checked %s ago"
+msgstr "%s əvvəl yoxlanılıb"
+
+msgid "Not checked yet"
+msgstr "Hələ yoxlanılmayıb"
+
+msgid "Mirror (release files)"
+msgstr "Güzgü (buraxılış faylları)"
+
+msgid "Leave empty for GitHub."
+msgstr "GitHub üçün boş buraxın."
+
+msgid "Install the packages I added again after the update (needs the device online at the first start)"
+msgstr "Yeniləmədən sonra əlavə etdiyim paketləri yenidən quraşdır (ilk başlanğıcda cihazın interneti olmalıdır)"
+
+msgid "Pre-release"
+msgstr "İlkin buraxılış"
+
+msgid "Newest release"
+msgstr "Ən yeni buraxılış"
+
+msgid "Release notes"
+msgstr "Buraxılış qeydləri"
+
+msgid "Download"
+msgstr "Endirmə"
+
+msgid "Free space needed"
+msgstr "Lazım olan boş yer"
+
+msgid "not enough: remove the previous version first"
+msgstr "çatmır: əvvəlcə əvvəlki versiyanı sil"
+
+msgid "A pre-release is a release still being tried: it can have faults a release does not. The previous version is kept all the same."
+msgstr "İlkin buraxılış hələ sınaqdan keçən buraxılışdır: onda buraxılışda olmayan nasazlıqlar ola bilər. Əvvəlki versiya yenə də saxlanılır."
+
+msgid "This system is newer than the newest release (a test release)."
+msgstr "Bu sistem ən yeni buraxılışdan daha yenidir (sınaq buraxılışı)."
+
+msgid "Up to date."
+msgstr "Ən yeni versiya quraşdırılıb."
+
+msgid "This release is not signed, and this system checks signatures: it is not installed from here. Update from its file below, which asks you to confirm."
+msgstr "Bu buraxılış imzalanmayıb və bu sistem imzaları yoxlayır: buradan quraşdırılmır. Aşağıda onun faylından yeniləyin, o sizdən təsdiq istəyir."
+
+msgid "Update to %s"
+msgstr "%s versiyasına yenilə"
+
+msgid "Choose at least one system"
+msgstr "Ən azı bir sistem seç"
+
+msgid "Update to %s?"
+msgstr "%s versiyasına yenilənsin?"
+
+msgid "The device downloads %s, puts the new system beside the running one and switches to it at the next restart. Your settings are carried over and the previous version is kept. It takes several minutes; do not switch the device off."
+msgstr "Cihaz %s endirir, yeni sistemi işləyən sistemin yanına yerləşdirir və növbəti yenidən başlatmada ona keçir. Ayarların köçürülür, əvvəlki versiya saxlanılır. Bu bir neçə dəqiqə çəkir; cihazı söndürmə."
+
+msgid "Also offer the pre-release %s"
+msgstr "%s ilkin buraxılışını da təklif et"
+
+msgid "Systems to update:"
+msgstr "Yenilənəcək sistemlər:"
+
+msgid "GitHub could not be reached: the device has no internet connection, or GitHub did not answer. Without internet, update from a file below."
+msgstr "GitHub-a qoşulmaq mümkün olmadı: cihazın internet bağlantısı yoxdur və ya GitHub cavab vermədi. İnternet yoxdursa, aşağıda fayldan yenilə."
+
+msgid "release"
+msgstr "buraxılış"
+
+msgid "For a device without internet: download the Magisk zip of a release for this system and this kernel on another computer, from the release page on GitHub, and upload it here. For this device that is:"
+msgstr "İnterneti olmayan cihaz üçün: başqa kompüterdə GitHub-dakı buraxılış səhifəsindən bu sistem və bu nüvə üçün buraxılışın Magisk zip faylını endir və buraya yüklə. Bu cihaz üçün o belədir:"
+
+msgid "Uploaded file"
+msgstr "Yüklənmiş fayl"
+
+msgid "Checking the file…"
+msgstr "Fayl yoxlanılır…"
+
+msgid "It says it is"
+msgstr "Öz məlumatına görə bu"
+
+msgid "kernel %s"
+msgstr "nüvə %s"
+
+msgid "Signature"
+msgstr "İmza"
+
+msgid "signed with the project's release key"
+msgstr "layihənin buraxılış açarı ilə imzalanıb"
+
+msgid "WRONG: it does not match the project's release key"
+msgstr "YANLIŞ: layihənin buraxılış açarına uyğun gəlmir"
+
+msgid "not signed"
+msgstr "imzalanmayıb"
+
+msgid "cannot be checked on this system"
+msgstr "bu sistemdə yoxlamaq mümkün deyil"
+
+msgid "Its system is not installed on this device."
+msgstr "Onun sistemi bu cihazda quraşdırılmayıb."
+
+msgid "It is the other Ubuntu release, not the one installed."
+msgstr "Bu, quraşdırılmış deyil, digər Ubuntu buraxılışıdır."
+
+msgid "It carries another kernel than this device uses. Take the zip for kernel %s, or change the kernel first."
+msgstr "Onda bu cihazın istifadə etdiyindən başqa nüvə var. %s nüvəsi üçün zip faylını götür və ya əvvəlcə nüvəni dəyişdir."
+
+msgid "Its kernel does not run on this model."
+msgstr "Onun nüvəsi bu modeldə işləmir."
+
+msgid "The file is damaged: its contents do not match their checksums."
+msgstr "Fayl zədələnib: məzmunu yoxlama cəmlərinə uyğun gəlmir."
+
+msgid "Its signature is wrong. This file does not come from the project as it is; it is never installed."
+msgstr "Onun imzası yanlışdır. Bu fayl olduğu şəkildə layihədən gəlmir; o heç vaxt quraşdırılmır."
+
+msgid "This file cannot be used here."
+msgstr "Bu fayldan burada istifadə etmək olmaz."
+
+msgid "Compare the SHA-256 with the one in SHA256SUMS-magisk on the release page: it is the only proof of where an unsigned file comes from."
+msgstr "SHA-256 dəyərini buraxılış səhifəsindəki SHA256SUMS-magisk faylındakı ilə müqayisə et: imzalanmamış faylın haradan gəldiyinin yeganə sübutu budur."
+
+msgid "This release is installed already; the update would only refresh the boot image."
+msgstr "Bu buraxılış artıq quraşdırılıb; yeniləmə yalnız açılış obrazını təzələyəcək."
+
+msgid "I know this file is not signed: nothing proves that it comes from the project. I compared its SHA-256 myself and want it installed."
+msgstr "Bilirəm ki, bu fayl imzalanmayıb: onun layihədən gəldiyini heç nə sübut etmir. SHA-256 dəyərini özüm müqayisə etdim və onun quraşdırılmasını istəyirəm."
+
+msgid "I know this is %s, older than the installed %s, and want to go back to it."
+msgstr "Bilirəm ki, bu %s versiyasıdır, quraşdırılmış %s versiyasından köhnədir və ona qayıtmaq istəyirəm."
+
+msgid "This is not a release file of this project: a Magisk zip of a release is expected."
+msgstr "Bu, bu layihənin buraxılış faylı deyil: buraxılışın Magisk zip faylı gözlənilir."
+
+msgid "Update from this file"
+msgstr "Bu fayldan yenilə"
+
+msgid "Tick the confirmations above first"
+msgstr "Əvvəlcə yuxarıdakı təsdiqləri işarələ"
+
+msgid "The device puts the system of this file beside the running one and switches to it at the next restart. Your settings are carried over and the previous version is kept. It takes several minutes; do not switch the device off."
+msgstr "Cihaz bu fayldakı sistemi işləyən sistemin yanına yerləşdirir və növbəti yenidən başlatmada ona keçir. Ayarların köçürülür, əvvəlki versiya saxlanılır. Bu bir neçə dəqiqə çəkir; cihazı söndürmə."
+
+msgid "Check the file"
+msgstr "Faylı yoxla"
+
+msgid "Remove the file"
+msgstr "Faylı sil"
+
+msgid "Previous version"
+msgstr "Əvvəlki versiya"
+
+msgid "No previous version is kept on this device."
+msgstr "Bu cihazda əvvəlki versiya saxlanılmayıb."
+
+msgid "replaced %s"
+msgstr "əvəz olunub: %s"
+
+msgid "I want the previous system back; what I changed since the update stays in the version I leave."
+msgstr "Əvvəlki sistemi geri istəyirəm; yeniləmədən bəri dəyişdiklərim tərk etdiyim versiyada qalır."
+
+msgid "Back to the previous version?"
+msgstr "Əvvəlki versiyaya qayıdılsın?"
+
+msgid "The previous system (%s) becomes the one that starts at the next restart. The version you leave is not kept; settings you changed since the update are not carried back."
+msgstr "Əvvəlki sistem (%s) növbəti yenidən başlatmadan etibarən başlayan sistem olur. Tərk etdiyin versiya saxlanılmır; yeniləmədən bəri dəyişdiyin ayarlar geri köçürülmür."
+
+msgid "Go back"
+msgstr "Geri qayıt"
+
+msgid "The previous version is the one running now: restart first."
+msgstr "Hazırda əvvəlki versiya işləyir: əvvəlcə yenidən başlat."
+
+msgid "I want the previous kernel and boot image back."
+msgstr "Əvvəlki nüvəni və açılış obrazını geri istəyirəm."
+
+msgid "Back to the previous boot image?"
+msgstr "Əvvəlki açılış obrazına qayıdılsın?"
+
+msgid "The previous boot image (%s) is written to the Linux slot and starts at the next restart. If it does not start, the device goes back to Android by itself."
+msgstr "Əvvəlki açılış obrazı (%s) Linux slotuna yazılır və növbəti yenidən başlatmada başlayır. O başlamasa, cihaz özü Android-ə qayıdır."
+
+msgid "I do not need to go back: delete the previous system to free its space."
+msgstr "Geri qayıtmağa ehtiyacım yoxdur: yer boşaltmaq üçün əvvəlki sistemi sil."
+
+msgid "Remove the previous version?"
+msgstr "Əvvəlki versiya silinsin?"
+
+msgid "The kept copy of the previous system is deleted for good. After that there is no going back to it from this page."
+msgstr "Əvvəlki sistemin saxlanılan nüsxəsi həmişəlik silinir. Bundan sonra bu səhifədən ona qayıtmaq mümkün olmayacaq."
+
+msgid "the vendor kernel"
+msgstr "istehsalçı nüvəsi"
+
+msgid "mainline"
+msgstr "mainline"
+
+msgid "not with Ubuntu 26.04"
+msgstr "Ubuntu 26.04 ilə yox"
+
+msgid "Change the kernel"
+msgstr "Nüvəni dəyişdir"
+
+msgid "This kernel is the one in use"
+msgstr "Hazırda bu nüvə istifadə olunur"
+
+msgid "Change the kernel to %s?"
+msgstr "Nüvə %s ilə dəyişdirilsin?"
+
+msgid "The device downloads that kernel from the newest release and writes a new boot image; it starts at the next restart. The previous boot image is kept, and if the new one does not start the device goes back to Android by itself. The device must be online."
+msgstr "Cihaz həmin nüvəni ən yeni buraxılışdan endirir və yeni açılış obrazı yazır; o, növbəti yenidən başlatmada başlayır. Əvvəlki açılış obrazı saxlanılır və yenisi başlamasa, cihaz özü Android-ə qayıdır. Cihazın interneti olmalıdır."
+
+msgid "Start Android at the next restart"
+msgstr "Növbəti yenidən başlatmada Android-i başlat"
+
+msgid "Start Android at the next restart?"
+msgstr "Növbəti yenidən başlatmada Android başladılsın?"
+
+msgid "The next restart, and the ones after it, start Android instead of Linux. Linux is started again from Android (the Magisk module's Action button, or mu300-linux)."
+msgstr "Növbəti yenidən başlatma və ondan sonrakılar Linux əvəzinə Android-i başladır. Linux yenidən Android-dən başladılır (Magisk modulunun «Əməliyyat» düyməsi və ya mu300-linux)."
+
+msgid "Start Android next"
+msgstr "Növbəti dəfə Android-i başlat"
+
+msgid "What an update keeps"
+msgstr "Yeniləmə nələri saxlayır"
+
+msgid "An update puts the system of the new release in place and carries over what is yours: the settings, the accounts and their passwords, the device's keys and the home directories. Packages you installed yourself are written down and installed again at the first start, once the device is online. The previous version stays on the device until you remove it, so you can go back."
+msgstr "Yeniləmə yeni buraxılışın sistemini yerinə qoyur və sənə aid olanları köçürür: ayarları, hesabları və onların parollarını, cihazın açarlarını və ev qovluqlarını. Özün quraşdırdığın paketlər qeyd olunur və cihaz internetə qoşulan kimi ilk başlanğıcda yenidən quraşdırılır. Əvvəlki versiya sən silənə qədər cihazda qalır, ona görə geri qayıda bilərsən."
+
+msgid "The wiki's Updating page lists exactly what is kept."
+msgstr "Vikinin «Yeniləmə» səhifəsində nəyin saxlandığı dəqiq sadalanır."
+
+msgid "Choose a file first"
+msgstr "Əvvəlcə fayl seç"
+
+msgid "Uploading: %s of %s"
+msgstr "Yüklənir: %s / %s"
+
 msgid "running"
 msgstr "işləyir"
 
@@ -2078,9 +2774,6 @@ msgstr "Onunla işləyən profil yoxdur."
 msgid "Removed"
 msgstr "Silindi"
 
-msgid "Check for updates"
-msgstr "Yeniləmələri yoxla"
-
 msgid "Each engine is an extra of its own: install only the ones your profiles need. Xray runs vless, vmess, trojan and ss links (with hev-socks5-tunnel), sing-box the same links and its own JSON, mihomo Clash subscriptions, dae hysteria2, tuic and the rest on newer kernels. WireGuard and OpenVPN are packages of the system."
 msgstr "Hər mühərrik ayrıca əlavədir: yalnız profillərinizin ehtiyac duyduqlarını quraşdırın. Xray vless, vmess, trojan və ss keçidlərini (hev-socks5-tunnel ilə), sing-box eyni keçidləri və öz JSON-unu, mihomo Clash abunəliklərini, dae isə daha yeni nüvələrdə hysteria2, tuic və digərlərini işlədir. WireGuard və OpenVPN sistemin paketləridir."
 
@@ -2089,9 +2782,6 @@ msgstr "Endirmələr hər mühərrik üçün onlarla MB-dır: mobil datada tarif
 
 msgid "The available versions come from the latest release of the VPN module."
 msgstr "Mövcud versiyalar VPN modulunun ən son buraxılışından gəlir."
-
-msgid "Update"
-msgstr "Yenilə"
 
 msgid "system package"
 msgstr "sistem paketi"
@@ -2261,9 +2951,6 @@ msgstr "Başlat"
 msgid "Stop"
 msgstr "Dayandır"
 
-msgid "Restart"
-msgstr "Yenidən başlat"
-
 msgid "Stop the VPN?"
 msgstr "VPN dayandırılsın?"
 
@@ -2342,8 +3029,8 @@ msgstr "IPv6 qoruması"
 msgid "Active: IPv6 outside the tunnel is refused"
 msgstr "Aktiv: tunelin kənarındakı IPv6 rədd edilir"
 
-msgid "While the VPN is up, IPv6 never leaves beside a tunnel that does not carry it: it is refused at once, so programs and LAN clients fall back to IPv4 instead of leaking or waiting. Automatic: WireGuard uses the IPv6 addresses of its config, the other engines stay IPv4."
-msgstr "VPN açıq olduqda IPv6 onu daşımayan tunelin yanından heç vaxt çıxmır: dərhal rədd edilir, beləliklə proqramlar və LAN müştəriləri sızmaq və ya gözləmək əvəzinə IPv4-ə keçir. Avtomatik: WireGuard öz konfiqurasiyasındakı IPv6 ünvanlarından istifadə edir, digər mühərriklər IPv4-də qalır."
+msgid "While the VPN is up, IPv6 never leaves beside a tunnel that does not carry it: it is refused at once, so programs and LAN clients fall back to IPv4 instead of leaking or waiting. Automatic: WireGuard and OpenVPN use the IPv6 addresses of their config; Xray, sing-box and mihomo are asked at every start whether IPv6 works through the tunnel, and carry it only then; dae stays IPv4."
+msgstr "VPN açıq olduqda IPv6 onu daşımayan tunelin yanından heç vaxt çıxmır: dərhal rədd edilir, beləliklə proqramlar və LAN müştəriləri sızmaq və ya gözləmək əvəzinə IPv4-ə keçir. Avtomatik: WireGuard və OpenVPN öz konfiqurasiyalarındakı IPv6 ünvanlarından istifadə edir; Xray, sing-box və mihomo üçün hər başlanğıcda IPv6-nın tuneldən keçib-keçmədiyi yoxlanılır və onlar onu yalnız o halda daşıyır; dae IPv4-də qalır."
 
 msgid "%d ms"
 msgstr "%d ms"
@@ -2440,9 +3127,6 @@ msgstr "Bu profil abunəlikdən gəlir: növbəti yeniləmə dəyişikliklərini
 
 msgid "Config of %s"
 msgstr "%s konfiqurasiyası"
-
-msgid "Close"
-msgstr "Bağla"
 
 msgid "Rename"
 msgstr "Yenidən adlandır"
@@ -2812,23 +3496,74 @@ msgstr "The CPU adapter gave no valid reply"
 msgid "Invalid CPU profile"
 msgstr "Invalid CPU profile"
 
+msgid "Invalid CPU core"
+msgstr "Yanlış CPU nüvəsi"
+
+msgid "Unknown CPU operation"
+msgstr "Unknown CPU operation"
+
+msgid "Unknown CPU voltage operation"
+msgstr "Naməlum CPU gərginlik əməliyyatı"
+
+msgid "Invalid CPU voltage request"
+msgstr "Yanlış CPU gərginlik sorğusu"
+
+msgid "Invalid CPU voltage offset"
+msgstr "Yanlış CPU gərginlik ofseti"
+
+msgid "Type the confirmation word to apply a voltage offset"
+msgstr "Gərginlik ofsetini tətbiq etmək üçün təsdiq sözünü yazın"
+
+msgid "Invalid stress test length"
+msgstr "Yanlış stress testi müddəti"
+
 msgid "The packages adapter gave no valid reply"
 msgstr "Paket adapteri etibarlı cavab vermədi"
 
 msgid "Invalid packages operation"
 msgstr "Etibarsız paket əməliyyatı"
 
+msgid "The sizes parameter must be 0 or 1"
+msgstr "sizes parametri 0 və ya 1 olmalıdır"
+
+msgid "The update adapter gave no valid reply"
+msgstr "Yeniləmə adapteri düzgün cavab vermədi"
+
+msgid "Unknown update operation"
+msgstr "Naməlum yeniləmə əməliyyatı"
+
+msgid "Invalid update request"
+msgstr "Yanlış yeniləmə sorğusu"
+
+msgid "The backup tool gave no valid reply"
+msgstr "Ehtiyat nüsxə aləti etibarlı cavab vermədi"
+
+msgid "Mobile data integration is not provided by this platform"
+msgstr "Mobil məlumat inteqrasiyası bu platformada təmin edilmir"
+
+msgid "The SIM settings could not be read"
+msgstr "SIM ayarları oxuna bilmədi"
+
+msgid "Radio control is not provided by this platform"
+msgstr "Bu platforma radio idarəsini təmin etmir"
+
+msgid "A SIM radio change is already running"
+msgstr "SIM radio dəyişikliyi artıq gedir"
+
 # Source-language fallback for untranslated new controls.
 msgid "Invalid SIM setting"
 msgstr "Invalid SIM setting"
 
-# Source-language fallback for untranslated new controls.
-msgid "Enable hot switching; reboot if channels are unavailable or wait until idle"
-msgstr "Enable hot switching; reboot if channels are unavailable or wait until idle"
+msgid "The modem did not take the setting; nothing was saved"
+msgstr "Modem ayarı qəbul etmədi; heç nə saxlanılmadı"
 
 # Source-language fallback for untranslated new controls.
 msgid "SIM control failed"
 msgstr "SIM control failed"
+
+# Source-language fallback for untranslated new controls.
+msgid "Enable hot switching; reboot if channels are unavailable or wait until idle"
+msgstr "Enable hot switching; reboot if channels are unavailable or wait until idle"
 
 msgid "Request too large"
 msgstr "Sorğu çox böyükdür"
@@ -2983,12 +3718,18 @@ msgstr "Sətir sayı 1-dən 1000-ə qədərdir"
 msgid "The log could not be read"
 msgstr "Jurnal oxuna bilmədi"
 
+msgid "The radio of this SIM is switched off in its settings"
+msgstr "Bu SIM-in radiosu ayarlarında söndürülüb"
+
 # Source-language fallback for untranslated new controls.
 msgid "Use SIM control or reboot for managed dual-SIM radio"
 msgstr "Use SIM control or reboot for managed dual-SIM radio"
 
-msgid "Radio did not come up"
-msgstr "Radio işə düşmədi"
+msgid "The radio did not follow its setting"
+msgstr "Radio ayarına uyğunlaşmadı"
+
+msgid "The data roaming setting could not be saved"
+msgstr "Məlumat rouminqi ayarı yadda saxlanıla bilmədi"
 
 msgid "Expected on or off"
 msgstr "on və ya off gözlənilir"
@@ -3011,8 +3752,26 @@ msgstr "The CPU profile could not be read"
 msgid "The CPU profile could not be set"
 msgstr "The CPU profile could not be set"
 
-msgid "Unknown CPU operation"
-msgstr "Unknown CPU operation"
+msgid "The CPU core could not be switched"
+msgstr "CPU nüvəsini dəyişmək mümkün olmadı"
+
+msgid "Invalid low latency setting"
+msgstr "Yanlış aşağı gecikmə ayarı"
+
+msgid "The low latency setting could not be applied"
+msgstr "Aşağı gecikmə ayarını tətbiq etmək mümkün olmadı"
+
+msgid "The CPU voltage offset could not be read"
+msgstr "CPU gərginlik ofseti oxuna bilmədi"
+
+msgid "The CPU voltage offset was refused"
+msgstr "CPU gərginlik ofseti rədd edildi"
+
+msgid "The CPU voltage offset could not be turned off"
+msgstr "CPU gərginlik ofseti söndürülə bilmədi"
+
+msgid "The stress test could not be started"
+msgstr "Stress testi başladıla bilmədi"
 
 msgid "USB role adapter is not executable"
 msgstr "USB rol adapteri icra oluna bilmir"
@@ -3223,3 +3982,45 @@ msgstr "TTL təyin edilə bilmədi"
 
 msgid "Unknown TTL operation"
 msgstr "Naməlum TTL əməliyyatı"
+
+msgid "An update task is already running"
+msgstr "Yeniləmə tapşırığı artıq işləyir"
+
+msgid "The task could not be started"
+msgstr "Tapşırığı başlatmaq mümkün olmadı"
+
+msgid "The updater gave no valid reply"
+msgstr "Yeniləmə proqramı düzgün cavab vermədi"
+
+msgid "This needs confirmation"
+msgstr "Bunun üçün təsdiq lazımdır"
+
+msgid "Check for updates first"
+msgstr "Əvvəlcə yeniləmələri yoxla"
+
+msgid "The upload directory is not safe; nothing was changed"
+msgstr "Yükləmə qovluğu təhlükəsiz deyil; heç nə dəyişdirilmədi"
+
+msgid "Not enough memory for this upload"
+msgstr "Bu yükləmə üçün yaddaş çatmır"
+
+msgid "Not enough free space on the Linux partition"
+msgstr "Linux bölməsində boş yer çatmır"
+
+msgid "The file was not checked; upload it again"
+msgstr "Fayl yoxlanılmayıb; onu yenidən yüklə"
+
+msgid "This file is not for this device"
+msgstr "Bu fayl bu cihaz üçün deyil"
+
+msgid "The signature of this file is wrong"
+msgstr "Bu faylın imzası yanlışdır"
+
+msgid "This file is not signed: that needs confirmation"
+msgstr "Bu fayl imzalanmayıb: bunun üçün təsdiq lazımdır"
+
+msgid "This file is older than what is installed: that needs confirmation"
+msgstr "Bu fayl quraşdırılmış olandan köhnədir: bunun üçün təsdiq lazımdır"
+
+msgid "The release source was not changed"
+msgstr "Buraxılış mənbəyi dəyişdirilmədi"

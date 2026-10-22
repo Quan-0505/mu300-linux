@@ -225,6 +225,30 @@ class Region(ShellTest):
         for shell in self.each_shell():
             self.assertEqual(f'{2 << 20}\nrc=0', self.find(shell, emmc, 3 << 20).strip())
 
+    def test_gpt_partition_named_mu300root(self):
+        # kanoqwq's desktop installer: the system in a GPT partition of that name, no region (#290). Found on the
+        # eMMC only, and only with the mu300root filesystem in it
+        e = re.search(r'# --- emmc begin\n(.*?)# --- emmc end', INIT, re.S).group(1)
+        sysd, dev = self.tmp / 'sys', self.tmp / 'dev'
+        dev.mkdir()
+        for disk, typ, parts in (('mmcblk0', 'MMC', {'p5': 'cache', 'p60': 'mu300root'}),
+                                 ('mmcblk1', 'SD', {'p1': 'mu300root'})):
+            (sysd / 'block' / disk / 'device').mkdir(parents=True)
+            (sysd / 'block' / disk / 'device' / 'type').write_text(typ + '\n')
+            for suffix, name in parts.items():
+                (sysd / 'block' / disk / (disk + suffix)).mkdir()
+                (sysd / 'block' / disk / (disk + suffix) / 'uevent').write_text(f'DEVTYPE=partition\nPARTNAME={name}\n')
+        fake_ext4(dev / 'mmcblk1p1', 'mu300root')
+        code = e + self.block() + f'\nMU300_SYS={sysd}; MU300_DEV={dev}; gpt_root; echo "rc=$?"'
+        for shell in self.each_shell():
+            # the whole label: one that only starts with mu300root is not it (kanoqwq's 5161859d)
+            for label, want in (('mu300root', f'{dev}/mmcblk0p60\nrc=0'), ('mu300sd', 'rc=1'), (None, 'rc=1'),
+                                ('mu300rootfs', 'rc=1')):
+                (dev / 'mmcblk0p60').unlink(missing_ok=True)
+                if label:
+                    fake_ext4(dev / 'mmcblk0p60', label)
+                self.assertEqual(want, self.sh(shell, code).stdout.strip(), label)
+
     def test_never_reads_past_the_end(self):
         # the default offset lies beyond this disk: skipped, not read up to (busybox dd would read the whole disk)
         emmc = self.setup_disk('mmcblk1', 100, 4 << 20)
@@ -240,17 +264,20 @@ log() { echo "$*" >> "$T/log"; }
 find_sd_root() { [ "$CARD_NOW" = 1 ] && { echo /dev/mmcblk1p1; return 0; }; return 1; }
 wait_sd_root() { echo "wait $*" >> "$T/log"; [ "$CARD_LATE" = 1 ] && { echo /dev/mmcblk1p1; return 0; }; return 1; }
 find_root_offset() { [ "$INTERNAL" = 1 ] && { echo 4096; return 0; }; return 1; }
+gpt_root() { [ "$PART" = 1 ] && { echo /dev/mmcblk0p60; return 0; }; return 1; }
+root_fsck() { echo "fsck $1" >> "$T/log"; }
 losetup() { case $1 in -f) echo /dev/loop0 ;; -d) echo "detach $2" >> "$T/log" ;; -o) echo "attach $4" >> "$T/log" ;; esac; }
 cat() { case $1 in /sys/*) echo "$ROOT_OFFSET" ;; *) command cat "$@" ;; esac; }
 dd() { [ "$INTERNAL" = 1 ] && printf '\123\357'; }
 mount() {
     case $5 in
         /dev/loop*) [ "$INTERNAL" = 1 ] || return 1; ON=internal ;;
+        /dev/mmcblk0p*) [ "$PART_MOUNTS" = 0 ] && return 1; ON=part ;;
         *) [ "$CARD_MOUNTS" = 0 ] && return 1; ON=card ;;
     esac
 }
 umount() { ON=; }
-pick_root() { case $ON in internal) echo /disk/ubuntu ;; card) [ "$CARD_EMPTY" = 1 ] || echo /disk/openwrt ;; esac; }
+pick_root() { case $ON in internal) echo /disk/ubuntu ;; part) echo /disk/openwrt ;; card) [ "$CARD_EMPTY" = 1 ] || echo /disk/openwrt ;; esac; }
 ON=
 ROOT_OFFSET=27762098176
 EMMC=${EMMC:-/dev/mmcblk0}
@@ -266,17 +293,20 @@ class RootSelect(ShellTest):
         code = m.group(1)
         # the device paths are only redirected here, never changed in init
         for path, repl in (('/run/mu300-root-dev', '$T/root-dev'), ('/run/rootmount.err', '$T/err'),
-                           ('/disk/.mu300/root-on-sd', '$T/root-on-sd')):
+                           ('/disk/.mu300/root-on-sd', '$T/root-on-sd'),
+                           ('/etc/mu300-desktop-root-mode', '$T/desktop-mode')):
             self.assertIn(path, code)
             code = code.replace(path, repl)
         return code
 
-    def select(self, shell, marker=False, **scenario):
-        for f in ('log', 'root-dev', 'root-on-sd'):
+    def select(self, shell, marker=False, desktop_mode=None, **scenario):
+        for f in ('log', 'root-dev', 'root-on-sd', 'desktop-mode'):
             (self.tmp / f).unlink(missing_ok=True)
         (self.tmp / 'log').touch()
         if marker:
             (self.tmp / 'root-on-sd').touch()
+        if desktop_mode is not None:
+            (self.tmp / 'desktop-mode').write_text(desktop_mode + '\n')
         code = STUBS + self.region() + '\necho "mounted=$root_mounted on=$ON disk-dev=$diskdev"'
         r = self.sh(shell, code, T=self.tmp, **scenario)
         self.assertEqual('', r.stderr)
@@ -310,7 +340,7 @@ class RootSelect(ShellTest):
             out, dev, log = self.select(shell, marker=True, INTERNAL=1, CARD_LATE=1)
             self.assertEqual('mounted=1 on=card disk-dev=/dev/mmcblk1p1', out)
             self.assertEqual('/dev/mmcblk1p1', dev)
-            self.assertIn('wait 8 30\ndetach /dev/loop0\nstage=sd-root dev=/dev/mmcblk1p1', log)
+            self.assertIn('wait 8 30\ndetach /dev/loop0\nfsck /dev/mmcblk1p1\nstage=sd-root dev=/dev/mmcblk1p1', log)
 
     def test_marker_and_no_card(self):
         for shell in self.each_shell():
@@ -357,6 +387,73 @@ class RootSelect(ShellTest):
             self.assertEqual('mmcblk1@4096', dev)
             self.assertIn('attach /dev/mmcblk1', log)
 
+    def test_gpt_partition_when_there_is_no_region(self):
+        # #290: another installer's partition named mu300root, mounted as it is; root-dev says internal ("@")
+        for shell in self.each_shell():
+            out, dev, log = self.select(shell, INTERNAL=0, PART=1)
+            self.assertEqual('mounted=1 on=part disk-dev=/dev/mmcblk0p60', out)
+            self.assertEqual('mmcblk0@mu300root', dev)
+            self.assertIn('stage=root-part dev=/dev/mmcblk0p60', log)
+            self.assertNotIn('attach', log)
+            self.assertNotIn('wait', log)
+
+    def test_region_wins_over_a_gpt_partition(self):
+        for shell in self.each_shell():
+            out, dev, log = self.select(shell, INTERNAL=1, PART=1)
+            self.assertEqual('mounted=1 on=internal disk-dev=/dev/loop0', out)
+            self.assertEqual('mmcblk0@4096', dev)
+            self.assertNotIn('root-part', log)
+
+    def test_card_wins_over_a_gpt_partition(self):
+        for shell in self.each_shell():
+            out, dev, log = self.select(shell, CARD_NOW=1, INTERNAL=0, PART=1)
+            self.assertEqual('mounted=1 on=card disk-dev=/dev/mmcblk1p1', out)
+
+    def test_desktop_partition_choice_comes_first(self):
+        # kanoqwq's desktop installer: the owner chose the partition (part in the device segment, kept by updates).
+        # It boots before a card and a region (from his 5161859d)
+        for shell in self.each_shell():
+            out, dev, log = self.select(shell, desktop_mode='part', CARD_NOW=1, INTERNAL=1, PART=1)
+            self.assertEqual('mounted=1 on=part disk-dev=/dev/mmcblk0p60', out)
+            self.assertEqual('mmcblk0@mu300root', dev)
+            self.assertIn('stage=root-part dev=/dev/mmcblk0p60\nstage=root-part-chosen', log)
+            self.assertNotIn('sd-root', log)
+            # any other mode, or none: the usual order
+            for mode in ('sd', 'legacy', ''):
+                out, _, _ = self.select(shell, desktop_mode=mode, CARD_NOW=1, INTERNAL=1, PART=1)
+                self.assertEqual('mounted=1 on=card disk-dev=/dev/mmcblk1p1', out, mode)
+
+    def test_desktop_partition_choice_is_not_a_gate(self):
+        # bootability first: a chosen partition that is missing or does not mount leaves the usual order, and a
+        # partition that failed is not mounted a second time
+        for shell in self.each_shell():
+            out, _, log = self.select(shell, desktop_mode='part', CARD_NOW=1, INTERNAL=1, PART=0)
+            self.assertEqual('mounted=1 on=card disk-dev=/dev/mmcblk1p1', out)
+            out, dev, log = self.select(shell, desktop_mode='part', INTERNAL=1, PART=1, PART_MOUNTS=0)
+            self.assertEqual('mounted=1 on=internal disk-dev=/dev/loop0', out)
+            self.assertEqual('mmcblk0@4096', dev)
+            self.assertEqual(1, log.count('root-part-failed'))
+            out, dev, log = self.select(shell, desktop_mode='part', INTERNAL=0, PART=1, PART_MOUNTS=0)
+            self.assertEqual('mounted=0 on= disk-dev=', out)
+            self.assertEqual(1, log.count('root-part-failed'))
+
+    def test_gpt_partition_that_does_not_mount(self):
+        for shell in self.each_shell():
+            out, dev, log = self.select(shell, INTERNAL=0, PART=1, PART_MOUNTS=0)
+            self.assertEqual('mounted=0 on= disk-dev=', out)
+            self.assertEqual('', dev)
+            self.assertIn('stage=root-part-failed dev=/dev/mmcblk0p60', log)
+
+    def test_fsck_before_every_mount(self):
+        # the unmounted device is what e2fsck gets: the loop, the GPT partition, the card
+        for shell in self.each_shell():
+            _, _, log = self.select(shell, INTERNAL=1)
+            self.assertIn('attach /dev/mmcblk0\nfsck /dev/loop0', log)
+            _, _, log = self.select(shell, INTERNAL=0, PART=1)
+            self.assertIn('fsck /dev/mmcblk0p60\nstage=root-part dev=/dev/mmcblk0p60', log)
+            _, _, log = self.select(shell, CARD_NOW=1, INTERNAL=0)
+            self.assertIn('fsck /dev/mmcblk1p1\nstage=sd-root dev=/dev/mmcblk1p1', log)
+
     def test_no_internal_and_late_card(self):
         for shell in self.each_shell():
             out, dev, log = self.select(shell, INTERNAL=0, CARD_LATE=1)
@@ -374,7 +471,7 @@ class Slot(ShellTest):
         return m.group(1)
 
     def run_slot(self, shell, cmdline=None, bootargs=None, image=None, call='linux_slot_detect; publish_slot',
-                 blocks=('slot-a', 'slot-b-trial', 'slot-b', 'slot-a-trial')):
+                 blocks=('slot-a', 'slot-b-trial', 'slot-b', 'slot-a-trial'), power_conf=None):
         etc, run = self.tmp / 'etc', self.tmp / 'run'
         shutil.rmtree(run, ignore_errors=True)
         shutil.rmtree(etc, ignore_errors=True)
@@ -392,7 +489,13 @@ class Slot(ShellTest):
                 f'write_misc_bc() {{ echo "write $1" >> "{self.tmp}/log"; }}\n' + self.block() + f'\n{call}\n'
                 'echo "linux=$LINUX_SLOT android=$ANDROID_SLOT"')
         (self.tmp / 'log').write_text('')
-        r = self.sh(shell, code, MU300_CMDLINE_SRC=' '.join(srcs) or f'{self.tmp}/none', MU300_ETC=etc, MU300_RUN=run)
+        newroot = self.tmp / 'newroot'
+        shutil.rmtree(newroot, ignore_errors=True)
+        if power_conf is not None:
+            (newroot / 'etc/mu300').mkdir(parents=True)
+            (newroot / 'etc/mu300/power.conf').write_text(power_conf)
+        r = self.sh(shell, code, MU300_CMDLINE_SRC=' '.join(srcs) or f'{self.tmp}/none', MU300_ETC=etc, MU300_RUN=run,
+                    MU300_NEWROOT=newroot)
         self.assertEqual(r.stderr, '')
         return r.stdout.strip(), (self.tmp / 'log').read_text(), run
 
@@ -426,6 +529,20 @@ class Slot(ShellTest):
             self.assertEqual((run / 'mu300' / 'boot-mode').read_text().strip(), 'normal')
             self.assertFalse((run / 'mu300' / 'charging-boot').exists(), 'charging-boot should not exist when mode defaults to normal')
             self.assertIn('stage=boot-mode mode=normal source=default', log)
+
+    def test_power_on_charger_makes_no_charging_boot_marker(self):
+        # mu300-power's POWER_ON_CHARGER=1 in the system that boots (FINDINGS 196): the mode is still charger, but the
+        # Ubuntu units must not be held back
+        for shell in self.each_shell():
+            args = 'androidboot.slot_suffix=_b androidboot.mode=charger'
+            _, log, run = self.run_slot(shell, cmdline='root=/dev/ram0', bootargs=args,
+                                        power_conf='CHARGE_TO=80\nPOWER_ON_CHARGER=1\n')
+            self.assertEqual((run / 'mu300' / 'boot-mode').read_text().strip(), 'charger')
+            self.assertFalse((run / 'mu300' / 'charging-boot').exists())
+            self.assertIn('mode=charger source=', log); self.assertIn(' power-on=1', log)
+            _, log, run = self.run_slot(shell, cmdline='root=/dev/ram0', bootargs=args, power_conf='POWER_ON_CHARGER=0\n')
+            self.assertTrue((run / 'mu300' / 'charging-boot').exists())
+            self.assertNotIn('power-on', log)
 
     def test_image_then_default(self):
         for shell in self.each_shell():
@@ -471,6 +588,45 @@ class Slot(ShellTest):
             _, log, _ = self.run_slot(shell, cmdline='androidboot.slot_suffix=_b', blocks=('slot-a', 'slot-b-trial'),
                                       call='linux_slot_detect; restore_android')
             self.assertIn(f'write {self.tmp}/etc/misc-bc-slot-a.bin', log)
+
+
+class Device(ShellTest):
+    """Which device init takes (the device block) and the USB subnet that goes with it: the F50 and the U30 Air as
+    before, labelled or not; the V50 (FINDINGS 95) by its AW9523B node, also under an older installer's f50 label,
+    on 192.168.79.x; nothing ever takes one board for another."""
+    def decide(self, shell, label=None, u30=False, v50=None, dt=True):
+        d = self.tmp / 'dt'
+        shutil.rmtree(d, ignore_errors=True)
+        if dt:
+            (d / 'soc' / 'ap-ahb' / 'i2c@2270000').mkdir(parents=True)
+        if u30:
+            (d / 'charger_policy_service').mkdir(parents=True)
+        if v50:
+            (d / 'soc' / v50 / 'i2c@2270000' / 'aw9523b_led@5b').mkdir(parents=True)
+        f = self.tmp / 'mu300-device'
+        f.unlink(missing_ok=True)
+        if label is not None:
+            f.write_text(label + '\n')
+        m = re.search(r'# --- device begin\n(.*?)# --- device end\n', INIT, re.S)
+        self.assertIsNotNone(m, 'boot/init has no device block')
+        net = re.search(r'^case \$DEVICE in u30air\) NET=.*$', INIT, re.M)
+        self.assertIsNotNone(net)
+        code = m.group(1) + net.group(0) + '\necho "$DEVICE $NET"'
+        return self.sh(shell, code, MU300_DT=str(d), MU300_DEVICE_FILE=str(f)).stdout.strip()
+
+    def test_three_boards(self):
+        cases = [
+            (dict(), 'f50 192.168.77'), (dict(label='f50'), 'f50 192.168.77'), (dict(label='v50'), 'f50 192.168.77'),
+            (dict(u30=True), 'u30air 192.168.78'), (dict(label='u30air', u30=True), 'u30air 192.168.78'),
+            (dict(label='u30air'), 'u30air 192.168.78'), (dict(label='f50', u30=True), 'f50 192.168.77'),
+            (dict(label='v50', u30=True), 'u30air 192.168.78'), (dict(u30=True, v50='ap-ahb'), 'u30air 192.168.78'),
+            (dict(v50='ap-ahb'), 'v50 192.168.79'), (dict(v50='soc:ap-ahb'), 'v50 192.168.79'),
+            (dict(label='v50', v50='ap-ahb'), 'v50 192.168.79'), (dict(label='f50', v50='ap-ahb'), 'v50 192.168.79'),
+            (dict(label='v50', dt=False), 'v50 192.168.79'), (dict(dt=False), 'f50 192.168.77'),
+        ]
+        for shell in self.each_shell():
+            for kw, want in cases:
+                self.assertEqual(self.decide(shell, **kw), want, kw)
 
 
 class UsbId(ShellTest):
@@ -1033,3 +1189,125 @@ class BootTries(ShellTest):
 
 if __name__ == '__main__':
     unittest.main()
+
+
+class Fsck(ShellTest):
+    """root_fsck: e2fsck only when the superblock records an error, and never a reason not to boot."""
+
+    def code(self):
+        m = re.search(r'# --- fsck begin\n(.*?)# --- fsck end', INIT, re.S)
+        self.assertIsNotNone(m, 'boot/init has no fsck block')
+        code = m.group(1)
+        for path in ('/run/', '/proc/uptime'):
+            self.assertIn(path, code)
+        (self.tmp / 'run').mkdir(exist_ok=True)
+        (self.tmp / 'uptime').write_text('100.00 50.00\n')
+        return code.replace('/run/', '$T/run/').replace('/proc/uptime', '$T/uptime')
+
+    def dev(self, state=1, errors=0):
+        d = bytearray(4096)
+        d[1080:1082] = b'\x53\xef'
+        d[1082:1084] = state.to_bytes(2, 'little')
+        d[1428:1432] = errors.to_bytes(4, 'little')
+        (self.tmp / 'disk').write_bytes(bytes(d))
+        return self.tmp / 'disk'
+
+    def fsck_stub(self, body):
+        f = self.tmp / 'e2fsck'
+        f.write_text('#!/bin/sh\necho "$*" >> "$T/args"\n' + body + '\n')
+        f.chmod(0o755)
+        return f
+
+    def run_fsck(self, shell, timeout=20, **env):
+        for f in ('log', 'args'):
+            (self.tmp / f).unlink(missing_ok=True)
+        code = 'log() { echo "$*" >> "$T/log"; }\n' + self.code() + '\nroot_fsck "$DEV"; echo "rc=$?"'
+        env.setdefault('MU300_FSCK_BIN', str(self.tmp / 'e2fsck'))
+        r = self.sh(shell, code, T=self.tmp, DEV=self.tmp / 'disk', MU300_FSCK_TIMEOUT=str(timeout), **env)
+        log = self.tmp / 'log'
+        args = self.tmp / 'args'
+        return (r.stdout.strip(), log.read_text() if log.exists() else '',
+                args.read_text() if args.exists() else '')
+
+    def test_clean_filesystem_runs_nothing(self):
+        self.dev(state=1)
+        self.fsck_stub('exit 0')
+        for shell in self.each_shell():
+            self.assertEqual(('rc=0', '', ''), self.run_fsck(shell))
+
+    def test_error_bit_runs_e2fsck(self):
+        self.dev(state=3, errors=258)
+        self.fsck_stub('echo "mu300root: 12/16384 files (0.0% non-contiguous), 9545/65536 blocks"; exit 1')
+        for shell in self.each_shell():
+            out, log, args = self.run_fsck(shell)
+            self.assertEqual('rc=0', out)
+            self.assertEqual(f'-fy {self.tmp}/disk\n', args)
+            self.assertIn(f'stage=fsck-start dev={self.tmp}/disk state=3 errors=258 timeout=20s', log)
+            self.assertIn('stage=fsck-done', log)
+            self.assertIn('rc=1 (errors corrected)', log)
+            self.assertIn('9545/65536 blocks', log)
+            self.assertIn('broken_system_clock = 1', (self.tmp / 'run' / 'e2fsck.conf').read_text())
+
+    def test_failure_still_boots(self):
+        self.dev(state=2)
+        for rc, why in ((4, 'errors left uncorrected'), (8, 'operational error'), (12, 'operational error'),
+                        (32, 'cancelled'), (16, 'usage or library error')):
+            self.fsck_stub(f'exit {rc}')
+            for shell in self.each_shell():
+                out, log, _ = self.run_fsck(shell)
+                self.assertEqual('rc=0', out)
+                self.assertIn(f'stage=fsck-FAILED dev={self.tmp}/disk rc={rc} ({why}; booting anyway)', log)
+
+    def test_timeout_stops_it_and_boots(self):
+        self.dev(state=2)
+        self.fsck_stub('exec sleep 30')
+        for shell in self.each_shell():
+            out, log, _ = self.run_fsck(shell, timeout=1)
+            self.assertEqual('rc=0', out)
+            self.assertIn('stage=fsck-TIMEOUT', log)
+            self.assertIn('rc=143 (killed by signal 15; booting anyway)', log)
+
+    def test_no_e2fsck_in_the_ramdisk(self):
+        self.dev(state=2)
+        for shell in self.each_shell():
+            out, log, _ = self.run_fsck(shell, MU300_FSCK_BIN=str(self.tmp / 'none'))
+            self.assertEqual('rc=0', out)
+            self.assertIn('stage=fsck-unavailable', log)
+
+    def test_force_and_off(self):
+        self.fsck_stub('exit 0')
+        for shell in self.each_shell():
+            self.dev(state=1)
+            out, log, args = self.run_fsck(shell, MU300_FSCK='force')
+            self.assertIn('rc=0 (no errors)', log)
+            self.dev(state=2)
+            self.assertEqual(('rc=0', '', ''), self.run_fsck(shell, MU300_FSCK='off'))
+
+    def test_not_an_ext4_read_error(self):
+        (self.tmp / 'disk').unlink(missing_ok=True)
+        self.fsck_stub('exit 0')
+        for shell in self.each_shell():
+            self.assertEqual(('rc=0', '', ''), self.run_fsck(shell))
+
+    @unittest.skipUnless(shutil.which('mkfs.ext4') and shutil.which('debugfs') and shutil.which('e2fsck'),
+                         'e2fsprogs is not installed')
+    def test_real_e2fsck_clears_the_error(self):
+        import subprocess
+        img = self.tmp / 'disk'
+        img.unlink(missing_ok=True)
+        with open(img, 'wb') as f:
+            f.truncate(16 << 20)
+        subprocess.run(['mkfs.ext4', '-q', '-F', '-L', 'mu300root', str(img)], check=True)
+        subprocess.run(['debugfs', '-w', '-R', 'ssv state 3', str(img)], check=True, capture_output=True)
+        subprocess.run(['debugfs', '-w', '-R', 'ssv error_count 5', str(img)], check=True, capture_output=True)
+        shell = self.shells[0]
+        out, log, _ = self.run_fsck(shell, MU300_FSCK_BIN=shutil.which('e2fsck'))
+        self.assertEqual('rc=0', out)
+        self.assertIn('state=3 errors=5', log)
+        self.assertIn('stage=fsck-done', log)
+        data = img.read_bytes()[:4096]
+        self.assertEqual(0, data[1082] & 2)
+        self.assertEqual(b'\0\0\0\0', data[1428:1432])
+        # the next boot reads one byte and runs nothing
+        out, log, _ = self.run_fsck(shell, MU300_FSCK_BIN=shutil.which('e2fsck'))
+        self.assertEqual(('rc=0', ''), (out, log))

@@ -23,7 +23,7 @@ if [ -n "$miss" ]; then
 fi
 # Optional inputs decide whether the image can use the modem, Wi-Fi and the GPU at all. Missing ones used to
 # pass silently and produce an image that boots and does nothing useful, so say what went in.
-for o in /firmware /android-subset /android-gpu-subset /bt-init /keys /adbd /cltest; do
+for o in /firmware /android-subset /android-gpu-subset /bt-init /keys /adbd /carry /cltest; do
     [ -e "$o" ] && echo "assemble.sh: + $o" || echo "assemble.sh: - $o (not mounted; the image will be built without it)"
 done
 
@@ -68,11 +68,16 @@ if [ -e /bt-init ]; then cp /bt-init $R/opt/mu300/bin/mu300-bt-init; fi
 if [ -e /keys ]; then install -m755 /keys $R/opt/mu300/bin/mu300-keys; fi
 # tools/adbd build (static arm64, musl): adb over USB, on unless mu300-usb adb off
 if [ -e /adbd ]; then install -m755 /adbd $R/opt/mu300/bin/adbd; fi
+# tools/carry build (static arm64): an update carries everything of the user's over with it (mu300-update, the carry
+# block; without it an update of this image keeps only the list of places, as before the first release with a four-field tag)
+if [ -e /carry ]; then install -m755 /carry $R/opt/mu300/bin/mu300-carry; fi
+# the manifests of the releases before images carried their own: this system's only (the overlay has OpenWrt's too)
+rm -f $R/opt/mu300/lib/image-manifests/openwrt*.gz
 # the VPN engines (Xray, hev-socks5-tunnel, sing-box) are not part of the image: they are the vpn extra
 # (tools/make-extra.sh, installed with mu300-extra install vpn)
 # accounts still the image's (ubuntu/ubuntu) until an installer or mu300-update puts the device's own in place
 : > $R/etc/.mu300-accounts-from-image
-for u in mu300-accounts.service:sysinit.target mu300-early-recorder.service:sysinit.target mu300-vendor.service:sysinit.target mu300-lan.service:multi-user.target mu300-ssh-hostkeys.service:sysinit.target mu300-telnetd.service:multi-user.target serial-getty@ttyGS0.service:getty.target ssh.socket:sockets.target mu300-wifi.service:multi-user.target mu300-wifi-client.service:multi-user.target mu300-mobile-data.service:multi-user.target mu300-mobile-data-watch.service:multi-user.target mu300-fixups.service:sysinit.target mu300-zram.service:swap.target mu300-boot-ok.service:multi-user.target mu300-cp_diskserver.service:multi-user.target mu300-refnotify.service:multi-user.target mu300-extra-modules.service:multi-user.target mu300-hotspot.service:multi-user.target mu300-bluetooth.service:multi-user.target mu300-thermal-guard.service:multi-user.target mu300-audio.service:multi-user.target mu300-firewall.service:sysinit.target mu300-kmsg.service:sysinit.target mu300-toolkit.service:multi-user.target mu300-cpu.service:multi-user.target mu300-atd.service:multi-user.target mu300-atd2.service:multi-user.target mu300-modem-log.service:multi-user.target mu300-buttons.service:multi-user.target mu300-power.service:multi-user.target mu300-traffic.service:multi-user.target mu300-user-packages.service:multi-user.target mu300-adbd.service:multi-user.target mu300-update-notice.timer:timers.target mu300-wifi-scan-mode.service:multi-user.target systemd-networkd.service:multi-user.target; do
+for u in mu300-accounts.service:sysinit.target mu300-modprobe-guard.service:sysinit.target mu300-early-recorder.service:sysinit.target mu300-vendor.service:sysinit.target mu300-lan.service:multi-user.target mu300-ssh-hostkeys.service:sysinit.target mu300-telnetd.service:multi-user.target serial-getty@ttyGS0.service:getty.target ssh.socket:sockets.target mu300-wifi.service:multi-user.target mu300-wifi-client.service:multi-user.target mu300-mobile-data.service:multi-user.target mu300-mobile-data-watch.service:multi-user.target mu300-fixups.service:sysinit.target mu300-zram.service:swap.target mu300-boot-ok.service:multi-user.target mu300-cp_diskserver.service:multi-user.target mu300-refnotify.service:multi-user.target mu300-extra-modules.service:multi-user.target mu300-hotspot.service:multi-user.target mu300-bluetooth.service:multi-user.target mu300-thermal-guard.service:multi-user.target mu300-firewall.service:sysinit.target mu300-kmsg.service:sysinit.target mu300-toolkit.service:multi-user.target mu300-cpu.service:multi-user.target mu300-cpu-voltage.service:multi-user.target mu300-cpu-voltage-good.timer:timers.target mu300-atd.service:multi-user.target mu300-atd2.service:multi-user.target mu300-modem-log.service:multi-user.target mu300-buttons.service:multi-user.target mu300-power.service:multi-user.target mu300-traffic.service:multi-user.target mu300-user-packages.service:multi-user.target mu300-adbd.service:multi-user.target mu300-update-notice.timer:timers.target mu300-wifi-scan-mode.service:multi-user.target mu300-lock-replay.service:multi-user.target mu300-sms-forward.service:multi-user.target systemd-networkd.service:multi-user.target; do
   svc=${u%%:*}; tgt=${u##*:}
   mkdir -p $R/etc/systemd/system/$tgt.wants
   src=/etc/systemd/system/$svc; [ -e $R$src ] || src=/usr/lib/systemd/system/$svc
@@ -85,5 +90,22 @@ done
 for c in $(cat $R/opt/mu300/lib/path-commands); do ln -sfn /opt/mu300/bin/$c $R/usr/local/bin/$c; done
 # no graphical/serial login noise on a headless dongle; keep ttyS1 console for debugging
 ln -sfn /dev/null $R/etc/systemd/system/getty@tty1.service
+# The sound card's state is mu300-audio-dsp's and mu300-voice's (an undo log; both are the audio extra's,
+# https://github.com/dikeckaan/mu300-audio, not the image's), not alsactl's. alsa-utils restores
+# every control the moment the card appears, which on this board is before mu300-audio-dsp has started the DSP: each
+# DSP control fails with -5 and each codec read waits for a power domain that is down (6 s apiece on 5.4). On 5.4
+# that held mu300-audio past its 180 s and it was killed in the middle of its start (docs/FINDINGS.md 193).
+ln -sfn /dev/null $R/etc/systemd/system/alsa-restore.service
+ln -sfn /dev/null $R/etc/systemd/system/alsa-state.service
+mkdir -p $R/etc/udev/rules.d
+ln -sfn /dev/null $R/etc/udev/rules.d/90-alsa-restore.rules
+# The manifest of the image: every file it holds, with type, mode, owner, size and sha256 (tools/image-manifest.py has
+# the format and makes the same lines from the tarball; make-release.sh holds the two against each other). The next
+# update reads it to tell the image's files from the user's. Last, when nothing in $R changes any more.
+if [ -x $R/opt/mu300/bin/mu300-carry ]; then
+    $R/opt/mu300/bin/mu300-carry manifest $R "ubuntu-$UBUNTU" "${MU300_VERSION:-dev}" | gzip -9n > /tmp/image-manifest.gz
+    [ "$(gzip -dc /tmp/image-manifest.gz | wc -l)" -gt 1000 ] || { echo "assemble.sh: the image manifest is not right" >&2; exit 1; }
+    install -m644 /tmp/image-manifest.gz $R/etc/mu300/image-manifest.gz
+fi
 cd $R && tar --numeric-owner -czf /w/mu300-ubuntu-$UBUNTU-rootfs.tar.gz .
 ls -la /w/mu300-ubuntu-$UBUNTU-rootfs.tar.gz; du -sh $R

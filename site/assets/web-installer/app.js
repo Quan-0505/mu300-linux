@@ -16,6 +16,7 @@ import { INSTALL_STEPS, MIB, NEED, UNINSTALL_STEPS, analyseStorage, answersFor, 
   parsePlan, stageRisk, targetExisting, targetSize, validateChoices } from "./flow.js";
 import { GithubError, combos, findZip, loadReleases, loadVpnModule, releaseSupportsWeb } from "./github.js";
 import { loadKey } from "./keystore.js";
+import { Manager, renderManager } from "./manager.js";
 import { MirrorError, downloadZip, loadMirror } from "./mirror.js";
 import { maskSerial, pageMasker as masker } from "./privacy.js";
 import { Sha256 } from "./sha256.js";
@@ -232,7 +233,9 @@ async function afterConnect(conn) {
   if (id.kind === "linux") {
     S.dev = new LinuxDevice(conn, { log });
     S.linux = await S.dev.info();
+    await startManager();
     S.phase = "ready"; S.view = "home"; render();
+    if (S.mgr) { S.mgr.load("overview").catch(mgrFailed); S.mgr.attach().catch(mgrFailed); }
     return;
   }
   if (id.kind !== "android") { S.phase = "failed"; S.failure = { code: "not-ours" }; render(); return; }
@@ -294,7 +297,7 @@ function onConnectionLost(conn, err) {
 async function disconnect(silent) {
   const c = S.conn;
   S.conn = null; S.dev = null; S.kind = ""; S.probe = null; S.status = null; S.analysis = null; S.linux = null; S.rootState = "";
-  S.action = null;
+  S.action = null; S.mgr = null; S.hello = null;
   if (!silent) { S.phase = "idle"; S.lost = null; S.view = "home"; S.w = null; S.job = null; }
   if (c) { try { await c.close(); } catch (e) { /* gone */ } }
   if (!silent) render();
@@ -390,7 +393,7 @@ function devicePanel() {
   }
   // ready
   const usb = S.usb || {};
-  const name = S.kind === "linux" ? t("device.linux", S.linux && S.linux.device === "u30air" ? "U30 Air" : "F50")
+  const name = S.kind === "linux" ? t("device.linux", S.linux && ({ u30air: "U30 Air", v50: "V50" })[S.linux.device] || "F50")
     : (S.probe && S.probe.props["ro.product.model"]) || usb.productName || t("device.unknown");
   p.append(h("div", { class: "wi-device-head" },
     h("h2", {}, name), chip(S.kind === "linux" ? "Linux" : "Android", S.kind === "linux" ? "linux" : "android"),
@@ -526,6 +529,7 @@ function androidHome() {
       linux.kernel ? [h("dt", {}, t("choice.kernel")), h("dd", {}, linux.kernel)] : null,
       h("dt", {}, t("home.default")), h("dd", {}, t(linux.default_linux ? "home.default.linux" : "home.default.android", linux.attempts))));
   }
+  if (s.device === "v50") out.append(callout("warn", t("v50.title"), t("v50.text")));
   for (const b of blockers) out.append(callout("warn", t("blocker.title"), t("blocker." + b.code)));
   if (S.failure && S.busy === "") { out.append(failureBox(S.failure)); }
   const acts = h("div", { class: "actions" });
@@ -577,7 +581,7 @@ function startWizard() {
   S.w = newWizard(); S.view = "wizard"; S.failure = null;
   const a = S.analysis, st = S.status;
   const have = st.linux && st.linux.systems ? Object.keys(st.linux.systems) : [];
-  S.w.choices = { target: a.target, systems: [], kernel: (st.linux && st.linux.kernel) || "5.4", bootOs: (st.linux && st.linux.boot_os) || "",
+  S.w.choices = { target: a.target, systems: [], kernel: (st.linux && st.linux.kernel) || (st.device === "v50" ? "6.18" : "5.4"), bootOs: (st.linux && st.linux.boot_os) || "",
     // Linux as the default boot is proposed every time, as the installers do: an installation that is there may say
     // "Android" only because the page's own "Restart into Android" made it so on the way here
     defaultLinux: true, attempts: (st.linux && st.linux.attempts) || 5, hotspot: true, gpu: true, vpn: false,
@@ -622,6 +626,7 @@ function stepStorage() {
   const box = h("div", {});
   box.append(h("h3", {}, t("storage.title")), storageBar(a));
   box.append(h("p", {}, t("storage.verdict." + a.internal.verdict, fmtSize(a.internal.size), String(Math.max(a.internal.dirty, 0)))));
+  if (a.internal.foreignImage) box.append(callout("warn", "", t("storage.foreign-image")));
   if (a.makeRoom) {
     box.append(callout("warn", t("makeroom.title"),
       h("p", {}, t("makeroom.figures", fmtSize(a.makeRoom.userdata), fmtSize(a.makeRoom.total), fmtSize(Math.max(a.makeRoom.maxLinux, 0)), fmtSize(a.makeRoom.minLinux))),
@@ -653,7 +658,7 @@ function stepStorage() {
   }
   if (c.target === "internal" && existing && c.mode === "wipe") box.append(callout("warn", t("erase.title"), t("erase.internal")));
   if (c.target === "internal" && !existing && a.internal.dirty > 0) {
-    box.append(callout("warn", t("dirty.title"), t("dirty.text", String(a.internal.dirty)),
+    box.append(callout("warn", t("dirty.title"), t(a.internal.part ? "dirty.text.part" : "dirty.text", String(a.internal.dirty)),
       h("label", { class: "wi-field" }, t("erase.type", "overwrite"), h("input", { type: "text", autocomplete: "off", spellcheck: "false", value: w.overwriteTyped,
         oninput: (ev) => { w.overwriteTyped = ev.target.value; c.overwriteConfirmed = w.overwriteTyped.trim() === "overwrite"; document.getElementById("wi-next").disabled = !storageOk(); } }))));
   }
@@ -721,7 +726,7 @@ function stepChoices() {
   box.append(h("h3", {}, t("choice.kernel")));
   const ks = h("div", { class: "wi-opts" });
   for (const k of ["5.4", "6.18", "7.2"]) {
-    const ok = c.systems.every((s) => (avail[s] || []).includes(k));
+    const ok = c.systems.every((s) => (avail[s] || []).includes(k)) && !(S.status.device === "v50" && k === "5.4");   // the V50: mainline only
     ks.append(radio("kernel", k, c.kernel, t("kernel." + k), () => { c.kernel = k; w.files = {}; render(); }, { disabled: !ok }));
   }
   box.append(ks);
@@ -1078,7 +1083,7 @@ function stepReview() {
     t("review.writes", p.storage === "sd" ? t("review.writes.sd") : t("review.writes.region"), p.linux_slot, p.android_slot),
     t("review.fallback")));
   if (w.planLog.length) box.append(h("details", { class: "wi-explain" }, h("summary", {}, t("review.device-plan")), h("pre", { class: "wi-planlog" }, w.planLog.join("\n"))));
-  box.append(h("ul", { class: "wi-check" }, h("li", {}, t("review.keep.power", st.device === "u30air" ? t("review.keep.battery") : t("review.keep.nobattery"))), h("li", {}, t("review.keep.tab")), h("li", {}, t("review.keep.time"))));
+  box.append(h("ul", { class: "wi-check" }, h("li", {}, t("review.keep.power", st.device === "u30air" ? t("review.keep.battery") : t(st.device === "v50" ? "review.keep.nobattery.v50" : "review.keep.nobattery"))), h("li", {}, t("review.keep.tab")), h("li", {}, t("review.keep.time"))));
   const go = btn(t("review.install"), startInstall, "primary", { disabled: w.typed !== "INSTALL", id: "wi-go" });
   box.append(h("label", { class: "wi-field" }, t("erase.type", "INSTALL"), h("input", { type: "text", autocomplete: "off", spellcheck: "false", value: w.typed,
     oninput: (ev) => { w.typed = ev.target.value.trim(); go.disabled = w.typed !== "INSTALL"; } })));
@@ -1220,7 +1225,7 @@ function jobView() {
 
 function donePanel(j) {
   const c = j.choices || {}, st = S.status || {};
-  const ip = (j.device || st.device) === "u30air" ? "192.168.78.1" : "192.168.77.1";
+  const ip = ({ u30air: "192.168.78.1", v50: "192.168.79.1" })[j.device || st.device] || "192.168.77.1";
   const bootOs = c.bootOs || (st.linux && st.linux.boot_os) || "ubuntu";
   const user = bootOs === "ubuntu" ? "ubuntu" : "root";
   const box = h("div", {});
@@ -1285,10 +1290,49 @@ async function startUninstall() {
 
 // ---------------------------------------------------------------------------------------------------- MU300 Linux
 
+// ---- the device manager (manager.js) on a release with mu300-api; the small view below on an older one
+async function startManager() {
+  S.mgr = null; S.hello = null;
+  if (typeof S.dev.hello !== "function") return;
+  try { S.hello = await S.dev.hello(); } catch (e) { if (isGone(e)) throw e; S.hello = null; }
+  if (!S.hello) return;
+  S.mgr = new Manager(S.dev, S.hello, { log: (l, e) => logLine(l, e), masker, onChange: mgrChanged });
+}
+function mgrFailed(e) {
+  if (isGone(e) || !S.mgr) return;
+  S.mgr.note = { kind: "bad", title: t("mgr.failed"), text: errorText(explainError(e)) };
+  render();
+}
+// a job's new lines go straight into its box (typing in a field is not disturbed); anything else draws the page
+function mgrChanged(lines) {
+  const pre = document.getElementById("wi-job-pre");
+  if (lines && pre && S.mgr && S.mgr.job && S.mgr.job.state === "running" && pre.dataset.state === "running") {
+    if (lines.length) { pre.append(document.createTextNode(lines.join("\n") + "\n")); pre.scrollTop = pre.scrollHeight; }
+    return;
+  }
+  render();
+}
+const MGR_UI = {
+  h, t, btn, chip, callout, render, masker, saveBlob, stamp,
+  errorText: (e) => errorText(explainError(e)),
+  isGone,
+  leaving: () => { S.expectDisconnect = true; },
+  logText: () => LOG.join("\n"),
+  publicKey: () => (S.key ? publicKeyLine(S.key) : ""),
+  timeZones: () => { try { return Intl.supportedValuesOf("timeZone").filter((z) => z.includes("/")); } catch (e) { return []; } },
+};
+
 function linuxView() {
+  if (S.mgr) {
+    const v = renderManager(MGR_UI, S.mgr);
+    const pre = v.querySelector("#wi-job-pre");
+    if (pre && S.mgr.job) pre.dataset.state = S.mgr.job.state;
+    return v;
+  }
   const i = S.linux, d = S.dev;
   const out = h("section", { class: "panel wi-panel" });
   out.append(h("h2", {}, t("linux.title")));
+  out.append(callout("", t("mgr.old.title"), t("mgr.old.text")));
   out.append(h("dl", { class: "wi-facts" },
     h("dt", {}, t("linux.system")), h("dd", {}, `${i.os || "?"} · ${i.version || "?"}`),
     h("dt", {}, t("linux.kernel")), h("dd", {}, `${i.kernel || "?"}${i.kernelChoice ? " (" + i.kernelChoice + ")" : ""}`),
@@ -1357,7 +1401,13 @@ async function demoConnect() {
   S.keyInfo = await loadKey("web-installer"); S.key = S.keyInfo.key; S.keyFp = await fingerprint(S.key);
   S.conn = { close: async () => {} };
   S.dev = d; S.kind = d.kind; S.phase = "ready"; S.view = "home"; S.lost = null;
-  if (d.kind === "linux") { S.linux = await d.info(); render(); return; }
+  if (d.kind === "linux") {
+    S.linux = await d.info();
+    await startManager();
+    render();
+    if (S.mgr) { S.mgr.load("overview").catch(mgrFailed); S.mgr.attach().catch(mgrFailed); }
+    return;
+  }
   S.probe = await d.probe();
   render();
   await checkRoot();

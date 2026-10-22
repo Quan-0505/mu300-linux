@@ -20,6 +20,14 @@ def append_once(path, marker, text):
     if marker not in s:
         open(p, 'w').write(s.rstrip('\n') + '\n' + text)
 
+# the ZTE V50's SIM switches (drivers/misc/zte-v50-sim.c, FINDINGS 204; kanoqwq's binding)
+append_once('drivers/misc/Makefile', 'zte-v50-sim.o', 'obj-$(CONFIG_ZTE_V50_SIM) += zte-v50-sim.o\n')
+append_once('drivers/misc/Kconfig', 'config ZTE_V50_SIM',
+            '\nconfig ZTE_V50_SIM\n\ttristate "ZTE V50 SIM multiplexer"\n'
+            '\tdepends on GPIOLIB && OF\n\thelp\n'
+            '\t  The ZTE V50 (MU3351) switches between its built-in and external SIM cards (zte,sim_gpio_ctrl).\n'
+            '\t  Binds only on a board with the V50\'s AW9523B; leaves the lines as the bootloader set them.\n')
+
 append_once('drivers/clk/sprd/Makefile', 'reset.o', 'clk-sprd-y\t+= reset.o\n')
 append_once('drivers/clk/sprd/Makefile', 'ums9620-clk.o', 'obj-$(CONFIG_SPRD_UMS9620_CLK)\t\t+= ums9620-clk.o\n')
 kc = os.path.join(tree, 'drivers/clk/sprd/Kconfig')
@@ -224,6 +232,15 @@ static bool sdhci_sprd_emmc_pending(struct device_node *self)
 # UMS9620 has the r11p3 controller: the vendor driver programs DLL phase 0x2 (mainline 0x3,
 # which gives data CRC errors on HS400ES writes while reads work)
 t = t.replace('#define  SDHCI_SPRD_DLL_PHASE_INTERNAL\t0x3', '#define  SDHCI_SPRD_DLL_PHASE_INTERNAL\t0x2 /* MU300 r11p3 */')
+# the register accessors with the generic SDHCI ordering: the ADMA descriptors are in memory before the command
+# register starts the transfer (sdhci_order.py, FINDINGS 93)
+sys.path.insert(0, here)
+sys.dont_write_bytecode = True     # no __pycache__ in port/: its subdirectories are copied into the kernel tree
+import sdhci_order
+try:
+    t = sdhci_order.ordered(t)
+except ValueError as e:
+    sys.exit('port: ' + str(e))
 open(sp, 'w').write(t)
 # thermal: UMS9620 on-die sensors (vendor sprd_thermal_r5p0), calibration from eFuse
 append_once('drivers/thermal/Makefile', 'sprd_thermal_r5p0.o', 'obj-$(CONFIG_SPRD_THERMAL_R5P0) += sprd_thermal_r5p0.o\n')
@@ -314,8 +331,10 @@ if missing:
 print('port installed')
 
 # LEDs of the ZTE U30 Air: its white ones on PMIC LDOs (leds-zte-ldo.c), and its red on the PMIC's keypad backlight
-# sink (leds-sc27xx-kpled.c)
+# sink (leds-sc27xx-kpled.c); the ZTE V50's, an AW9523B with ZTE's binding (leds-aw9523b.c, kano's, FINDINGS 95)
 LED_DRIVERS = (
+    ('LEDS_AW9523B', 'leds-aw9523b', 'AW9523B LEDs with the vendor binding (ZTE V50)', 'LEDS_CLASS && I2C && OF',
+     "The ZTE V50's (MU3351) front LEDs: an AW9523B as ZTE's Android device tree describes it."),
     ('LEDS_ZTE_LDO', 'leds-zte-ldo', 'LEDs on PMIC LDOs (ZTE U30 Air)', 'LEDS_CLASS && REGULATOR && OF',
      "The ZTE U30 Air's white LEDs, powered by three PMIC LDOs."),
     ('LEDS_SC27XX_KPLED', 'leds-sc27xx-kpled', 'Spreadtrum/Unisoc PMIC keypad backlight',

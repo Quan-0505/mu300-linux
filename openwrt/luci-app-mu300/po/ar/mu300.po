@@ -13,6 +13,9 @@ msgstr "الخلوي"
 msgid "Dual SIM"
 msgstr "Dual SIM"
 
+msgid "SIM settings"
+msgstr "إعدادات SIM"
+
 msgid "Network locks"
 msgstr "أقفال الشبكة"
 
@@ -36,6 +39,12 @@ msgstr "استهلاك البيانات"
 
 msgid "Device management"
 msgstr "إدارة الجهاز"
+
+msgid "Update"
+msgstr "تحديث"
+
+msgid "Backup of settings"
+msgstr "نسخة احتياطية من الإعدادات"
 
 msgid "Languages"
 msgstr "اللغات"
@@ -316,6 +325,75 @@ msgstr "فشل الطلب"
 msgid "(empty)"
 msgstr "(فارغ)"
 
+msgid "Passphrase (8 characters or more)"
+msgstr "عبارة المرور (8 أحرف أو أكثر)"
+
+msgid "The passphrase again"
+msgstr "عبارة المرور مرة أخرى"
+
+msgid "Download the backup"
+msgstr "تنزيل النسخة الاحتياطية"
+
+msgid "Back up the settings"
+msgstr "نسخ الإعدادات احتياطيًا"
+
+msgid "One file with the hotspot, mobile data and the APN, the network locks, the VPN profiles and settings, SMS forwarding, the LAN address, the host name, the time zone and the SSH keys. It holds passwords: with a passphrase it is encrypted, and only that passphrase opens it again."
+msgstr "ملف واحد فيه نقطة الاتصال وبيانات الجوال ونقطة الوصول APN وأقفال الشبكة وملفات VPN وإعداداتها وإعادة توجيه الرسائل وعنوان LAN واسم المضيف والمنطقة الزمنية ومفاتيح SSH. يحتوي على كلمات مرور: مع عبارة مرور يُشفَّر، ولا يفتحه مرة أخرى إلا تلك العبارة."
+
+msgid "Include the login password"
+msgstr "تضمين كلمة مرور تسجيل الدخول"
+
+msgid "Passphrase, if the file is encrypted"
+msgstr "عبارة المرور إذا كان الملف مشفرًا"
+
+msgid "Show what would change"
+msgstr "عرض ما سيتغير"
+
+msgid "Restore"
+msgstr "استعادة"
+
+msgid "The file is larger than 4 MiB"
+msgstr "الملف أكبر من 4 ميبيبايت"
+
+msgid "The settings of the file replace these. The hotspot, mobile data or the LAN may restart, and this page may lose its connection for a moment."
+msgstr "إعدادات الملف تحل محل هذه. قد تعيد نقطة الاتصال أو بيانات الجوال أو الشبكة المحلية التشغيل، وقد تفقد هذه الصفحة الاتصال للحظة."
+
+msgid "Restore from a backup"
+msgstr "الاستعادة من نسخة احتياطية"
+
+msgid "Every value of the file is checked first; one that is refused and nothing is changed. What is the same is left alone, and no VPN profile, subscription or SSH key of this device is removed."
+msgstr "تُفحص كل قيمة في الملف أولًا؛ إذا رُفضت قيمة واحدة لا يتغير شيء. ما هو مطابق يبقى كما هو، ولا يُحذف أي ملف VPN أو اشتراك أو مفتاح SSH من هذا الجهاز."
+
+msgid "Keep this device's login password"
+msgstr "الإبقاء على كلمة مرور تسجيل الدخول لهذا الجهاز"
+
+msgid "Take a file of another device model"
+msgstr "قبول ملف من طراز جهاز آخر"
+
+msgid "The two passphrases differ"
+msgstr "عبارتا المرور مختلفتان"
+
+msgid "The passphrase needs 8 characters or more"
+msgstr "تحتاج عبارة المرور إلى 8 أحرف أو أكثر"
+
+msgid "Saved (encrypted)"
+msgstr "تم الحفظ (مشفر)"
+
+msgid "Saved. The file is not encrypted: it holds passwords, keep it safe."
+msgstr "تم الحفظ. الملف غير مشفر: يحتوي على كلمات مرور، احفظه في مكان آمن."
+
+msgid "Choose a backup file first"
+msgstr "اختر ملف نسخة احتياطية أولًا"
+
+msgid "Restoring…"
+msgstr "جارٍ الاستعادة…"
+
+msgid "Restored"
+msgstr "تمت الاستعادة"
+
+msgid "The restore did not finish: see the lines above"
+msgstr "لم تكتمل الاستعادة: انظر الأسطر أعلاه"
+
 msgid "Loading…"
 msgstr "جارٍ التحميل…"
 
@@ -388,6 +466,18 @@ msgstr "Hardware max"
 msgid "Frequencies in MHz."
 msgstr "Frequencies in MHz."
 
+msgid "Highlighted cores are online. A core taken offline stays offline, also after a reboot, until it is brought back. CPU0 always stays online."
+msgstr "الأنوية المميزة متصلة. تبقى النواة التي أُوقفت غير متصلة، حتى بعد إعادة التشغيل، إلى أن تُشغَّل من جديد. تبقى CPU0 متصلة دائمًا."
+
+msgid "Low latency: on"
+msgstr "زمن انتقال منخفض: مفعّل"
+
+msgid "Low latency: off"
+msgstr "زمن انتقال منخفض: معطّل"
+
+msgid "Low latency keeps CPU0 out of its idle states, as ZTE's U30 Air firmware does: Wi-Fi delays are much shorter, and the device draws more power. Off by default."
+msgstr "يُبقي وضع زمن الانتقال المنخفض CPU0 خارج حالات الخمول، كما يفعل برنامج ZTE الثابت لجهاز U30 Air: تصبح تأخيرات Wi-Fi أقصر بكثير ويستهلك الجهاز طاقة أكبر. معطّل افتراضيًا."
+
 msgid "Thermal"
 msgstr "الحرارة"
 
@@ -405,6 +495,111 @@ msgstr "نقاط العتبة"
 
 msgid "Cooling devices"
 msgstr "أجهزة التبريد"
+
+msgid "Stress test started"
+msgstr "بدأ اختبار الإجهاد"
+
+msgid "Saved: it takes effect at the next reboot"
+msgstr "تم الحفظ: يسري عند إعادة التشغيل التالية"
+
+msgid "CPU voltage offset (EXPERIMENTAL)"
+msgstr "إزاحة جهد CPU (تجريبي)"
+
+msgid "Experimental: changing the CPU voltage can make the device unstable, corrupt your data and permanently damage your device. Use it entirely at your own risk."
+msgstr "تجريبي: تغيير جهد CPU قد يجعل الجهاز غير مستقر، ويُتلف بياناتك، ويُلحق ضررًا دائمًا بجهازك. استخدمه على مسؤوليتك الخاصة بالكامل."
+
+msgid "CPU voltage offset unavailable"
+msgstr "إزاحة جهد CPU غير متاحة"
+
+msgid "Not available with this kernel (a mainline kernel of this release or later has it)."
+msgstr "غير متاح مع هذه النواة (تتضمنه نواة mainline من هذا الإصدار أو أحدث)."
+
+msgid "Off: the stock voltages"
+msgstr "معطّل: جهود المصنع"
+
+msgid "Changes at the next reboot"
+msgstr "يتغير عند إعادة التشغيل التالية"
+
+msgid "Trial boot: kept once this boot has been up 10 minutes"
+msgstr "إقلاع تجريبي: يُعتمد بعد أن يعمل هذا الإقلاع 10 دقائق"
+
+msgid "Kept: this offset passed its trial boot"
+msgstr "معتمد: اجتازت هذه الإزاحة إقلاعها التجريبي"
+
+msgid "a boot with it ended without a clean shutdown"
+msgstr "انتهى إقلاع بها دون إيقاف تشغيل سليم"
+
+msgid "its trial boot ended before 10 minutes"
+msgstr "انتهى إقلاعها التجريبي قبل مرور 10 دقائق"
+
+msgid "invalid value"
+msgstr "قيمة غير صالحة"
+
+msgid "unknown SoC firmware"
+msgstr "برنامج SoC ثابت غير معروف"
+
+msgid "refused by the kernel"
+msgstr "رفضته النواة"
+
+msgid "the kernel could not start CPU scaling with it"
+msgstr "تعذّر على النواة بدء تحجيم تردد CPU بها"
+
+msgid "Offsets in µV for the three CPU domains (cores 0-3, 4-6 and 7), in whole steps. A new offset takes effect at the next reboot, as a trial: it is kept once that boot has been up 10 minutes, and dropped (back to 0) if a boot with it ends in a crash, a watchdog reset or a power cut."
+msgstr "الإزاحات بوحدة µV لنطاقات CPU الثلاثة (الأنوية 0-3 و4-6 و7)، بخطوات كاملة. تسري الإزاحة الجديدة عند إعادة التشغيل التالية كتجربة: تُعتمد بعد أن يعمل ذلك الإقلاع 10 دقائق، وتُلغى (تعود إلى 0) إذا انتهى إقلاع بها بانهيار أو إعادة ضبط من watchdog أو انقطاع في الكهرباء."
+
+msgid "Running now (µV)"
+msgstr "يعمل الآن (µV)"
+
+msgid "Saved for the next boot (µV)"
+msgstr "محفوظ للإقلاع التالي (µV)"
+
+msgid "State"
+msgstr "الحالة"
+
+msgid "Taken back automatically: %s µV (%s)"
+msgstr "تم التراجع تلقائيًا: %s µV (%s)"
+
+msgid "The SoC firmware of this device is not one whose voltage encoding is known: only the stock voltages are possible."
+msgstr "البرنامج الثابت لـ SoC في هذا الجهاز ليس من الأنواع المعروف ترميز الجهد فيها: لا يمكن إلا استخدام جهود المصنع."
+
+msgid "Domain"
+msgstr "النطاق"
+
+msgid "Offset now (µV)"
+msgstr "الإزاحة الآن (µV)"
+
+msgid "Highest step"
+msgstr "أعلى خطوة"
+
+msgid "New offset (µV)"
+msgstr "الإزاحة الجديدة (µV)"
+
+msgid "Limits: %d to %d µV, in steps of %d µV."
+msgstr "الحدود: من %d إلى %d µV، بخطوات قدرها %d µV."
+
+msgid "Save for the next boot"
+msgstr "حفظ للإقلاع التالي"
+
+msgid "Each offset must be a multiple of %d µV between %d and %d."
+msgstr "يجب أن تكون كل إزاحة من مضاعفات %d µV بين %d و%d."
+
+msgid "Type %s to confirm."
+msgstr "اكتب %s للتأكيد."
+
+msgid "Back to the stock voltages"
+msgstr "العودة إلى جهود المصنع"
+
+msgid "Type %s to confirm:"
+msgstr "اكتب %s للتأكيد:"
+
+msgid "Run a 10-minute CPU stress test"
+msgstr "تشغيل اختبار إجهاد CPU لمدة 10 دقائق"
+
+msgid "Test a new offset under load during its trial boot. The device may crash if the voltage is too low; the next boot then runs at the stock voltages."
+msgstr "اختبر الإزاحة الجديدة تحت الحمل أثناء إقلاعها التجريبي. قد ينهار الجهاز إذا كان الجهد منخفضًا جدًا؛ عندها يعمل الإقلاع التالي بجهود المصنع."
+
+msgid "A stress test is running."
+msgstr "اختبار إجهاد قيد التشغيل."
 
 msgid "USB role"
 msgstr "دور USB"
@@ -583,6 +778,12 @@ msgstr "إزالة القيمة المحفوظة"
 msgid "Presets"
 msgstr "إعدادات جاهزة"
 
+msgid "Form (URL-encoded)"
+msgstr "نموذج (ترميز URL)"
+
+msgid "Plain text"
+msgstr "نص عادي"
+
 msgid "Received messages are sent on as they reach the SMS pool. A failed delivery is retried after 30 s, then after twice as long each time (an hour at most), ten times in all."
 msgstr "تُعاد توجيه الرسائل المستلمة فور وصولها إلى مجمّع الرسائل القصيرة. يُعاد إرسال التسليم الفاشل بعد 30 ثانية، ثم في كل مرة بعد ضعف المدة (ساعة على الأكثر)، عشر مرات إجمالًا."
 
@@ -621,12 +822,6 @@ msgstr "العنوان (http:// أو https://)"
 
 msgid "Body"
 msgstr "المحتوى"
-
-msgid "Form (URL-encoded)"
-msgstr "نموذج (ترميز URL)"
-
-msgid "Plain text"
-msgstr "نص عادي"
 
 msgid "Fields: sender, time, text, device, message (the template filled in)"
 msgstr "الحقول: sender، time، text، device، message (القالب بعد ملئه)"
@@ -745,6 +940,9 @@ msgstr "لا توجد عمليات تسليم بعد"
 msgid "Test started with the saved settings; the result appears in the delivery log."
 msgstr "بدأت التجربة بالإعدادات المحفوظة؛ تظهر النتيجة في سجل التسليم."
 
+msgid "Automatic without 2G (152)"
+msgstr "تلقائي بدون 2G (152)"
+
 msgid "4G only"
 msgstr "4G فقط"
 
@@ -813,6 +1011,9 @@ msgstr "مدة الجلسة"
 
 msgid "Registration"
 msgstr "التسجيل"
+
+msgid "Data roaming"
+msgstr "تجوال البيانات"
 
 msgid "Bandwidth"
 msgstr "عرض النطاق الترددي"
@@ -940,14 +1141,26 @@ msgstr "جارٍ توصيل البيانات…"
 msgid "Turn off cellular radio"
 msgstr "إيقاف الراديو الخلوي"
 
-msgid "Cellular connectivity will be interrupted."
-msgstr "سينقطع الاتصال الخلوي."
+msgid "This SIM will have no calls, SMS or data, and its radio stays off after a reboot until you turn it on again."
+msgstr "لن تكون لهذه الشريحة مكالمات أو رسائل أو بيانات، ويبقى راديوها مطفأً بعد إعادة التشغيل حتى تشغّله من جديد."
 
 msgid "Turn on cellular radio"
 msgstr "تشغيل الراديو الخلوي"
 
-msgid "The SFUN power-on sequence will run (up to about 1 minute)."
-msgstr "سيُنفَّذ تسلسل التشغيل SFUN (حتى دقيقة واحدة تقريباً)."
+msgid "The radio of the SIM in use comes on and stays on after a reboot (up to about 1 minute)."
+msgstr "يُشغَّل راديو الشريحة المستخدمة ويبقى مشغّلاً بعد إعادة التشغيل (حتى دقيقة تقريباً)."
+
+msgid "Turn data roaming off"
+msgstr "إيقاف تجوال البيانات"
+
+msgid "While the SIM is registered on a roaming network, mobile data stays off; SMS, calls and the registration are not affected. Some SIMs report roaming at home (an MVNO, national roaming): there, data would stop as well."
+msgstr "ما دامت شريحة SIM مسجلة على شبكة تجوال، تبقى بيانات الجوال متوقفة؛ ولا تتأثر الرسائل القصيرة والمكالمات والتسجيل. بعض الشرائح تُبلغ عن التجوال حتى داخل البلد (مشغل افتراضي MVNO، تجوال وطني): وهناك ستتوقف البيانات أيضًا."
+
+msgid "Allow data roaming"
+msgstr "السماح بتجوال البيانات"
+
+msgid "Mobile data is used on roaming networks too, which can cost extra. Some SIMs report roaming at home (an MVNO, national roaming) and need this to have data at all."
+msgstr "تُستخدم بيانات الجوال على شبكات التجوال أيضًا، وقد يكلف ذلك أكثر. بعض الشرائح تُبلغ عن التجوال حتى داخل البلد (مشغل افتراضي MVNO، تجوال وطني) وتحتاج إلى هذا الخيار لتحصل على البيانات أصلًا."
 
 msgid "Cellular connectivity may stop for 1–2 minutes."
 msgstr "قد يتوقف الاتصال الخلوي لمدة 1–2 دقيقة."
@@ -1054,6 +1267,9 @@ msgstr "الارتكاز B%s"
 msgid "No serving cell"
 msgstr "لا توجد خلية خادمة"
 
+msgid "Version %s is out: update"
+msgstr "صدر الإصدار %s: حدّث"
+
 msgid "Not registered"
 msgstr "غير مسجل"
 
@@ -1074,6 +1290,15 @@ msgstr "الطوارئ فقط"
 
 msgid "Status %s"
 msgstr "الحالة %s"
+
+msgid "Off: data held back while roaming"
+msgstr "متوقف: البيانات محجوبة أثناء التجوال"
+
+msgid "Allowed"
+msgstr "مسموح"
+
+msgid "Off"
+msgstr "متوقف"
 
 msgid "LTE anchor"
 msgstr "ارتكاز LTE"
@@ -1224,9 +1449,6 @@ msgstr "الرمز"
 
 msgid "Translated"
 msgstr "مترجَم"
-
-msgid "State"
-msgstr "الحالة"
 
 msgid "LuCI's own translations come from OpenWrt. This panel's translations other than Turkish and Chinese are machine (AI) translations; corrections are welcome."
 msgstr "ترجمات LuCI نفسها مصدرها OpenWrt. ترجمات هذه اللوحة، باستثناء التركية والصينية، ترجمات آلية (بالذكاء الاصطناعي)؛ نرحب بالتصحيحات."
@@ -1594,14 +1816,20 @@ msgstr "0 % لا يشحن البطارية أبدًا (يعمل الجهاز م�
 msgid "80 % keeps the battery healthier on a device that stays plugged in."
 msgstr "80 % تحافظ على صحة البطارية في جهاز يبقى موصولًا بالكهرباء."
 
+msgid "When the charger switches the device on"
+msgstr "عندما يشغّل الشاحن الجهاز"
+
+msgid "Charge only, until a key starts it"
+msgstr "الشحن فقط، حتى يشغّله زر"
+
+msgid "Start normally"
+msgstr "التشغيل بشكل عادي"
+
 msgid "Keep as is"
 msgstr "بدون تغيير"
 
 msgid "LTE only (5G off)"
 msgstr "LTE فقط (5G متوقف)"
-
-msgid "Off"
-msgstr "متوقف"
 
 msgid "On"
 msgstr "يعمل"
@@ -1795,6 +2023,78 @@ msgstr "Switch to SIM%d"
 # Source-language fallback for untranslated new controls.
 msgid "Use SIM%d at next boot"
 msgstr "Use SIM%d at next boot"
+
+msgid "Built-in SIM 1"
+msgstr "شريحة SIM المدمجة 1"
+
+msgid "Built-in SIM 2"
+msgstr "شريحة SIM المدمجة 2"
+
+msgid "Built-in SIM 3"
+msgstr "شريحة SIM المدمجة 3"
+
+msgid "External SIM"
+msgstr "شريحة SIM الخارجية"
+
+msgid "SIM card"
+msgstr "بطاقة SIM"
+
+msgid "Built-in SIM 3 shares SIM2, the external SIM shares SIM1. The card chosen here is switched in before the modem starts, at the next boot; without a choice the cards stay as the bootloader sets them."
+msgstr "تتشارك شريحة SIM المدمجة 3 مع SIM2، وتتشارك شريحة SIM الخارجية مع SIM1. تُوصَل البطاقة المختارة هنا قبل بدء تشغيل المودم، عند الإقلاع التالي؛ ومن دون اختيار تبقى البطاقات كما يضبطها محمّل الإقلاع."
+
+msgid "As the bootloader sets them"
+msgstr "كما يضبطها محمّل الإقلاع"
+
+msgid "Applying the radio setting…"
+msgstr "جارٍ تطبيق إعداد الراديو…"
+
+msgid "SIM settings are not available"
+msgstr "إعدادات SIM غير متاحة"
+
+msgid "Modem default"
+msgstr "افتراضي المودم"
+
+msgid "SIM%d"
+msgstr "SIM%d"
+
+msgid "in use"
+msgstr "قيد الاستخدام"
+
+msgid "Turn off the radio of SIM%d"
+msgstr "إطفاء راديو SIM%d"
+
+msgid "Radio"
+msgstr "الراديو"
+
+msgid "VoLTE"
+msgstr "VoLTE"
+
+msgid "VoNR"
+msgstr "VoNR"
+
+msgid "Modem: %s"
+msgstr "المودم: %s"
+
+msgid "Sent to this SIM when its radio next starts."
+msgstr "يُرسل إلى هذه الشريحة عند بدء تشغيل راديوها في المرة القادمة."
+
+msgid "VoLTE and VoNR for each SIM, kept across reboots and sent again whenever that SIM starts. VoLTE is on unless switched off; VoNR stays as the modem has it until set."
+msgstr "VoLTE وVoNR لكل شريحة، تُحفظ بعد إعادة التشغيل وتُرسل من جديد كلما بدأت تلك الشريحة. VoLTE مفعّل ما لم يُطفأ؛ ويبقى VoNR كما في المودم حتى يُضبط."
+
+msgid "All radios off (airplane mode)"
+msgstr "إطفاء كل أجهزة الراديو (وضع الطيران)"
+
+msgid "All radios on"
+msgstr "تشغيل كل أجهزة الراديو"
+
+msgid "No SIM will have calls, SMS or data, also after a reboot, until a radio is turned on again here or with the dashboard's radio button."
+msgstr "لن تكون لأي شريحة مكالمات أو رسائل أو بيانات، حتى بعد إعادة التشغيل، إلى أن يُشغَّل راديو من جديد هنا أو بزر الراديو في لوحة المعلومات."
+
+msgid "Each SIM's radio stays as set here after a reboot. A SIM whose radio is off has no calls, SMS or data, and the device does not switch to it."
+msgstr "يبقى راديو كل شريحة كما ضُبط هنا بعد إعادة التشغيل. الشريحة التي راديوها مطفأ ليس لها مكالمات أو رسائل أو بيانات، ولا ينتقل الجهاز إليها."
+
+msgid "The setting is saved, but the radio did not follow it yet."
+msgstr "حُفظ الإعداد، لكن الراديو لم يتبعه بعد."
 
 msgid "Recipient: number, e.g. 10086 or +86..."
 msgstr "المستلم: رقم، مثل 10086 أو +86..."
@@ -2045,6 +2345,402 @@ msgstr "إيقاف"
 msgid "64 makes every packet leave like the device's own traffic"
 msgstr "مع 64 تخرج كل حزمة كأنها من حركة مرور الجهاز نفسه"
 
+msgid "Check for updates"
+msgstr "التحقق من التحديثات"
+
+msgid "Checking the file"
+msgstr "جارٍ فحص الملف"
+
+msgid "Update from a file"
+msgstr "التحديث من ملف"
+
+msgid "Back to the previous version"
+msgstr "العودة إلى النسخة السابقة"
+
+msgid "Back to the previous boot image"
+msgstr "العودة إلى صورة الإقلاع السابقة"
+
+msgid "Remove the previous version"
+msgstr "إزالة النسخة السابقة"
+
+msgid "Kernel change"
+msgstr "تغيير النواة"
+
+msgid "Starting…"
+msgstr "جارٍ البدء…"
+
+msgid "Downloading"
+msgstr "جارٍ التنزيل"
+
+msgid "All files are here and verified"
+msgstr "جميع الملفات موجودة وتم التحقق منها"
+
+msgid "Unpacking the new system"
+msgstr "جارٍ فك النظام الجديد"
+
+msgid "Carrying over your settings"
+msgstr "جارٍ نقل إعداداتك"
+
+msgid "Writing down the packages you installed"
+msgstr "جارٍ تدوين الحزم التي ثبّتها"
+
+msgid "Switching to the new system"
+msgstr "جارٍ التبديل إلى النظام الجديد"
+
+msgid "Kernel and boot image"
+msgstr "النواة وصورة الإقلاع"
+
+msgid "Restart the device?"
+msgstr "إعادة تشغيل الجهاز؟"
+
+msgid "The device restarts now. The default boot is Android, so it starts Android: switch to Linux from there to start the updated system."
+msgstr "سيُعاد تشغيل الجهاز الآن. الإقلاع الافتراضي هو Android، لذا سيبدأ Android: بدّل إلى Linux من هناك لتشغيل النظام المحدَّث."
+
+msgid "The device restarts now and is away for about a minute. If the new system does not start, the device goes back to Android by itself after the failed attempts."
+msgstr "سيُعاد تشغيل الجهاز الآن ويغيب نحو دقيقة. إذا لم يبدأ النظام الجديد، يعود الجهاز إلى Android تلقائيًا بعد المحاولات الفاشلة."
+
+msgid "Restart"
+msgstr "إعادة التشغيل"
+
+msgid "Restarting… open this page again in about a minute."
+msgstr "جارٍ إعادة التشغيل… افتح هذه الصفحة مجددًا بعد نحو دقيقة."
+
+msgid "Running for %s. It goes on when this page is closed; do not switch the device off."
+msgstr "يعمل منذ %s. يستمر العمل حتى لو أُغلقت هذه الصفحة؛ لا تطفئ الجهاز."
+
+msgid "Done. Restart the device to start it."
+msgstr "تم. أعد تشغيل الجهاز لتسري التغييرات."
+
+msgid "Done. Nothing needs a restart."
+msgstr "تم. لا حاجة إلى إعادة التشغيل."
+
+msgid "It did not finish, and part of it was done: read the log before you restart."
+msgstr "لم يكتمل، وقد نُفّذ جزء منه: اقرأ السجل قبل إعادة التشغيل."
+
+msgid "It did not finish. Nothing was changed; the log says why."
+msgstr "لم يكتمل. لم يتغير شيء؛ السبب مذكور في السجل."
+
+msgid "Log"
+msgstr "السجل"
+
+msgid "Restart now"
+msgstr "إعادة التشغيل الآن"
+
+msgid "Later"
+msgstr "لاحقًا"
+
+msgid "Close"
+msgstr "إغلاق"
+
+msgid "Updating is not available on this system"
+msgstr "التحديث غير متاح على هذا النظام"
+
+msgid "Another update is running on the device"
+msgstr "هناك تحديث آخر يعمل على الجهاز"
+
+msgid "It was started outside this page (a terminal, the toolkit). Nothing can be started here until it has finished."
+msgstr "بدأ من خارج هذه الصفحة (من طرفية أو من مجموعة الأدوات). لا يمكن بدء أي شيء هنا حتى ينتهي."
+
+msgid "Restart needed"
+msgstr "يلزم إعادة التشغيل"
+
+msgid "This system was updated and still runs the old version. The new one starts at the next restart."
+msgstr "تم تحديث هذا النظام وما زال يعمل بالنسخة القديمة. تبدأ النسخة الجديدة عند إعادة التشغيل التالية."
+
+msgid "Installed"
+msgstr "المثبَّت"
+
+msgid "This system"
+msgstr "هذا النظام"
+
+msgid "Also on this device"
+msgstr "على هذا الجهاز أيضًا"
+
+msgid "Kernel"
+msgstr "النواة"
+
+msgid "choice %s"
+msgstr "الاختيار %s"
+
+msgid "Boot image"
+msgstr "صورة الإقلاع"
+
+msgid "from the installer"
+msgstr "من المثبِّت"
+
+msgid "Default boot"
+msgstr "الإقلاع الافتراضي"
+
+msgid "Free space"
+msgstr "المساحة الحرة"
+
+msgid "Release signatures"
+msgstr "توقيعات الإصدارات"
+
+msgid "checked with the project's key"
+msgstr "تُفحص بمفتاح المشروع"
+
+msgid "this system has no release key"
+msgstr "لا يوجد مفتاح إصدارات في هذا النظام"
+
+msgid "The default boot is Android: a restart goes to Android, and Linux is started from there."
+msgstr "الإقلاع الافتراضي هو Android: إعادة التشغيل تنتقل إلى Android، ويُشغَّل Linux من هناك."
+
+msgid "Linux is locked as the default boot: a failed start does not send the device to Android by itself, except the first starts of a new boot image."
+msgstr "Linux مقفل كإقلاع افتراضي: فشل البدء لا يرسل الجهاز إلى Android تلقائيًا، باستثناء الإقلاعات الأولى لصورة إقلاع جديدة."
+
+msgid "If Linux fails to start %d times in a row, the device starts Android by itself."
+msgstr "إذا فشل Linux في البدء %d مرات متتالية، يشغّل الجهاز Android تلقائيًا."
+
+msgid "Report of the last update"
+msgstr "تقرير آخر تحديث"
+
+msgid "Online update"
+msgstr "التحديث عبر الإنترنت"
+
+msgid "Asking GitHub…"
+msgstr "جارٍ سؤال GitHub…"
+
+msgid "Checked %s ago"
+msgstr "تم التحقق قبل %s"
+
+msgid "Not checked yet"
+msgstr "لم يتم التحقق بعد"
+
+msgid "Mirror (release files)"
+msgstr "مرآة (ملفات الإصدار)"
+
+msgid "Leave empty for GitHub."
+msgstr "اتركه فارغًا لاستخدام GitHub."
+
+msgid "Install the packages I added again after the update (needs the device online at the first start)"
+msgstr "إعادة تثبيت الحزم التي أضفتها بعد التحديث (يحتاج الجهاز إلى الإنترنت عند أول تشغيل)"
+
+msgid "Pre-release"
+msgstr "إصدار تجريبي"
+
+msgid "Newest release"
+msgstr "أحدث إصدار"
+
+msgid "Release notes"
+msgstr "ملاحظات الإصدار"
+
+msgid "Download"
+msgstr "التنزيل"
+
+msgid "Free space needed"
+msgstr "المساحة الحرة المطلوبة"
+
+msgid "not enough: remove the previous version first"
+msgstr "غير كافية: أزل النسخة السابقة أولًا"
+
+msgid "A pre-release is a release still being tried: it can have faults a release does not. The previous version is kept all the same."
+msgstr "الإصدار التجريبي إصدار ما زال قيد التجربة: قد تكون فيه أعطال لا توجد في الإصدار. ويُحتفظ بالنسخة السابقة على أي حال."
+
+msgid "This system is newer than the newest release (a test release)."
+msgstr "هذا النظام أحدث من أحدث إصدار (إصدار اختباري)."
+
+msgid "Up to date."
+msgstr "النظام محدَّث."
+
+msgid "This release is not signed, and this system checks signatures: it is not installed from here. Update from its file below, which asks you to confirm."
+msgstr "هذا الإصدار غير موقّع، وهذا النظام يتحقق من التواقيع: لا يُثبَّت من هنا. حدّث من ملفه أدناه، الذي يطلب منك التأكيد."
+
+msgid "Update to %s"
+msgstr "التحديث إلى %s"
+
+msgid "Choose at least one system"
+msgstr "اختر نظامًا واحدًا على الأقل"
+
+msgid "Update to %s?"
+msgstr "التحديث إلى %s؟"
+
+msgid "The device downloads %s, puts the new system beside the running one and switches to it at the next restart. Your settings are carried over and the previous version is kept. It takes several minutes; do not switch the device off."
+msgstr "ينزّل الجهاز %s، ويضع النظام الجديد بجانب النظام العامل، ثم ينتقل إليه عند إعادة التشغيل التالية. تُنقل إعداداتك ويُحتفظ بالنسخة السابقة. يستغرق ذلك عدة دقائق؛ لا تطفئ الجهاز."
+
+msgid "Also offer the pre-release %s"
+msgstr "اعرض أيضًا الإصدار التجريبي %s"
+
+msgid "Systems to update:"
+msgstr "الأنظمة المراد تحديثها:"
+
+msgid "GitHub could not be reached: the device has no internet connection, or GitHub did not answer. Without internet, update from a file below."
+msgstr "تعذّر الوصول إلى GitHub: الجهاز غير متصل بالإنترنت، أو لم يُجب GitHub. بدون إنترنت، حدّث من ملف أدناه."
+
+msgid "release"
+msgstr "إصدار"
+
+msgid "For a device without internet: download the Magisk zip of a release for this system and this kernel on another computer, from the release page on GitHub, and upload it here. For this device that is:"
+msgstr "لجهاز بلا إنترنت: نزّل على حاسوب آخر ملف zip الخاص بـ Magisk لإصدار يناسب هذا النظام وهذه النواة من صفحة الإصدار على GitHub، ثم ارفعه هنا. لهذا الجهاز هو:"
+
+msgid "Uploaded file"
+msgstr "الملف المرفوع"
+
+msgid "Checking the file…"
+msgstr "جارٍ فحص الملف…"
+
+msgid "It says it is"
+msgstr "يقول إنه"
+
+msgid "kernel %s"
+msgstr "النواة %s"
+
+msgid "Signature"
+msgstr "التوقيع"
+
+msgid "signed with the project's release key"
+msgstr "موقَّع بمفتاح إصدارات المشروع"
+
+msgid "WRONG: it does not match the project's release key"
+msgstr "خاطئ: لا يطابق مفتاح إصدارات المشروع"
+
+msgid "not signed"
+msgstr "غير موقَّع"
+
+msgid "cannot be checked on this system"
+msgstr "لا يمكن فحصه على هذا النظام"
+
+msgid "Its system is not installed on this device."
+msgstr "نظامه غير مثبت على هذا الجهاز."
+
+msgid "It is the other Ubuntu release, not the one installed."
+msgstr "إنه إصدار Ubuntu الآخر، لا الإصدار المثبت."
+
+msgid "It carries another kernel than this device uses. Take the zip for kernel %s, or change the kernel first."
+msgstr "يحمل نواة غير التي يستخدمها هذا الجهاز. خذ ملف zip الخاص بالنواة %s، أو غيّر النواة أولًا."
+
+msgid "Its kernel does not run on this model."
+msgstr "نواته لا تعمل على هذا الطراز."
+
+msgid "The file is damaged: its contents do not match their checksums."
+msgstr "الملف تالف: محتوياته لا تطابق مجاميع التحقق."
+
+msgid "Its signature is wrong. This file does not come from the project as it is; it is never installed."
+msgstr "توقيعه خاطئ. هذا الملف بحالته هذه ليس من المشروع؛ ولا يُثبَّت أبدًا."
+
+msgid "This file cannot be used here."
+msgstr "لا يمكن استخدام هذا الملف هنا."
+
+msgid "Compare the SHA-256 with the one in SHA256SUMS-magisk on the release page: it is the only proof of where an unsigned file comes from."
+msgstr "قارن قيمة SHA-256 بالقيمة الواردة في SHA256SUMS-magisk على صفحة الإصدار: فهي الدليل الوحيد على مصدر ملف غير موقَّع."
+
+msgid "This release is installed already; the update would only refresh the boot image."
+msgstr "هذا الإصدار مثبت مسبقًا؛ سيكتفي التحديث بتجديد صورة الإقلاع."
+
+msgid "I know this file is not signed: nothing proves that it comes from the project. I compared its SHA-256 myself and want it installed."
+msgstr "أعلم أن هذا الملف غير موقَّع: لا شيء يثبت أنه من المشروع. قارنتُ قيمة SHA-256 بنفسي وأريد تثبيته."
+
+msgid "I know this is %s, older than the installed %s, and want to go back to it."
+msgstr "أعلم أن هذا %s، وهو أقدم من المثبت %s، وأريد العودة إليه."
+
+msgid "This is not a release file of this project: a Magisk zip of a release is expected."
+msgstr "هذا ليس ملف إصدار لهذا المشروع: المتوقع ملف zip خاص بـ Magisk من أحد الإصدارات."
+
+msgid "Update from this file"
+msgstr "التحديث من هذا الملف"
+
+msgid "Tick the confirmations above first"
+msgstr "ضع علامة على التأكيدات أعلاه أولًا"
+
+msgid "The device puts the system of this file beside the running one and switches to it at the next restart. Your settings are carried over and the previous version is kept. It takes several minutes; do not switch the device off."
+msgstr "يضع الجهاز نظام هذا الملف بجانب النظام العامل، ثم ينتقل إليه عند إعادة التشغيل التالية. تُنقل إعداداتك ويُحتفظ بالنسخة السابقة. يستغرق ذلك عدة دقائق؛ لا تطفئ الجهاز."
+
+msgid "Check the file"
+msgstr "فحص الملف"
+
+msgid "Remove the file"
+msgstr "إزالة الملف"
+
+msgid "Previous version"
+msgstr "النسخة السابقة"
+
+msgid "No previous version is kept on this device."
+msgstr "لا توجد نسخة سابقة محفوظة على هذا الجهاز."
+
+msgid "replaced %s"
+msgstr "استُبدلت في %s"
+
+msgid "I want the previous system back; what I changed since the update stays in the version I leave."
+msgstr "أريد استعادة النظام السابق؛ ما غيّرته منذ التحديث يبقى في النسخة التي أتركها."
+
+msgid "Back to the previous version?"
+msgstr "العودة إلى النسخة السابقة؟"
+
+msgid "The previous system (%s) becomes the one that starts at the next restart. The version you leave is not kept; settings you changed since the update are not carried back."
+msgstr "يصبح النظام السابق (%s) هو الذي يبدأ عند إعادة التشغيل التالية. النسخة التي تتركها لا يُحتفظ بها؛ والإعدادات التي غيّرتها منذ التحديث لا تُنقل معك."
+
+msgid "Go back"
+msgstr "العودة"
+
+msgid "The previous version is the one running now: restart first."
+msgstr "النسخة السابقة هي التي تعمل الآن: أعد التشغيل أولًا."
+
+msgid "I want the previous kernel and boot image back."
+msgstr "أريد استعادة النواة وصورة الإقلاع السابقتين."
+
+msgid "Back to the previous boot image?"
+msgstr "العودة إلى صورة الإقلاع السابقة؟"
+
+msgid "The previous boot image (%s) is written to the Linux slot and starts at the next restart. If it does not start, the device goes back to Android by itself."
+msgstr "تُكتب صورة الإقلاع السابقة (%s) في خانة Linux وتبدأ عند إعادة التشغيل التالية. إذا لم تبدأ، يعود الجهاز إلى Android تلقائيًا."
+
+msgid "I do not need to go back: delete the previous system to free its space."
+msgstr "لا أحتاج إلى العودة: احذف النظام السابق لتحرير مساحته."
+
+msgid "Remove the previous version?"
+msgstr "إزالة النسخة السابقة؟"
+
+msgid "The kept copy of the previous system is deleted for good. After that there is no going back to it from this page."
+msgstr "تُحذف النسخة المحفوظة من النظام السابق نهائيًا. بعد ذلك لا يمكن العودة إليها من هذه الصفحة."
+
+msgid "the vendor kernel"
+msgstr "نواة الشركة المصنّعة"
+
+msgid "mainline"
+msgstr "mainline"
+
+msgid "not with Ubuntu 26.04"
+msgstr "ليس مع Ubuntu 26.04"
+
+msgid "Change the kernel"
+msgstr "تغيير النواة"
+
+msgid "This kernel is the one in use"
+msgstr "هذه النواة هي المستخدمة حاليًا"
+
+msgid "Change the kernel to %s?"
+msgstr "تغيير النواة إلى %s؟"
+
+msgid "The device downloads that kernel from the newest release and writes a new boot image; it starts at the next restart. The previous boot image is kept, and if the new one does not start the device goes back to Android by itself. The device must be online."
+msgstr "ينزّل الجهاز تلك النواة من أحدث إصدار ويكتب صورة إقلاع جديدة؛ وتبدأ عند إعادة التشغيل التالية. يُحتفظ بصورة الإقلاع السابقة، وإذا لم تبدأ الجديدة يعود الجهاز إلى Android تلقائيًا. يجب أن يكون الجهاز متصلًا بالإنترنت."
+
+msgid "Start Android at the next restart"
+msgstr "تشغيل Android عند إعادة التشغيل التالية"
+
+msgid "Start Android at the next restart?"
+msgstr "تشغيل Android عند إعادة التشغيل التالية؟"
+
+msgid "The next restart, and the ones after it, start Android instead of Linux. Linux is started again from Android (the Magisk module's Action button, or mu300-linux)."
+msgstr "إعادة التشغيل التالية وما بعدها تشغّل Android بدلًا من Linux. يُشغَّل Linux مجددًا من Android (زر «إجراء» في وحدة Magisk، أو mu300-linux)."
+
+msgid "Start Android next"
+msgstr "تشغيل Android في المرة التالية"
+
+msgid "What an update keeps"
+msgstr "ما الذي يحتفظ به التحديث"
+
+msgid "An update puts the system of the new release in place and carries over what is yours: the settings, the accounts and their passwords, the device's keys and the home directories. Packages you installed yourself are written down and installed again at the first start, once the device is online. The previous version stays on the device until you remove it, so you can go back."
+msgstr "يضع التحديث نظام الإصدار الجديد في مكانه وينقل ما يخصك: الإعدادات، والحسابات وكلمات مرورها، ومفاتيح الجهاز، والمجلدات الرئيسية. الحزم التي ثبّتها بنفسك تُدوَّن ويُعاد تثبيتها عند أول تشغيل، حالما يتصل الجهاز بالإنترنت. تبقى النسخة السابقة على الجهاز إلى أن تزيلها، فيمكنك العودة إليها."
+
+msgid "The wiki's Updating page lists exactly what is kept."
+msgstr "صفحة «التحديث» في الويكي تسرد بالضبط ما يُحتفظ به."
+
+msgid "Choose a file first"
+msgstr "اختر ملفًا أولًا"
+
+msgid "Uploading: %s of %s"
+msgstr "جارٍ الرفع: %s من %s"
+
 msgid "running"
 msgstr "قيد التشغيل"
 
@@ -2078,9 +2774,6 @@ msgstr "لا يعمل أي ملف شخصي عليه."
 msgid "Removed"
 msgstr "تمت الإزالة"
 
-msgid "Check for updates"
-msgstr "التحقق من التحديثات"
-
 msgid "Each engine is an extra of its own: install only the ones your profiles need. Xray runs vless, vmess, trojan and ss links (with hev-socks5-tunnel), sing-box the same links and its own JSON, mihomo Clash subscriptions, dae hysteria2, tuic and the rest on newer kernels. WireGuard and OpenVPN are packages of the system."
 msgstr "كل محرك إضافة قائمة بذاتها: ثبّت فقط ما تحتاجه ملفاتك الشخصية. يشغّل Xray روابط vless وvmess وtrojan وss (مع hev-socks5-tunnel)، ويشغّل sing-box الروابط نفسها وJSON الخاص به، ويشغّل mihomo اشتراكات Clash، ويشغّل dae بروتوكولات hysteria2 وtuic وغيرها على الأنوية الأحدث. WireGuard وOpenVPN حزمتان من النظام."
 
@@ -2089,9 +2782,6 @@ msgstr "التنزيلات بحجم عشرات MB لكل محرك: على بيا
 
 msgid "The available versions come from the latest release of the VPN module."
 msgstr "الإصدارات المتاحة تأتي من أحدث إصدار لوحدة VPN."
-
-msgid "Update"
-msgstr "تحديث"
 
 msgid "system package"
 msgstr "حزمة نظام"
@@ -2261,9 +2951,6 @@ msgstr "بدء"
 msgid "Stop"
 msgstr "إيقاف"
 
-msgid "Restart"
-msgstr "إعادة التشغيل"
-
 msgid "Stop the VPN?"
 msgstr "إيقاف VPN؟"
 
@@ -2342,8 +3029,8 @@ msgstr "حارس IPv6"
 msgid "Active: IPv6 outside the tunnel is refused"
 msgstr "فعّال: يُرفض IPv6 خارج النفق"
 
-msgid "While the VPN is up, IPv6 never leaves beside a tunnel that does not carry it: it is refused at once, so programs and LAN clients fall back to IPv4 instead of leaking or waiting. Automatic: WireGuard uses the IPv6 addresses of its config, the other engines stay IPv4."
-msgstr "ما دام VPN يعمل، لا يخرج IPv6 أبدًا بجانب نفق لا يحمله: يُرفض فورًا، فتعود البرامج وعملاء LAN إلى IPv4 بدلًا من التسرب أو الانتظار. تلقائي: يستخدم WireGuard عناوين IPv6 من إعداداته، وتبقى المحركات الأخرى على IPv4."
+msgid "While the VPN is up, IPv6 never leaves beside a tunnel that does not carry it: it is refused at once, so programs and LAN clients fall back to IPv4 instead of leaking or waiting. Automatic: WireGuard and OpenVPN use the IPv6 addresses of their config; Xray, sing-box and mihomo are asked at every start whether IPv6 works through the tunnel, and carry it only then; dae stays IPv4."
+msgstr "ما دام VPN يعمل، لا يخرج IPv6 أبدًا بجانب نفق لا يحمله: يُرفض فورًا، فتعود البرامج وعملاء LAN إلى IPv4 بدلًا من التسرب أو الانتظار. تلقائي: يستخدم WireGuard و OpenVPN عناوين IPv6 من إعداداتهما؛ أما Xray و sing-box و mihomo فيُختبر عند كل بدء هل يعمل IPv6 عبر النفق، ولا تحمله إلا عندئذٍ؛ ويبقى dae على IPv4."
 
 msgid "%d ms"
 msgstr "%d ms"
@@ -2440,9 +3127,6 @@ msgstr "هذا الملف الشخصي قادم من اشتراك: التحدي�
 
 msgid "Config of %s"
 msgstr "إعداد %s"
-
-msgid "Close"
-msgstr "إغلاق"
 
 msgid "Rename"
 msgstr "إعادة تسمية"
@@ -2812,23 +3496,74 @@ msgstr "The CPU adapter gave no valid reply"
 msgid "Invalid CPU profile"
 msgstr "Invalid CPU profile"
 
+msgid "Invalid CPU core"
+msgstr "نواة معالج غير صالحة"
+
+msgid "Unknown CPU operation"
+msgstr "Unknown CPU operation"
+
+msgid "Unknown CPU voltage operation"
+msgstr "عملية جهد CPU غير معروفة"
+
+msgid "Invalid CPU voltage request"
+msgstr "طلب جهد CPU غير صالح"
+
+msgid "Invalid CPU voltage offset"
+msgstr "إزاحة جهد CPU غير صالحة"
+
+msgid "Type the confirmation word to apply a voltage offset"
+msgstr "اكتب كلمة التأكيد لتطبيق إزاحة الجهد"
+
+msgid "Invalid stress test length"
+msgstr "مدة اختبار الإجهاد غير صالحة"
+
 msgid "The packages adapter gave no valid reply"
 msgstr "لم يُرجع محوّل الحزم ردًا صالحًا"
 
 msgid "Invalid packages operation"
 msgstr "عملية حزم غير صالحة"
 
+msgid "The sizes parameter must be 0 or 1"
+msgstr "يجب أن يكون المعامل sizes مساويًا 0 أو 1"
+
+msgid "The update adapter gave no valid reply"
+msgstr "لم يُرجع مهايئ التحديث ردًّا صالحًا"
+
+msgid "Unknown update operation"
+msgstr "عملية تحديث غير معروفة"
+
+msgid "Invalid update request"
+msgstr "طلب تحديث غير صالح"
+
+msgid "The backup tool gave no valid reply"
+msgstr "لم تعطِ أداة النسخ الاحتياطي ردًا صالحًا"
+
+msgid "Mobile data integration is not provided by this platform"
+msgstr "تكامل بيانات الجوال غير متوفر في هذه المنصة"
+
+msgid "The SIM settings could not be read"
+msgstr "تعذّرت قراءة إعدادات SIM"
+
+msgid "Radio control is not provided by this platform"
+msgstr "لا توفّر هذه المنصة التحكم بالراديو"
+
+msgid "A SIM radio change is already running"
+msgstr "يجري بالفعل تغيير راديو SIM"
+
 # Source-language fallback for untranslated new controls.
 msgid "Invalid SIM setting"
 msgstr "Invalid SIM setting"
 
-# Source-language fallback for untranslated new controls.
-msgid "Enable hot switching; reboot if channels are unavailable or wait until idle"
-msgstr "Enable hot switching; reboot if channels are unavailable or wait until idle"
+msgid "The modem did not take the setting; nothing was saved"
+msgstr "لم يقبل المودم الإعداد؛ لم يُحفظ شيء"
 
 # Source-language fallback for untranslated new controls.
 msgid "SIM control failed"
 msgstr "SIM control failed"
+
+# Source-language fallback for untranslated new controls.
+msgid "Enable hot switching; reboot if channels are unavailable or wait until idle"
+msgstr "Enable hot switching; reboot if channels are unavailable or wait until idle"
 
 msgid "Request too large"
 msgstr "الطلب كبير جداً"
@@ -2983,12 +3718,18 @@ msgstr "عدد الأسطر من 1 إلى 1000"
 msgid "The log could not be read"
 msgstr "تعذّرت قراءة السجل"
 
+msgid "The radio of this SIM is switched off in its settings"
+msgstr "راديو هذه الشريحة مطفأ في إعداداتها"
+
 # Source-language fallback for untranslated new controls.
 msgid "Use SIM control or reboot for managed dual-SIM radio"
 msgstr "Use SIM control or reboot for managed dual-SIM radio"
 
-msgid "Radio did not come up"
-msgstr "لم يعمل الراديو"
+msgid "The radio did not follow its setting"
+msgstr "لم يتبع الراديو إعداده"
+
+msgid "The data roaming setting could not be saved"
+msgstr "تعذّر حفظ إعداد تجوال البيانات"
 
 msgid "Expected on or off"
 msgstr "المتوقع on أو off"
@@ -3011,8 +3752,26 @@ msgstr "The CPU profile could not be read"
 msgid "The CPU profile could not be set"
 msgstr "The CPU profile could not be set"
 
-msgid "Unknown CPU operation"
-msgstr "Unknown CPU operation"
+msgid "The CPU core could not be switched"
+msgstr "تعذّر تبديل نواة المعالج"
+
+msgid "Invalid low latency setting"
+msgstr "إعداد زمن انتقال منخفض غير صالح"
+
+msgid "The low latency setting could not be applied"
+msgstr "تعذّر تطبيق إعداد زمن الانتقال المنخفض"
+
+msgid "The CPU voltage offset could not be read"
+msgstr "تعذّرت قراءة إزاحة جهد CPU"
+
+msgid "The CPU voltage offset was refused"
+msgstr "رُفضت إزاحة جهد CPU"
+
+msgid "The CPU voltage offset could not be turned off"
+msgstr "تعذّر إيقاف إزاحة جهد CPU"
+
+msgid "The stress test could not be started"
+msgstr "تعذّر بدء اختبار الإجهاد"
 
 msgid "USB role adapter is not executable"
 msgstr "محوّل دور USB غير قابل للتنفيذ"
@@ -3223,3 +3982,45 @@ msgstr "تعذر ضبط TTL"
 
 msgid "Unknown TTL operation"
 msgstr "عملية TTL غير معروفة"
+
+msgid "An update task is already running"
+msgstr "هناك مهمة تحديث تعمل بالفعل"
+
+msgid "The task could not be started"
+msgstr "تعذّر بدء المهمة"
+
+msgid "The updater gave no valid reply"
+msgstr "لم يُرجع برنامج التحديث ردًّا صالحًا"
+
+msgid "This needs confirmation"
+msgstr "هذا يحتاج إلى تأكيد"
+
+msgid "Check for updates first"
+msgstr "تحقق من وجود تحديثات أولًا"
+
+msgid "The upload directory is not safe; nothing was changed"
+msgstr "مجلد الرفع غير آمن؛ لم يتغير شيء"
+
+msgid "Not enough memory for this upload"
+msgstr "الذاكرة غير كافية لهذا الرفع"
+
+msgid "Not enough free space on the Linux partition"
+msgstr "المساحة الحرة غير كافية على قسم Linux"
+
+msgid "The file was not checked; upload it again"
+msgstr "لم يُفحص الملف؛ ارفعه مرة أخرى"
+
+msgid "This file is not for this device"
+msgstr "هذا الملف ليس لهذا الجهاز"
+
+msgid "The signature of this file is wrong"
+msgstr "توقيع هذا الملف خاطئ"
+
+msgid "This file is not signed: that needs confirmation"
+msgstr "هذا الملف غير موقَّع: هذا يحتاج إلى تأكيد"
+
+msgid "This file is older than what is installed: that needs confirmation"
+msgstr "هذا الملف أقدم من المثبت: هذا يحتاج إلى تأكيد"
+
+msgid "The release source was not changed"
+msgstr "لم يتم تغيير مصدر الإصدار"

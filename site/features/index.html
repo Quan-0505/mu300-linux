@@ -98,6 +98,7 @@
 <li><a href="#battery">Battery, power and LEDs</a></li>
 <li><a href="#u30air">U30 Air extras</a></li>
 <li><a href="#panels">Web panels, a terminal in the browser, adb</a></li>
+<li><a href="#docker">Docker</a></li>
 <li><a href="#more">Bluetooth, GPU, KVM, languages</a></li>
 <li><a href="#limits">What does not work</a></li>
 </ol>
@@ -152,6 +153,7 @@ sudo systemctl restart mu300-hotspot</code></pre>
 <p>On 5 GHz the hotspot uses channels 36-48 or 149-165, never a DFS channel (52-144): the Wi-Fi driver cannot detect
 radar, so a DFS channel chosen in the file or in LuCI is replaced by channel 36 (149 where 36-48 are not allowed) and
 the log says why (from v2026.10.20; releases before it failed to start the hotspot on such a channel).</p>
+<p>The hotspot is <strong>WPA2-PSK (CCMP) only</strong>, on every device. WPA3 (SAE) is disabled on this Wi-Fi chip for security: its firmware does the WPA3 exchange itself, and the way it hands the key back could let a client in without the password (<a href="https://github.com/dikeckaan/mu300-linux/blob/main/docs/U30AIR-SAE.md">why</a>). A hotspot that was set to WPA3 is switched to WPA2 with the same password at the next boot (switched off instead, never left open, if it has no usable password), and LuCI shows a notice; choosing WPA3 in LuCI leaves that access point down.</p>
 <p>If the Wi-Fi chip's firmware crashes, the driver resets the chip and the Wi-Fi comes back by itself, as a hotspot
 or as a client of another network: in the tests within 15 to 20 seconds, on 6.18 and 7.2. If the chip cannot be reset
 within 70 seconds, the device restarts cleanly instead of hanging.</p>
@@ -253,7 +255,8 @@ any command.</p>
 <pre><code>sudo mu300-toolkit                       <span class="c"># the menu</span>
 mu300-toolkit top                        <span class="c"># temperatures, CPU, RAM, network speed</span>
 sudo mu300-toolkit profile performance   <span class="c"># also eco, balanced</span>
-sudo mu300-toolkit stress all 10         <span class="c"># a stability test under load</span></code></pre>
+sudo mu300-toolkit stress all 10         <span class="c"># a stability test under load</span>
+mu300-zram                               <span class="c"># compressed swap in RAM: status (sudo mu300-zram off|on)</span></code></pre>
 <p>Optional parts are called extras:</p>
 <pre><code>mu300-extra list
 sudo mu300-extra install lang            <span class="c"># more web interface languages (OpenWrt)</span>
@@ -265,9 +268,9 @@ sudo mu300-extra remove vpn</code></pre>
 <p>The status LEDs mean what they mean under ZTE's firmware:</p>
 <div class="table-scroll"><table>
 <thead><tr><th scope="col">LED</th><th scope="col">F50 / MU300</th><th scope="col">U30 Air</th></tr></thead><tbody>
-<tr><th scope="row">Network</th><td>blue: 4G, white: 5G, red: no service</td><td>blue: 4G, white: 5G, red: no service</td></tr>
-<tr><th scope="row">Wi-Fi</th><td>on while the hotspot is up</td><td>white: 2.4 GHz, blue: 5 GHz</td></tr>
-<tr><th scope="row">Battery</th><td>-</td><td>white: Linux is up</td></tr>
+<tr><th scope="row">Network</th><td>blue: 4G, white: 5G, red: no service</td><td>the SIM in use: white: the nano-SIM, blue: the eSIM (blinking while switching to it); red: no service</td></tr>
+<tr><th scope="row">Wi-Fi</th><td>on while the hotspot is up</td><td>white: 5 GHz, blue: 2.4 GHz</td></tr>
+<tr><th scope="row">Battery</th><td>-</td><td>as ZTE's firmware: white from 60 %, blue from 10 %, red below; breathing while it charges; on the charger the LEDs stay on</td></tr>
 <tr><th scope="row">Heat alarm</th><td>the network LED flashes red, white, blue in turn: the chip is at 85 °C</td><td>the battery LED flashes red, white, blue in turn: the chip at 85 °C or the battery at 50 °C</td></tr>
 </tbody></table></div>
 <pre><code>sudo mu300-led test            <span class="c"># find out which LED is which</span></code></pre>
@@ -287,6 +290,22 @@ maximum: cooler, less power), <strong>balanced</strong> (the default, the stock 
 protection stays in charge in every profile. On the control panel: System &gt; CPU.</p>
 <pre><code>mu300-cpu status
 sudo mu300-cpu profile saving            <span class="c"># or balanced (the default), performance</span></code></pre>
+<h3 id="cpu-voltage">CPU voltage offset (experimental)</h3>
+<div class="callout warn">
+<strong>Experimental: it can damage your device for good</strong>
+<p>This feature is experimental and can permanently damage your device. Use it at your own risk.</p>
+</div>
+<p>On the mainline kernels (6.18 and 7.2) the CPU voltage can be moved a little, per core cluster (CPUs 0-3, 4-6 and
+7): from 25 mV lower to 12.5 mV higher, in steps of 3.125 mV. Off (0) by default. A new value applies at the next
+reboot as one trial boot; it is kept once that boot has been up 10 minutes, and dropped (back to 0) by any boot that
+ends in a crash, a watchdog reset or a power cut. It is refused on SoC firmware whose encoding is not known (only the
+F50's for now). Every place that sets it asks you to type <code>EXPERIMENTAL</code> first: the control panel's
+System &gt; CPU, the Ubuntu panel's Power page, <code>mu300-toolkit</code> and the command line. The firmware
+encoding was worked out by <a href="https://github.com/kanoqwq">kano</a>.</p>
+<pre><code>sudo mu300-cpu voltage status
+sudo mu300-cpu voltage set -6250,-3125,0 --confirm EXPERIMENTAL   <span class="c"># uV for CPUs 0-3, 4-6, 7</span>
+sudo mu300-cpu voltage stress 10                                  <span class="c"># test it during the trial boot</span>
+sudo mu300-cpu voltage off                                        <span class="c"># back to stock at the next boot</span></code></pre>
 <p>A start that began because a charger was plugged in stays a charging start (LED blinking, hotspot and modem down)
 until you press the Wi-Fi key.</p>
 </section>
@@ -303,7 +322,11 @@ until you press the Wi-Fi key.</p>
 <pre><code>sudo mu300-nfc                 <span class="c"># shows the tag</span>
 sudo mu300-nfc wifi            <span class="c"># writes the hotspot's name and password</span></code></pre>
 <pre><code>sudo mu300-usb host            <span class="c"># U30 Air, mainline kernels: an OTG adapter, 5 V from the battery</span>
-sudo mu300-usb device          <span class="c"># back to the computer (the default at every start)</span></code></pre>
+sudo mu300-usb device          <span class="c"># back to the computer (the default at every start)</span>
+sudo mu300-usb pd on           <span class="c"># EXPERIMENTAL, off by default: USB-C power delivery picks the roles</span></code></pre>
+<p>With USB-C power delivery on (U30 Air, mainline kernels, not yet tested on a device), an OTG adapter makes the port a
+host by itself, and a PD dock with its own charger charges the U30 Air while <code>sudo mu300-usb host</code> asks the
+dock for the host role, so its USB ports and Ethernet work. 5 V only; <code>sudo mu300-usb pd off</code> goes back.</p>
 <p>On the F50 the USB port is its power supply, so it has no USB host mode; holding its power button 3 s shuts it
 down.</p>
 </section>
@@ -333,13 +356,31 @@ your own computers. The installer asks whether to turn it on for the computer it
 sudo mu300-usb adb on                   <span class="c"># and off: sudo mu300-usb adb off</span></code></pre>
 </section>
 
+<section id="docker">
+<h2>Docker</h2>
+<p><strong>Ubuntu</strong> (24.04 and 26.04) comes with Docker 29 and compose (Ubuntu's <code>docker.io</code> and
+<code>docker-compose-v2</code>); the user <code>ubuntu</code> is in the <code>docker</code> group. The engine starts on
+the first <code>docker</code> command, not at boot (it takes some 165 MB of RAM); <code>sudo systemctl enable docker</code>
+starts it at every boot. The <code>docker</code> group is as good as root: keep only trusted accounts in it.</p>
+<p><strong>OpenWrt</strong> has Docker ready, not installed: <code>apk add dockerd docker docker-compose</code> (and
+<code>luci-app-dockerman</code> on the control panel system), then <code>/etc/init.d/dockerd start</code>. The 190 MB
+would not leave room for an update in the smallest region OpenWrt is installed in.</p>
+<p>Images and containers live beside the systems, in <code>/mnt/mu300-disk/docker/&lt;system&gt;</code>: updates and
+rollbacks neither copy nor lose them. Docker uses its nftables backend; containers reach the internet, published ports
+are reachable from the hotspot and USB clients, not from the mobile network, and containers cannot open the
+device's own services (SSH, the web panels). Works on all three kernels.</p>
+<pre><code>docker run --rm hello-world
+docker compose up -d</code></pre>
+</section>
+
 <section id="more">
 <h2>Bluetooth, GPU, KVM, languages</h2>
 <ul>
 <li><strong>Bluetooth:</strong> BlueZ; scanning works.</li>
 <li><strong>GPU:</strong> the Mali-G57 runs OpenCL 3.0, with no screen.</li>
 <li><strong>KVM:</strong> <code>/dev/kvm</code> on all three kernels, for virtual machines.</li>
-<li><strong>Memory:</strong> about 1.4 GB usable, plus compressed swap in RAM (zram).</li>
+<li><strong>Memory:</strong> about 1.4 GB usable, plus compressed swap in RAM (zram, on by default: half the RAM, lz4;
+<code>sudo mu300-zram off</code> turns it off, <code>/etc/mu300/zram.conf</code> sets size and compressor).</li>
 <li><strong>Web interface languages (OpenWrt):</strong> English, Turkish and Simplified Chinese out of the box; 40
 more for LuCI and 29 more for the control panel with the <code>lang</code> extra. Switch under System &gt; System &gt;
 Language and Style, or System &gt; Languages on the control panel. The panel's other translations are machine
@@ -351,7 +392,7 @@ translations, and <a href="https://github.com/dikeckaan/mu300-linux#languages">c
 <h2>What does not work</h2>
 <ul class="dots">
 <li class="r"><strong>Screen output</strong>HDMI over USB-C: the USB-C power chip never answers.</li>
-<li class="r"><strong>Sound</strong>No speaker or microphone on the board; call audio through the modem is work in progress and not in the releases.</li>
+<li class="r"><strong>Sound</strong>No speaker or microphone on the board; call audio goes through the modem's audio DSP to the device's taps on the call or a Bluetooth headset, with the optional audio extra (<code>mu300-extra install audio</code>).</li>
 <li class="r"><strong>WPA3-only Wi-Fi</strong>The Wi-Fi driver has no SAE; mixed WPA2/WPA3 works.</li>
 <li class="r"><strong>Hotspot and client at once</strong>The Wi-Fi does one at a time.</li>
 <li class="r"><strong>Monitor mode</strong>The Wi-Fi chip offers station and access-point mode only.</li>
@@ -369,6 +410,7 @@ not</a>.</p>
 <h2>The project</h2>
 <ul>
 <li><a href="https://github.com/dikeckaan/mu300-linux">Source code on GitHub</a></li>
+<li><a href="https://github.com/sponsors/dikeckaan">Support the project</a></li>
 <li><a href="https://github.com/dikeckaan/mu300-linux/releases">Releases (downloads)</a></li>
 <li><a href="https://github.com/dikeckaan/mu300-linux-vpn">VPN module</a></li>
 </ul>

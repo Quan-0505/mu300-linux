@@ -13,6 +13,9 @@ msgstr "Mobilhálózat"
 msgid "Dual SIM"
 msgstr "Dual SIM"
 
+msgid "SIM settings"
+msgstr "SIM-beállítások"
+
 msgid "Network locks"
 msgstr "Hálózati zárolások"
 
@@ -36,6 +39,12 @@ msgstr "Adatforgalom"
 
 msgid "Device management"
 msgstr "Eszközkezelés"
+
+msgid "Update"
+msgstr "Frissítés"
+
+msgid "Backup of settings"
+msgstr "Beállítások mentése"
 
 msgid "Languages"
 msgstr "Nyelvek"
@@ -316,6 +325,75 @@ msgstr "A kérés sikertelen"
 msgid "(empty)"
 msgstr "(üres)"
 
+msgid "Passphrase (8 characters or more)"
+msgstr "Jelmondat (legalább 8 karakter)"
+
+msgid "The passphrase again"
+msgstr "A jelmondat újra"
+
+msgid "Download the backup"
+msgstr "A mentés letöltése"
+
+msgid "Back up the settings"
+msgstr "Beállítások mentése"
+
+msgid "One file with the hotspot, mobile data and the APN, the network locks, the VPN profiles and settings, SMS forwarding, the LAN address, the host name, the time zone and the SSH keys. It holds passwords: with a passphrase it is encrypted, and only that passphrase opens it again."
+msgstr "Egy fájl a hotspottal, a mobiladattal és az APN-nel, a hálózati zárakkal, a VPN-profilokkal és -beállításokkal, az SMS-továbbítással, a LAN-címmel, a gépnévvel, az időzónával és az SSH-kulcsokkal. Jelszavakat tartalmaz: jelmondattal titkosítva van, és csak az a jelmondat nyitja meg újra."
+
+msgid "Include the login password"
+msgstr "A bejelentkezési jelszóval együtt"
+
+msgid "Passphrase, if the file is encrypted"
+msgstr "Jelmondat, ha a fájl titkosított"
+
+msgid "Show what would change"
+msgstr "Mutassa, mi változna"
+
+msgid "Restore"
+msgstr "Visszaállítás"
+
+msgid "The file is larger than 4 MiB"
+msgstr "A fájl nagyobb 4 MiB-nál"
+
+msgid "The settings of the file replace these. The hotspot, mobile data or the LAN may restart, and this page may lose its connection for a moment."
+msgstr "A fájl beállításai felváltják ezeket. A hotspot, a mobiladat vagy a LAN újraindulhat, és ez az oldal egy pillanatra elveszítheti a kapcsolatot."
+
+msgid "Restore from a backup"
+msgstr "Visszaállítás mentésből"
+
+msgid "Every value of the file is checked first; one that is refused and nothing is changed. What is the same is left alone, and no VPN profile, subscription or SSH key of this device is removed."
+msgstr "A fájl minden értéke előbb ellenőrzésre kerül; ha egyet elutasít, semmi sem változik. Ami ugyanaz, az érintetlen marad, és az eszköz egyetlen VPN-profilja, előfizetése vagy SSH-kulcsa sem törlődik."
+
+msgid "Keep this device's login password"
+msgstr "Az eszköz bejelentkezési jelszavának megtartása"
+
+msgid "Take a file of another device model"
+msgstr "Más eszközmodell fájljának elfogadása"
+
+msgid "The two passphrases differ"
+msgstr "A két jelmondat eltér"
+
+msgid "The passphrase needs 8 characters or more"
+msgstr "A jelmondatnak legalább 8 karakter kell"
+
+msgid "Saved (encrypted)"
+msgstr "Mentve (titkosítva)"
+
+msgid "Saved. The file is not encrypted: it holds passwords, keep it safe."
+msgstr "Mentve. A fájl nincs titkosítva: jelszavakat tartalmaz, tartsa biztonságban."
+
+msgid "Choose a backup file first"
+msgstr "Előbb válasszon mentésfájlt"
+
+msgid "Restoring…"
+msgstr "Visszaállítás…"
+
+msgid "Restored"
+msgstr "Visszaállítva"
+
+msgid "The restore did not finish: see the lines above"
+msgstr "A visszaállítás nem fejeződött be: lásd a fenti sorokat"
+
 msgid "Loading…"
 msgstr "Betöltés…"
 
@@ -388,6 +466,18 @@ msgstr "Hardware max"
 msgid "Frequencies in MHz."
 msgstr "Frequencies in MHz."
 
+msgid "Highlighted cores are online. A core taken offline stays offline, also after a reboot, until it is brought back. CPU0 always stays online."
+msgstr "A kiemelt magok online állapotban vannak. A kikapcsolt mag offline marad, újraindítás után is, amíg vissza nem kapcsolják. A CPU0 mindig online marad."
+
+msgid "Low latency: on"
+msgstr "Alacsony késleltetés: be"
+
+msgid "Low latency: off"
+msgstr "Alacsony késleltetés: ki"
+
+msgid "Low latency keeps CPU0 out of its idle states, as ZTE's U30 Air firmware does: Wi-Fi delays are much shorter, and the device draws more power. Off by default."
+msgstr "Az alacsony késleltetés kívül tartja a CPU0-t az üresjárati állapotokon, ahogy a ZTE U30 Air firmware-e is: a Wi-Fi késleltetése jóval kisebb, az eszköz pedig több energiát fogyaszt. Alapértelmezés szerint ki."
+
 msgid "Thermal"
 msgstr "Hőmérséklet"
 
@@ -405,6 +495,111 @@ msgstr "Küszöbpontok"
 
 msgid "Cooling devices"
 msgstr "Hűtőeszközök"
+
+msgid "Stress test started"
+msgstr "Terheléses teszt elindítva"
+
+msgid "Saved: it takes effect at the next reboot"
+msgstr "Mentve: a következő újraindításkor lép életbe"
+
+msgid "CPU voltage offset (EXPERIMENTAL)"
+msgstr "CPU-feszültségeltolás (KÍSÉRLETI)"
+
+msgid "Experimental: changing the CPU voltage can make the device unstable, corrupt your data and permanently damage your device. Use it entirely at your own risk."
+msgstr "Kísérleti funkció: a CPU-feszültség módosítása instabillá teheti az eszközt, megrongálhatja az adatait, és véglegesen károsíthatja az eszközét. Használata teljes mértékben a saját felelősségére történik."
+
+msgid "CPU voltage offset unavailable"
+msgstr "A CPU-feszültségeltolás nem érhető el"
+
+msgid "Not available with this kernel (a mainline kernel of this release or later has it)."
+msgstr "Ezzel a kernellel nem érhető el (ennek a kiadásnak vagy egy újabbnak a mainline kernele tartalmazza)."
+
+msgid "Off: the stock voltages"
+msgstr "Ki: a gyári feszültségek"
+
+msgid "Changes at the next reboot"
+msgstr "A következő újraindításkor változik"
+
+msgid "Trial boot: kept once this boot has been up 10 minutes"
+msgstr "Próbaindítás: megmarad, amint ez az indítás 10 percig fut"
+
+msgid "Kept: this offset passed its trial boot"
+msgstr "Megtartva: ez az eltolás átment a próbaindításon"
+
+msgid "a boot with it ended without a clean shutdown"
+msgstr "egy vele történt indítás tiszta leállítás nélkül ért véget"
+
+msgid "its trial boot ended before 10 minutes"
+msgstr "a próbaindítása 10 percen belül véget ért"
+
+msgid "invalid value"
+msgstr "érvénytelen érték"
+
+msgid "unknown SoC firmware"
+msgstr "ismeretlen SoC-firmware"
+
+msgid "refused by the kernel"
+msgstr "a kernel elutasította"
+
+msgid "the kernel could not start CPU scaling with it"
+msgstr "a kernel nem tudta elindítani vele a CPU-frekvenciaskálázást"
+
+msgid "Offsets in µV for the three CPU domains (cores 0-3, 4-6 and 7), in whole steps. A new offset takes effect at the next reboot, as a trial: it is kept once that boot has been up 10 minutes, and dropped (back to 0) if a boot with it ends in a crash, a watchdog reset or a power cut."
+msgstr "Eltolások µV-ban a három CPU-tartományhoz (0-3., 4-6. és 7. CPU-mag), egész lépésekben. Az új eltolás a következő újraindításkor lép életbe, próbaként: megmarad, amint az az indítás 10 percig fut, és elvetésre kerül (vissza 0-ra), ha egy vele történt indítás összeomlással, watchdog-visszaállítással vagy áramszünettel ér véget."
+
+msgid "Running now (µV)"
+msgstr "Most fut (µV)"
+
+msgid "Saved for the next boot (µV)"
+msgstr "Mentve a következő indításra (µV)"
+
+msgid "State"
+msgstr "Állapot"
+
+msgid "Taken back automatically: %s µV (%s)"
+msgstr "Automatikusan visszavonva: %s µV (%s)"
+
+msgid "The SoC firmware of this device is not one whose voltage encoding is known: only the stock voltages are possible."
+msgstr "Az eszköz SoC-firmware-e nem olyan, amelynek feszültségkódolása ismert: csak a gyári feszültségek lehetségesek."
+
+msgid "Domain"
+msgstr "Tartomány"
+
+msgid "Offset now (µV)"
+msgstr "Jelenlegi eltolás (µV)"
+
+msgid "Highest step"
+msgstr "Legmagasabb lépcső"
+
+msgid "New offset (µV)"
+msgstr "Új eltolás (µV)"
+
+msgid "Limits: %d to %d µV, in steps of %d µV."
+msgstr "Korlátok: %d és %d µV között, %d µV-os lépésekben."
+
+msgid "Save for the next boot"
+msgstr "Mentés a következő indításra"
+
+msgid "Each offset must be a multiple of %d µV between %d and %d."
+msgstr "Minden eltolásnak %d µV többszörösének kell lennie %d és %d között."
+
+msgid "Type %s to confirm."
+msgstr "Írja be a(z) %s szót a megerősítéshez."
+
+msgid "Back to the stock voltages"
+msgstr "Vissza a gyári feszültségekre"
+
+msgid "Type %s to confirm:"
+msgstr "Írja be a(z) %s szót a megerősítéshez:"
+
+msgid "Run a 10-minute CPU stress test"
+msgstr "10 perces CPU-terheléses teszt futtatása"
+
+msgid "Test a new offset under load during its trial boot. The device may crash if the voltage is too low; the next boot then runs at the stock voltages."
+msgstr "Tesztelje az új eltolást terhelés alatt a próbaindítása során. Ha a feszültség túl alacsony, az eszköz összeomolhat; a következő indítás ekkor a gyári feszültségekkel fut."
+
+msgid "A stress test is running."
+msgstr "Terheléses teszt fut."
 
 msgid "USB role"
 msgstr "USB-szerep"
@@ -583,6 +778,12 @@ msgstr "A mentett érték törlése"
 msgid "Presets"
 msgstr "Előbeállítások"
 
+msgid "Form (URL-encoded)"
+msgstr "Űrlap (URL-kódolt)"
+
+msgid "Plain text"
+msgstr "Egyszerű szöveg"
+
 msgid "Received messages are sent on as they reach the SMS pool. A failed delivery is retried after 30 s, then after twice as long each time (an hour at most), ten times in all."
 msgstr "A fogadott üzenetek továbbítása azonnal megtörténik, amint az SMS-tárba érnek. A sikertelen kézbesítést 30 mp után, majd minden alkalommal kétszer annyi idő után (legfeljebb egy óra) újra megpróbálja, összesen tízszer."
 
@@ -621,12 +822,6 @@ msgstr "Cím (http:// vagy https://)"
 
 msgid "Body"
 msgstr "Törzs"
-
-msgid "Form (URL-encoded)"
-msgstr "Űrlap (URL-kódolt)"
-
-msgid "Plain text"
-msgstr "Egyszerű szöveg"
 
 msgid "Fields: sender, time, text, device, message (the template filled in)"
 msgstr "Mezők: sender, time, text, device, message (a kitöltött sablon)"
@@ -745,6 +940,9 @@ msgstr "Még nincs kézbesítés"
 msgid "Test started with the saved settings; the result appears in the delivery log."
 msgstr "A teszt elindult a mentett beállításokkal; az eredmény a kézbesítési naplóban jelenik meg."
 
+msgid "Automatic without 2G (152)"
+msgstr "Automatikus 2G nélkül (152)"
+
 msgid "4G only"
 msgstr "Csak 4G"
 
@@ -813,6 +1011,9 @@ msgstr "Munkamenet időtartama"
 
 msgid "Registration"
 msgstr "Regisztráció"
+
+msgid "Data roaming"
+msgstr "Adatroaming"
 
 msgid "Bandwidth"
 msgstr "Sávszélesség"
@@ -940,14 +1141,26 @@ msgstr "Adatkapcsolat létrehozása…"
 msgid "Turn off cellular radio"
 msgstr "Mobilrádió kikapcsolása"
 
-msgid "Cellular connectivity will be interrupted."
-msgstr "A mobilkapcsolat megszakad."
+msgid "This SIM will have no calls, SMS or data, and its radio stays off after a reboot until you turn it on again."
+msgstr "Ezen a SIM-en nem lesz hívás, SMS és adat, és a rádiója újraindítás után is kikapcsolva marad, amíg újra be nem kapcsolja."
 
 msgid "Turn on cellular radio"
 msgstr "Mobilrádió bekapcsolása"
 
-msgid "The SFUN power-on sequence will run (up to about 1 minute)."
-msgstr "Lefut az SFUN bekapcsolási sorozat (legfeljebb kb. 1 perc)."
+msgid "The radio of the SIM in use comes on and stays on after a reboot (up to about 1 minute)."
+msgstr "A használt SIM rádiója bekapcsol, és újraindítás után is bekapcsolva marad (legfeljebb kb. 1 perc)."
+
+msgid "Turn data roaming off"
+msgstr "Adatroaming kikapcsolása"
+
+msgid "While the SIM is registered on a roaming network, mobile data stays off; SMS, calls and the registration are not affected. Some SIMs report roaming at home (an MVNO, national roaming): there, data would stop as well."
+msgstr "Amíg a SIM roaminghálózatban van regisztrálva, a mobiladat kikapcsolva marad; az SMS-t, a hívásokat és a regisztrációt ez nem érinti. Egyes SIM-ek otthon is roamingot jeleznek (MVNO, belföldi roaming): ott is leállna az adatforgalom."
+
+msgid "Allow data roaming"
+msgstr "Adatroaming engedélyezése"
+
+msgid "Mobile data is used on roaming networks too, which can cost extra. Some SIMs report roaming at home (an MVNO, national roaming) and need this to have data at all."
+msgstr "A mobiladat roaminghálózatokon is használatban van, ami többletköltséggel járhat. Egyes SIM-ek otthon is roamingot jeleznek (MVNO, belföldi roaming), és ehhez erre van szükségük, hogy egyáltalán legyen adat."
 
 msgid "Cellular connectivity may stop for 1–2 minutes."
 msgstr "A mobilkapcsolat 1–2 percre leállhat."
@@ -1054,6 +1267,9 @@ msgstr "Horgony B%s"
 msgid "No serving cell"
 msgstr "Nincs kiszolgáló cella"
 
+msgid "Version %s is out: update"
+msgstr "Megjelent a(z) %s verzió: frissítsen"
+
 msgid "Not registered"
 msgstr "Nincs regisztrálva"
 
@@ -1074,6 +1290,15 @@ msgstr "Csak segélyhívás"
 
 msgid "Status %s"
 msgstr "Állapot: %s"
+
+msgid "Off: data held back while roaming"
+msgstr "Ki: adatforgalom visszatartva roamingban"
+
+msgid "Allowed"
+msgstr "Engedélyezve"
+
+msgid "Off"
+msgstr "Ki"
 
 msgid "LTE anchor"
 msgstr "LTE-horgony"
@@ -1224,9 +1449,6 @@ msgstr "Kód"
 
 msgid "Translated"
 msgstr "Lefordítva"
-
-msgid "State"
-msgstr "Állapot"
 
 msgid "LuCI's own translations come from OpenWrt. This panel's translations other than Turkish and Chinese are machine (AI) translations; corrections are welcome."
 msgstr "A LuCI saját fordításai az OpenWrt-ből származnak. Ennek a panelnek a török és kínai kivételével minden fordítása gépi (AI) fordítás; a javításokat szívesen fogadjuk."
@@ -1594,14 +1816,20 @@ msgstr "A 0 % soha nem tölti az akkumulátort (az eszköz a töltőről működ
 msgid "80 % keeps the battery healthier on a device that stays plugged in."
 msgstr "A 80 % kíméli az akkumulátort egy folyamatosan hálózaton lévő eszközben."
 
+msgid "When the charger switches the device on"
+msgstr "Amikor a töltő bekapcsolja az eszközt"
+
+msgid "Charge only, until a key starts it"
+msgstr "Csak töltés, amíg egy gomb el nem indítja"
+
+msgid "Start normally"
+msgstr "Normál indítás"
+
 msgid "Keep as is"
 msgstr "Változatlanul hagyás"
 
 msgid "LTE only (5G off)"
 msgstr "Csak LTE (5G kikapcsolva)"
-
-msgid "Off"
-msgstr "Ki"
 
 msgid "On"
 msgstr "Be"
@@ -1795,6 +2023,78 @@ msgstr "Switch to SIM%d"
 # Source-language fallback for untranslated new controls.
 msgid "Use SIM%d at next boot"
 msgstr "Use SIM%d at next boot"
+
+msgid "Built-in SIM 1"
+msgstr "Beépített SIM 1"
+
+msgid "Built-in SIM 2"
+msgstr "Beépített SIM 2"
+
+msgid "Built-in SIM 3"
+msgstr "Beépített SIM 3"
+
+msgid "External SIM"
+msgstr "Külső SIM"
+
+msgid "SIM card"
+msgstr "SIM-kártya"
+
+msgid "Built-in SIM 3 shares SIM2, the external SIM shares SIM1. The card chosen here is switched in before the modem starts, at the next boot; without a choice the cards stay as the bootloader sets them."
+msgstr "A beépített SIM 3 a SIM2-n, a külső SIM a SIM1-en osztozik. Az itt választott kártyát a következő indításkor, a modem indulása előtt kapcsolja be; választás nélkül a kártyák úgy maradnak, ahogy a rendszerbetöltő beállítja őket."
+
+msgid "As the bootloader sets them"
+msgstr "Ahogy a rendszerbetöltő beállítja"
+
+msgid "Applying the radio setting…"
+msgstr "Rádióbeállítás alkalmazása…"
+
+msgid "SIM settings are not available"
+msgstr "A SIM-beállítások nem érhetők el"
+
+msgid "Modem default"
+msgstr "A modem alapértéke"
+
+msgid "SIM%d"
+msgstr "SIM%d"
+
+msgid "in use"
+msgstr "használatban"
+
+msgid "Turn off the radio of SIM%d"
+msgstr "SIM%d rádiójának kikapcsolása"
+
+msgid "Radio"
+msgstr "Rádió"
+
+msgid "VoLTE"
+msgstr "VoLTE"
+
+msgid "VoNR"
+msgstr "VoNR"
+
+msgid "Modem: %s"
+msgstr "Modem: %s"
+
+msgid "Sent to this SIM when its radio next starts."
+msgstr "Ennek a SIM-nek a rádiója következő indulásakor lesz elküldve."
+
+msgid "VoLTE and VoNR for each SIM, kept across reboots and sent again whenever that SIM starts. VoLTE is on unless switched off; VoNR stays as the modem has it until set."
+msgstr "VoLTE és VoNR SIM-enként; újraindítás után is megmaradnak, és a SIM minden indulásakor újra elküldésre kerülnek. A VoLTE be van kapcsolva, amíg ki nem kapcsolja; a VoNR a modem szerinti marad, amíg be nem állítja."
+
+msgid "All radios off (airplane mode)"
+msgstr "Minden rádió ki (repülő üzemmód)"
+
+msgid "All radios on"
+msgstr "Minden rádió be"
+
+msgid "No SIM will have calls, SMS or data, also after a reboot, until a radio is turned on again here or with the dashboard's radio button."
+msgstr "Egyik SIM-en sem lesz hívás, SMS és adat, újraindítás után sem, amíg egy rádiót újra be nem kapcsolnak itt vagy az irányítópult rádiógombjával."
+
+msgid "Each SIM's radio stays as set here after a reboot. A SIM whose radio is off has no calls, SMS or data, and the device does not switch to it."
+msgstr "Minden SIM rádiója újraindítás után is az itt beállított marad. A kikapcsolt rádiójú SIM-en nincs hívás, SMS és adat, és az eszköz nem vált rá."
+
+msgid "The setting is saved, but the radio did not follow it yet."
+msgstr "A beállítás mentve, de a rádió még nem követte."
 
 msgid "Recipient: number, e.g. 10086 or +86..."
 msgstr "Címzett: szám, pl. 10086 vagy +86..."
@@ -2045,6 +2345,402 @@ msgstr "Kikapcsolás"
 msgid "64 makes every packet leave like the device's own traffic"
 msgstr "64 esetén minden csomag úgy távozik, mint az eszköz saját forgalma"
 
+msgid "Check for updates"
+msgstr "Frissítések keresése"
+
+msgid "Checking the file"
+msgstr "A fájl ellenőrzése"
+
+msgid "Update from a file"
+msgstr "Frissítés fájlból"
+
+msgid "Back to the previous version"
+msgstr "Vissza az előző verzióra"
+
+msgid "Back to the previous boot image"
+msgstr "Vissza az előző rendszerindító képre"
+
+msgid "Remove the previous version"
+msgstr "Az előző verzió eltávolítása"
+
+msgid "Kernel change"
+msgstr "Kernelcsere"
+
+msgid "Starting…"
+msgstr "Indítás…"
+
+msgid "Downloading"
+msgstr "Letöltés"
+
+msgid "All files are here and verified"
+msgstr "Minden fájl megvan és ellenőrizve van"
+
+msgid "Unpacking the new system"
+msgstr "Az új rendszer kicsomagolása"
+
+msgid "Carrying over your settings"
+msgstr "A beállításai átvitele"
+
+msgid "Writing down the packages you installed"
+msgstr "Az Ön által telepített csomagok feljegyzése"
+
+msgid "Switching to the new system"
+msgstr "Váltás az új rendszerre"
+
+msgid "Kernel and boot image"
+msgstr "Kernel és rendszerindító kép"
+
+msgid "Restart the device?"
+msgstr "Újraindítja az eszközt?"
+
+msgid "The device restarts now. The default boot is Android, so it starts Android: switch to Linux from there to start the updated system."
+msgstr "Az eszköz most újraindul. Az alapértelmezett indítás az Android, ezért az Android indul el: onnan váltson Linuxra a frissített rendszer elindításához."
+
+msgid "The device restarts now and is away for about a minute. If the new system does not start, the device goes back to Android by itself after the failed attempts."
+msgstr "Az eszköz most újraindul, és körülbelül egy percig nem érhető el. Ha az új rendszer nem indul el, az eszköz a sikertelen kísérletek után magától visszatér az Androidra."
+
+msgid "Restart"
+msgstr "Újraindítás"
+
+msgid "Restarting… open this page again in about a minute."
+msgstr "Újraindítás… nyissa meg újra ezt az oldalt körülbelül egy perc múlva."
+
+msgid "Running for %s. It goes on when this page is closed; do not switch the device off."
+msgstr "%s óta fut. Az oldal bezárása után is folytatódik; ne kapcsolja ki az eszközt."
+
+msgid "Done. Restart the device to start it."
+msgstr "Kész. Az életbe lépéséhez indítsa újra az eszközt."
+
+msgid "Done. Nothing needs a restart."
+msgstr "Kész. Nincs szükség újraindításra."
+
+msgid "It did not finish, and part of it was done: read the log before you restart."
+msgstr "Nem fejeződött be, de egy része megtörtént: újraindítás előtt olvassa el a naplót."
+
+msgid "It did not finish. Nothing was changed; the log says why."
+msgstr "Nem fejeződött be. Semmi sem változott; az okát a napló tartalmazza."
+
+msgid "Log"
+msgstr "Napló"
+
+msgid "Restart now"
+msgstr "Újraindítás most"
+
+msgid "Later"
+msgstr "Később"
+
+msgid "Close"
+msgstr "Bezárás"
+
+msgid "Updating is not available on this system"
+msgstr "A frissítés ezen a rendszeren nem érhető el"
+
+msgid "Another update is running on the device"
+msgstr "Az eszközön már fut egy másik frissítés"
+
+msgid "It was started outside this page (a terminal, the toolkit). Nothing can be started here until it has finished."
+msgstr "Ezen az oldalon kívül indították el (terminál, toolkit). Amíg be nem fejeződik, itt semmi sem indítható."
+
+msgid "Restart needed"
+msgstr "Újraindítás szükséges"
+
+msgid "This system was updated and still runs the old version. The new one starts at the next restart."
+msgstr "Ez a rendszer frissült, de még a régi verzió fut. Az új a következő újraindításkor indul el."
+
+msgid "Installed"
+msgstr "Telepítve"
+
+msgid "This system"
+msgstr "Ez a rendszer"
+
+msgid "Also on this device"
+msgstr "Szintén ezen az eszközön"
+
+msgid "Kernel"
+msgstr "Kernel"
+
+msgid "choice %s"
+msgstr "választás: %s"
+
+msgid "Boot image"
+msgstr "Rendszerindító kép"
+
+msgid "from the installer"
+msgstr "a telepítőből"
+
+msgid "Default boot"
+msgstr "Alapértelmezett indítás"
+
+msgid "Free space"
+msgstr "Szabad hely"
+
+msgid "Release signatures"
+msgstr "Kiadások aláírásai"
+
+msgid "checked with the project's key"
+msgstr "a projekt kulcsával ellenőrizve"
+
+msgid "this system has no release key"
+msgstr "ezen a rendszeren nincs kiadási kulcs"
+
+msgid "The default boot is Android: a restart goes to Android, and Linux is started from there."
+msgstr "Az alapértelmezett indítás az Android: újraindításkor az Android indul el, a Linux pedig onnan indítható."
+
+msgid "Linux is locked as the default boot: a failed start does not send the device to Android by itself, except the first starts of a new boot image."
+msgstr "A Linux alapértelmezett indításként zárolva van: sikertelen indítás után az eszköz nem vált magától Androidra, kivéve egy új rendszerindító kép első indításait."
+
+msgid "If Linux fails to start %d times in a row, the device starts Android by itself."
+msgstr "Ha a Linux egymás után %d alkalommal nem indul el, az eszköz magától az Androidot indítja el."
+
+msgid "Report of the last update"
+msgstr "Jelentés az utolsó frissítésről"
+
+msgid "Online update"
+msgstr "Online frissítés"
+
+msgid "Asking GitHub…"
+msgstr "A GitHub lekérdezése…"
+
+msgid "Checked %s ago"
+msgstr "Ellenőrizve ennyi ideje: %s"
+
+msgid "Not checked yet"
+msgstr "Még nincs ellenőrizve"
+
+msgid "Mirror (release files)"
+msgstr "Tükör (kiadási fájlok)"
+
+msgid "Leave empty for GitHub."
+msgstr "Hagyd üresen a GitHubhoz."
+
+msgid "Install the packages I added again after the update (needs the device online at the first start)"
+msgstr "A frissítés után telepítse újra az általam hozzáadott csomagokat (az első indításkor az eszköznek online kell lennie)"
+
+msgid "Pre-release"
+msgstr "Előzetes kiadás"
+
+msgid "Newest release"
+msgstr "Legújabb kiadás"
+
+msgid "Release notes"
+msgstr "Kiadási megjegyzések"
+
+msgid "Download"
+msgstr "Letöltés"
+
+msgid "Free space needed"
+msgstr "Szükséges szabad hely"
+
+msgid "not enough: remove the previous version first"
+msgstr "nem elég: előbb távolítsa el az előző verziót"
+
+msgid "A pre-release is a release still being tried: it can have faults a release does not. The previous version is kept all the same."
+msgstr "Az előzetes kiadás még kipróbálás alatt álló kiadás: lehetnek olyan hibái, amilyenek egy rendes kiadásnak nincsenek. Az előző verzió ekkor is megmarad."
+
+msgid "This system is newer than the newest release (a test release)."
+msgstr "Ez a rendszer újabb a legújabb kiadásnál (tesztkiadás)."
+
+msgid "Up to date."
+msgstr "Naprakész."
+
+msgid "This release is not signed, and this system checks signatures: it is not installed from here. Update from its file below, which asks you to confirm."
+msgstr "Ez a kiadás nincs aláírva, és ez a rendszer ellenőrzi az aláírásokat: innen nem települ. Frissítsen lent a fájljából, amely megerősítést kér."
+
+msgid "Update to %s"
+msgstr "Frissítés erre: %s"
+
+msgid "Choose at least one system"
+msgstr "Válasszon legalább egy rendszert"
+
+msgid "Update to %s?"
+msgstr "Frissít erre: %s?"
+
+msgid "The device downloads %s, puts the new system beside the running one and switches to it at the next restart. Your settings are carried over and the previous version is kept. It takes several minutes; do not switch the device off."
+msgstr "Az eszköz letölti ezt: %s, az új rendszert a futó mellé teszi, és a következő újraindításkor átvált rá. A beállításai átkerülnek, és az előző verzió megmarad. Ez több percig tart; ne kapcsolja ki az eszközt."
+
+msgid "Also offer the pre-release %s"
+msgstr "A(z) %s előzetes kiadás felajánlása is"
+
+msgid "Systems to update:"
+msgstr "Frissítendő rendszerek:"
+
+msgid "GitHub could not be reached: the device has no internet connection, or GitHub did not answer. Without internet, update from a file below."
+msgstr "A GitHub nem érhető el: az eszköznek nincs internetkapcsolata, vagy a GitHub nem válaszolt. Internet nélkül frissítsen fájlból, lent."
+
+msgid "release"
+msgstr "kiadás"
+
+msgid "For a device without internet: download the Magisk zip of a release for this system and this kernel on another computer, from the release page on GitHub, and upload it here. For this device that is:"
+msgstr "Internet nélküli eszközhöz: töltse le egy másik számítógépen a kiadás GitHub-oldaláról az ehhez a rendszerhez és ehhez a kernelhez való Magisk zipet, és töltse fel ide. Ehhez az eszközhöz ez kell:"
+
+msgid "Uploaded file"
+msgstr "Feltöltött fájl"
+
+msgid "Checking the file…"
+msgstr "A fájl ellenőrzése…"
+
+msgid "It says it is"
+msgstr "A fájl szerint ez"
+
+msgid "kernel %s"
+msgstr "kernel: %s"
+
+msgid "Signature"
+msgstr "Aláírás"
+
+msgid "signed with the project's release key"
+msgstr "a projekt kiadási kulcsával aláírva"
+
+msgid "WRONG: it does not match the project's release key"
+msgstr "HIBÁS: nem egyezik a projekt kiadási kulcsával"
+
+msgid "not signed"
+msgstr "nincs aláírva"
+
+msgid "cannot be checked on this system"
+msgstr "ezen a rendszeren nem ellenőrizhető"
+
+msgid "Its system is not installed on this device."
+msgstr "A benne lévő rendszer nincs telepítve erre az eszközre."
+
+msgid "It is the other Ubuntu release, not the one installed."
+msgstr "Ez a másik Ubuntu-kiadás, nem a telepített."
+
+msgid "It carries another kernel than this device uses. Take the zip for kernel %s, or change the kernel first."
+msgstr "Más kernelt tartalmaz, mint amit ez az eszköz használ. Válassza a(z) %s kernelhez való zipet, vagy előbb cserélje le a kernelt."
+
+msgid "Its kernel does not run on this model."
+msgstr "A benne lévő kernel nem fut ezen a modellen."
+
+msgid "The file is damaged: its contents do not match their checksums."
+msgstr "A fájl sérült: a tartalma nem egyezik az ellenőrzőösszegekkel."
+
+msgid "Its signature is wrong. This file does not come from the project as it is; it is never installed."
+msgstr "Az aláírása hibás. Ez a fájl ebben a formában nem a projekttől származik; soha nem települ."
+
+msgid "This file cannot be used here."
+msgstr "Ez a fájl itt nem használható."
+
+msgid "Compare the SHA-256 with the one in SHA256SUMS-magisk on the release page: it is the only proof of where an unsigned file comes from."
+msgstr "Hasonlítsa össze a SHA-256 értéket a kiadás oldalán lévő SHA256SUMS-magisk fájlban szereplővel: ez az egyetlen bizonyíték arra, honnan származik egy aláíratlan fájl."
+
+msgid "This release is installed already; the update would only refresh the boot image."
+msgstr "Ez a kiadás már telepítve van; a frissítés csak a rendszerindító képet frissítené."
+
+msgid "I know this file is not signed: nothing proves that it comes from the project. I compared its SHA-256 myself and want it installed."
+msgstr "Tudom, hogy ez a fájl nincs aláírva: semmi sem bizonyítja, hogy a projekttől származik. A SHA-256 értékét magam hasonlítottam össze, és szeretném telepíteni."
+
+msgid "I know this is %s, older than the installed %s, and want to go back to it."
+msgstr "Tudom, hogy ez a(z) %s, amely régebbi a telepített %s verziónál, és vissza szeretnék térni rá."
+
+msgid "This is not a release file of this project: a Magisk zip of a release is expected."
+msgstr "Ez nem ennek a projektnek a kiadási fájlja: egy kiadás Magisk zipje szükséges."
+
+msgid "Update from this file"
+msgstr "Frissítés ebből a fájlból"
+
+msgid "Tick the confirmations above first"
+msgstr "Előbb jelölje be a fenti megerősítéseket"
+
+msgid "The device puts the system of this file beside the running one and switches to it at the next restart. Your settings are carried over and the previous version is kept. It takes several minutes; do not switch the device off."
+msgstr "Az eszköz a fájlban lévő rendszert a futó mellé teszi, és a következő újraindításkor átvált rá. A beállításai átkerülnek, és az előző verzió megmarad. Ez több percig tart; ne kapcsolja ki az eszközt."
+
+msgid "Check the file"
+msgstr "A fájl ellenőrzése"
+
+msgid "Remove the file"
+msgstr "A fájl eltávolítása"
+
+msgid "Previous version"
+msgstr "Előző verzió"
+
+msgid "No previous version is kept on this device."
+msgstr "Ezen az eszközön nincs megőrzött előző verzió."
+
+msgid "replaced %s"
+msgstr "lecserélve: %s"
+
+msgid "I want the previous system back; what I changed since the update stays in the version I leave."
+msgstr "Vissza szeretném kapni az előző rendszert; amit a frissítés óta módosítottam, abban a verzióban marad, amelyet elhagyok."
+
+msgid "Back to the previous version?"
+msgstr "Vissza az előző verzióra?"
+
+msgid "The previous system (%s) becomes the one that starts at the next restart. The version you leave is not kept; settings you changed since the update are not carried back."
+msgstr "A következő újraindításkor az előző rendszer (%s) indul el. Az elhagyott verzió nem marad meg; a frissítés óta módosított beállítások nem kerülnek vissza."
+
+msgid "Go back"
+msgstr "Visszatérés"
+
+msgid "The previous version is the one running now: restart first."
+msgstr "Most éppen az előző verzió fut: előbb indítsa újra az eszközt."
+
+msgid "I want the previous kernel and boot image back."
+msgstr "Vissza szeretném kapni az előző kernelt és rendszerindító képet."
+
+msgid "Back to the previous boot image?"
+msgstr "Vissza az előző rendszerindító képre?"
+
+msgid "The previous boot image (%s) is written to the Linux slot and starts at the next restart. If it does not start, the device goes back to Android by itself."
+msgstr "Az előző rendszerindító kép (%s) a Linux-slotba íródik, és a következő újraindításkor indul el. Ha nem indul el, az eszköz magától visszatér az Androidra."
+
+msgid "I do not need to go back: delete the previous system to free its space."
+msgstr "Nem kell visszatérnem: törölje az előző rendszert, hogy felszabaduljon a helye."
+
+msgid "Remove the previous version?"
+msgstr "Eltávolítja az előző verziót?"
+
+msgid "The kept copy of the previous system is deleted for good. After that there is no going back to it from this page."
+msgstr "Az előző rendszer megőrzött másolata végleg törlődik. Ezután erről az oldalról már nem lehet visszatérni rá."
+
+msgid "the vendor kernel"
+msgstr "a gyártói kernel"
+
+msgid "mainline"
+msgstr "mainline"
+
+msgid "not with Ubuntu 26.04"
+msgstr "Ubuntu 26.04-gyel nem"
+
+msgid "Change the kernel"
+msgstr "Kernel cseréje"
+
+msgid "This kernel is the one in use"
+msgstr "Jelenleg ez a kernel van használatban"
+
+msgid "Change the kernel to %s?"
+msgstr "Lecseréli a kernelt erre: %s?"
+
+msgid "The device downloads that kernel from the newest release and writes a new boot image; it starts at the next restart. The previous boot image is kept, and if the new one does not start the device goes back to Android by itself. The device must be online."
+msgstr "Az eszköz letölti ezt a kernelt a legújabb kiadásból, és új rendszerindító képet ír; ez a következő újraindításkor indul el. Az előző rendszerindító kép megmarad, és ha az új nem indul el, az eszköz magától visszatér az Androidra. Az eszköznek online kell lennie."
+
+msgid "Start Android at the next restart"
+msgstr "Android indítása a következő újraindításkor"
+
+msgid "Start Android at the next restart?"
+msgstr "Android induljon a következő újraindításkor?"
+
+msgid "The next restart, and the ones after it, start Android instead of Linux. Linux is started again from Android (the Magisk module's Action button, or mu300-linux)."
+msgstr "A következő és az azt követő újraindítások a Linux helyett az Androidot indítják el. A Linux az Androidból indítható újra (a Magisk-modul Művelet gombjával vagy az mu300-linux paranccsal)."
+
+msgid "Start Android next"
+msgstr "Legközelebb Android induljon"
+
+msgid "What an update keeps"
+msgstr "Mit őriz meg egy frissítés"
+
+msgid "An update puts the system of the new release in place and carries over what is yours: the settings, the accounts and their passwords, the device's keys and the home directories. Packages you installed yourself are written down and installed again at the first start, once the device is online. The previous version stays on the device until you remove it, so you can go back."
+msgstr "A frissítés feltelepíti az új kiadás rendszerét, és átviszi mindazt, ami az Öné: a beállításokat, a fiókokat és jelszavaikat, az eszköz kulcsait és a saját könyvtárakat. Az Ön által telepített csomagokat feljegyzi, és az első indításkor, amint az eszköz online lesz, újratelepíti őket. Az előző verzió az eszközön marad, amíg el nem távolítja, így vissza tud térni rá."
+
+msgid "The wiki's Updating page lists exactly what is kept."
+msgstr "A wiki frissítésről szóló oldala pontosan felsorolja, mi marad meg."
+
+msgid "Choose a file first"
+msgstr "Előbb válasszon egy fájlt"
+
+msgid "Uploading: %s of %s"
+msgstr "Feltöltés: %s / %s"
+
 msgid "running"
 msgstr "fut"
 
@@ -2078,9 +2774,6 @@ msgstr "Egy profil sem fut rajta."
 msgid "Removed"
 msgstr "Eltávolítva"
 
-msgid "Check for updates"
-msgstr "Frissítések keresése"
-
 msgid "Each engine is an extra of its own: install only the ones your profiles need. Xray runs vless, vmess, trojan and ss links (with hev-socks5-tunnel), sing-box the same links and its own JSON, mihomo Clash subscriptions, dae hysteria2, tuic and the rest on newer kernels. WireGuard and OpenVPN are packages of the system."
 msgstr "Minden motor külön extra: csak azokat telepítse, amelyekre a profiljainak szüksége van. Az Xray vless, vmess, trojan és ss hivatkozásokat futtat (hev-socks5-tunnel-lel), a sing-box ugyanezeket és a saját JSON-ját, a mihomo Clash előfizetéseket, a dae pedig hysteria2-t, tuic-ot és a többit újabb kerneleken. A WireGuard és az OpenVPN a rendszer csomagjai."
 
@@ -2089,9 +2782,6 @@ msgstr "A letöltések motoronként több tíz MB-osak: mobiladaton ez a csomagj
 
 msgid "The available versions come from the latest release of the VPN module."
 msgstr "Az elérhető verziók a VPN-modul legfrissebb kiadásából származnak."
-
-msgid "Update"
-msgstr "Frissítés"
 
 msgid "system package"
 msgstr "rendszercsomag"
@@ -2261,9 +2951,6 @@ msgstr "Indítás"
 msgid "Stop"
 msgstr "Leállítás"
 
-msgid "Restart"
-msgstr "Újraindítás"
-
 msgid "Stop the VPN?"
 msgstr "Leállítja a VPN-t?"
 
@@ -2342,8 +3029,8 @@ msgstr "IPv6-védelem"
 msgid "Active: IPv6 outside the tunnel is refused"
 msgstr "Aktív: az alagúton kívüli IPv6 elutasítva"
 
-msgid "While the VPN is up, IPv6 never leaves beside a tunnel that does not carry it: it is refused at once, so programs and LAN clients fall back to IPv4 instead of leaking or waiting. Automatic: WireGuard uses the IPv6 addresses of its config, the other engines stay IPv4."
-msgstr "Amíg a VPN fut, az IPv6 soha nem megy ki egy azt nem szállító alagút mellett: azonnal elutasításra kerül, így a programok és a LAN-kliensek kiszivárogtatás vagy várakozás helyett IPv4-re váltanak. Automatikus: a WireGuard a konfigurációja IPv6-címeit használja, a többi motor IPv4-en marad."
+msgid "While the VPN is up, IPv6 never leaves beside a tunnel that does not carry it: it is refused at once, so programs and LAN clients fall back to IPv4 instead of leaking or waiting. Automatic: WireGuard and OpenVPN use the IPv6 addresses of their config; Xray, sing-box and mihomo are asked at every start whether IPv6 works through the tunnel, and carry it only then; dae stays IPv4."
+msgstr "Amíg a VPN fut, az IPv6 soha nem megy ki egy azt nem szállító alagút mellett: azonnal elutasításra kerül, így a programok és a LAN-kliensek kiszivárogtatás vagy várakozás helyett IPv4-re váltanak. Automatikus: a WireGuard és az OpenVPN a konfigurációjuk IPv6-címeit használja; az Xray, a sing-box és a mihomo esetében minden indításkor ellenőrzésre kerül, hogy az IPv6 működik-e az alagúton át, és csak akkor szállítják; a dae IPv4-en marad."
 
 msgid "%d ms"
 msgstr "%d ms"
@@ -2440,9 +3127,6 @@ msgstr "Ez a profil egy előfizetésből származik: a következő frissítése 
 
 msgid "Config of %s"
 msgstr "%s konfigurációja"
-
-msgid "Close"
-msgstr "Bezárás"
 
 msgid "Rename"
 msgstr "Átnevezés"
@@ -2812,23 +3496,74 @@ msgstr "The CPU adapter gave no valid reply"
 msgid "Invalid CPU profile"
 msgstr "Invalid CPU profile"
 
+msgid "Invalid CPU core"
+msgstr "Érvénytelen CPU-mag"
+
+msgid "Unknown CPU operation"
+msgstr "Unknown CPU operation"
+
+msgid "Unknown CPU voltage operation"
+msgstr "Ismeretlen CPU-feszültségművelet"
+
+msgid "Invalid CPU voltage request"
+msgstr "Érvénytelen CPU-feszültségkérés"
+
+msgid "Invalid CPU voltage offset"
+msgstr "Érvénytelen CPU-feszültségeltolás"
+
+msgid "Type the confirmation word to apply a voltage offset"
+msgstr "Írja be a megerősítő szót a feszültségeltolás alkalmazásához"
+
+msgid "Invalid stress test length"
+msgstr "Érvénytelen terheléses teszthossz"
+
 msgid "The packages adapter gave no valid reply"
 msgstr "A csomagadapter nem adott érvényes választ"
 
 msgid "Invalid packages operation"
 msgstr "Érvénytelen csomagművelet"
 
+msgid "The sizes parameter must be 0 or 1"
+msgstr "A sizes paraméter értéke csak 0 vagy 1 lehet"
+
+msgid "The update adapter gave no valid reply"
+msgstr "A frissítési adapter nem adott érvényes választ"
+
+msgid "Unknown update operation"
+msgstr "Ismeretlen frissítési művelet"
+
+msgid "Invalid update request"
+msgstr "Érvénytelen frissítési kérés"
+
+msgid "The backup tool gave no valid reply"
+msgstr "A mentőeszköz nem adott érvényes választ"
+
+msgid "Mobile data integration is not provided by this platform"
+msgstr "A mobiladat-integráció ezen a platformon nem érhető el"
+
+msgid "The SIM settings could not be read"
+msgstr "A SIM-beállítások nem olvashatók"
+
+msgid "Radio control is not provided by this platform"
+msgstr "Ez a platform nem biztosít rádióvezérlést"
+
+msgid "A SIM radio change is already running"
+msgstr "Már folyamatban van egy SIM-rádió módosítás"
+
 # Source-language fallback for untranslated new controls.
 msgid "Invalid SIM setting"
 msgstr "Invalid SIM setting"
 
-# Source-language fallback for untranslated new controls.
-msgid "Enable hot switching; reboot if channels are unavailable or wait until idle"
-msgstr "Enable hot switching; reboot if channels are unavailable or wait until idle"
+msgid "The modem did not take the setting; nothing was saved"
+msgstr "A modem nem fogadta el a beállítást; semmi sem lett mentve"
 
 # Source-language fallback for untranslated new controls.
 msgid "SIM control failed"
 msgstr "SIM control failed"
+
+# Source-language fallback for untranslated new controls.
+msgid "Enable hot switching; reboot if channels are unavailable or wait until idle"
+msgstr "Enable hot switching; reboot if channels are unavailable or wait until idle"
 
 msgid "Request too large"
 msgstr "A kérés túl nagy"
@@ -2983,12 +3718,18 @@ msgstr "A sorok száma 1 és 1000 közötti"
 msgid "The log could not be read"
 msgstr "A napló nem olvasható"
 
+msgid "The radio of this SIM is switched off in its settings"
+msgstr "Ennek a SIM-nek a rádiója ki van kapcsolva a beállításaiban"
+
 # Source-language fallback for untranslated new controls.
 msgid "Use SIM control or reboot for managed dual-SIM radio"
 msgstr "Use SIM control or reboot for managed dual-SIM radio"
 
-msgid "Radio did not come up"
-msgstr "A rádió nem kapcsolt be"
+msgid "The radio did not follow its setting"
+msgstr "A rádió nem követte a beállítását"
+
+msgid "The data roaming setting could not be saved"
+msgstr "Az adatroaming beállítását nem sikerült menteni"
 
 msgid "Expected on or off"
 msgstr "on vagy off érték szükséges"
@@ -3011,8 +3752,26 @@ msgstr "The CPU profile could not be read"
 msgid "The CPU profile could not be set"
 msgstr "The CPU profile could not be set"
 
-msgid "Unknown CPU operation"
-msgstr "Unknown CPU operation"
+msgid "The CPU core could not be switched"
+msgstr "A CPU-magot nem sikerült átkapcsolni"
+
+msgid "Invalid low latency setting"
+msgstr "Érvénytelen alacsony késleltetési beállítás"
+
+msgid "The low latency setting could not be applied"
+msgstr "Az alacsony késleltetési beállítást nem sikerült alkalmazni"
+
+msgid "The CPU voltage offset could not be read"
+msgstr "A CPU-feszültségeltolás nem olvasható be"
+
+msgid "The CPU voltage offset was refused"
+msgstr "A CPU-feszültségeltolást elutasították"
+
+msgid "The CPU voltage offset could not be turned off"
+msgstr "A CPU-feszültségeltolás nem kapcsolható ki"
+
+msgid "The stress test could not be started"
+msgstr "A terheléses teszt nem indítható el"
 
 msgid "USB role adapter is not executable"
 msgstr "Az USB-szerep adapter nem futtatható"
@@ -3223,3 +3982,45 @@ msgstr "A TTL nem állítható be"
 
 msgid "Unknown TTL operation"
 msgstr "Ismeretlen TTL-művelet"
+
+msgid "An update task is already running"
+msgstr "Már fut egy frissítési feladat"
+
+msgid "The task could not be started"
+msgstr "A feladatot nem sikerült elindítani"
+
+msgid "The updater gave no valid reply"
+msgstr "A frissítőprogram nem adott érvényes választ"
+
+msgid "This needs confirmation"
+msgstr "Ehhez megerősítés szükséges"
+
+msgid "Check for updates first"
+msgstr "Előbb keressen frissítéseket"
+
+msgid "The upload directory is not safe; nothing was changed"
+msgstr "A feltöltési könyvtár nem biztonságos; semmi sem változott"
+
+msgid "Not enough memory for this upload"
+msgstr "Nincs elég memória ehhez a feltöltéshez"
+
+msgid "Not enough free space on the Linux partition"
+msgstr "Nincs elég szabad hely a Linux-partíción"
+
+msgid "The file was not checked; upload it again"
+msgstr "A fájl nem lett ellenőrizve; töltse fel újra"
+
+msgid "This file is not for this device"
+msgstr "Ez a fájl nem ehhez az eszközhöz való"
+
+msgid "The signature of this file is wrong"
+msgstr "A fájl aláírása hibás"
+
+msgid "This file is not signed: that needs confirmation"
+msgstr "Ez a fájl nincs aláírva: ehhez megerősítés szükséges"
+
+msgid "This file is older than what is installed: that needs confirmation"
+msgstr "Ez a fájl régebbi a telepítettnél: ehhez megerősítés szükséges"
+
+msgid "The release source was not changed"
+msgstr "A kiadás forrása nem változott"

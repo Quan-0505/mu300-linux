@@ -160,6 +160,19 @@ class Info(ShellTest):
         for shell in self.each_shell():
             self.assertEqual(self.info(shell)['wan']['dns'], '10.0.0.1, 10.0.0.2, 2001:db8::53')
 
+    def test_data_roaming(self):
+        """FINDINGS 120: the card's setting (unset or not a "no": allowed, as the dial reads it) and the hold."""
+        held = self.tmp / 'held'
+        for shell in self.each_shell():
+            held.unlink(missing_ok=True)
+            self.stub('uci', 'exit 1')
+            self.assertEqual(self.info(shell, MU300_ROAM_HELD=held)['wan']['roaming'], {'allowed': 1, 'held': 0})
+            self.stub('uci', 'case "$*" in *network.wan.roaming) echo 0 ;; *) exit 1 ;; esac')
+            held.write_text('0\n')
+            self.assertEqual(self.info(shell, MU300_ROAM_HELD=held)['wan']['roaming'], {'allowed': 0, 'held': 1})
+            self.stub('uci', 'case "$*" in *network.wan.roaming) echo "1; x" ;; *) exit 1 ;; esac')
+            self.assertEqual(self.info(shell, MU300_ROAM_HELD=held)['wan']['roaming']['allowed'], 1)
+
     def test_connections(self):
         count, table = self.tmp / 'nf_conntrack_count', self.tmp / 'nf_conntrack'
         for shell in self.each_shell():
@@ -383,6 +396,133 @@ esac""")
             self.assertEqual((op['name'], op['plmn']), (None, '46001'))
 
 
+class IdentityCache(ShellTest):
+    """FINDINGS 174: the 6 h identity cache (sim.json, on flash) holds a complete identity only. A round where the modem
+    was not ready (AT+CGSN timed out while AT+CCID answered) used to cache imei:null for 6 h. Now a partial read is
+    shown, kept in the runtime directory for a minute and asked again; it never replaces a complete cache. ICCIDs with
+    letters (A-F: some eSIM profiles and operators) are kept, the F that pads a 19-digit one is dropped."""
+
+    IMEI = '867530012345678'
+    IMSI = '286016012345678'
+    ICCID = '8990011234567890123'
+
+    def setUp(self):
+        super().setUp()
+        self.stub('uci', 'exit 1')
+        # $STUBLOG/cgsn-fail: AT+CGSN times out (the adapter fails, no answer); $STUBLOG/ccid: the AT+CCID reply
+        self.stub('fake-at', r"""printf '%s\n' "$*" >> "$STUBLOG/at-commands"
+case "$*" in
+  *AT+CFUN?*)     printf '+CFUN: 1\nOK\n' ;;
+  *AT+CEREG?*)    printf '+CEREG: 2,1,"1A2B","01234567",7\nOK\n' ;;
+  *AT+CESQ*)      printf '+CESQ: 99,99,255,255,20,50\nOK\n' ;;
+  *AT+CGSN*)      [ ! -e "$STUBLOG/cgsn-fail" ] || exit 1
+                  [ ! -e "$STUBLOG/cgsn-error" ] || { printf '+CME ERROR: 10\n'; exit 0; }
+                  printf '867530012345678\nOK\n' ;;
+  *AT+CIMI*)      printf '286016012345678\nOK\n' ;;
+  *AT+CCID*)      if [ -e "$STUBLOG/ccid" ]; then cat "$STUBLOG/ccid"; else printf '+CCID: 8990011234567890123\nOK\n'; fi ;;
+  *)              printf 'OK\n' ;;
+esac""")
+        self.log = self.tmp / 'at-commands'
+
+    def collect(self, shell, tag):
+        run, ident = self.tmp / f'run-{tag}', self.tmp / f'ident-{tag}'
+        r = self.script(shell, CELL, 'full', MU300_AT=self.stubs / 'fake-at', MU300_DASH_DIR=run,
+                        MU300_DASH_IDENT_DIR=ident, MU300_DASH_POOL_DIR=self.tmp / f'pool-{tag}')
+        self.assertEqual(r.returncode, 0, r.stderr)
+        self.assertEqual(r.stdout + r.stderr, '')
+        return json.loads((run / 'cell.json').read_text())['ident']
+
+    def fresh(self, tag):
+        self.log.unlink(missing_ok=True)
+        for f in ('cgsn-fail', 'cgsn-error', 'ccid'):
+            (self.tmp / f).unlink(missing_ok=True)
+        for d in (f'run-{tag}', f'ident-{tag}', f'pool-{tag}'):
+            shutil.rmtree(self.tmp / d, ignore_errors=True)
+
+    def asked(self, cmd):
+        return (self.log.read_text() if self.log.exists() else '').count(cmd)
+
+    @staticmethod
+    def age(path, seconds):
+        t = path.stat().st_mtime - seconds
+        os.utime(path, (t, t))
+
+    def test_a_round_without_the_imei_is_not_cached_and_the_next_fills_it(self):
+        for i, shell in enumerate(self.each_shell()):
+            self.fresh(i)
+            cache, part = self.tmp / f'ident-{i}' / 'sim.json', self.tmp / f'run-{i}' / 'sim.json.partial'
+            (self.tmp / 'cgsn-fail').write_text('')
+            idn = self.collect(shell, i)
+            self.assertIsNone(idn['imei'])                       # shown as it was read: IMSI and ICCID, no IMEI
+            self.assertEqual((idn['imsi'], idn['iccid']), (self.IMSI, self.ICCID))
+            self.assertFalse(cache.exists())                     # never on flash
+            self.assertTrue(part.exists())
+            # within the minute the partial read is served, not asked again
+            self.collect(shell, i)
+            self.assertEqual(self.asked('AT+CGSN'), 1)
+            # a minute later, with the modem ready: the next round fills the IMEI and the 6 h cache is written
+            (self.tmp / 'cgsn-fail').unlink()
+            self.age(part, 61)
+            idn = self.collect(shell, i)
+            self.assertEqual((idn['imei'], idn['imsi'], idn['iccid']), (self.IMEI, self.IMSI, self.ICCID))
+            self.assertEqual(json.loads(cache.read_text())['imei'], self.IMEI)
+            self.assertFalse(part.exists())
+            self.assertEqual(self.asked('AT+CGSN'), 2)
+            # and that one is served for 6 h
+            self.collect(shell, i)
+            self.assertEqual(self.asked('AT+CGSN'), 2)
+
+    def test_an_error_reply_is_no_imei(self):
+        for i, shell in enumerate(self.each_shell()):
+            self.fresh(i)
+            (self.tmp / 'cgsn-error').write_text('')
+            self.assertIsNone(self.collect(shell, i)['imei'])    # not "10" from "+CME ERROR: 10"
+            self.assertFalse((self.tmp / f'ident-{i}' / 'sim.json').exists())
+
+    def test_a_partial_read_never_replaces_a_complete_cache(self):
+        for i, shell in enumerate(self.each_shell()):
+            self.fresh(i)
+            cache = self.tmp / f'ident-{i}' / 'sim.json'
+            self.collect(shell, i)
+            before = cache.read_text()
+            self.age(cache, 7 * 3600)                            # expired: asked again
+            (self.tmp / 'cgsn-fail').write_text('')
+            idn = self.collect(shell, i)
+            self.assertEqual(self.asked('AT+CGSN'), 2)
+            self.assertEqual(idn['imei'], self.IMEI)             # the earlier complete identity is what is shown
+            self.assertEqual(cache.read_text(), before)          # and stays on flash
+
+    def test_an_incomplete_cache_of_an_earlier_version_is_read_again(self):
+        for i, shell in enumerate(self.each_shell()):
+            self.fresh(i)
+            cache = self.tmp / f'ident-{i}' / 'sim.json'
+            cache.parent.mkdir(parents=True)
+            cache.write_text('{"ts":1,"mfg":null,"model":null,"fw":null,"imei":null,"imsi":null,'
+                             '"iccid":"8990011234567890123"}\n')
+            idn = self.collect(shell, i)
+            self.assertEqual(idn['imei'], self.IMEI)
+            self.assertEqual(json.loads(cache.read_text())['imsi'], self.IMSI)
+
+    def test_iccid_forms(self):
+        cases = [
+            ('+CCID: 8990011234567890123\nOK', '8990011234567890123'),
+            ('+CCID: "89900112345678901234"\nOK', '89900112345678901234'),
+            ('+CCID: 8990011234567890123F\nOK', '8990011234567890123'),       # the F that pads 19 digits
+            ('+CCID: 89860a1b2c3d4e5f6071\nOK', '89860A1B2C3D4E5F6071'),      # letters kept, upper case
+            ('^ICCID: 98680021436587092143\nOK', '98680021436587092143'),
+            ('8944500102198304826\nOK', '8944500102198304826'),               # a bare line
+            ('+CME ERROR: 10', None),
+            ('+CCID: 12345\nOK', None),                                        # too short for one
+            ('+CCID: 8990011234567890123ZZ\nOK', None),
+        ]
+        for i, shell in enumerate(self.each_shell()):
+            for j, (reply, want) in enumerate(cases):
+                tag = f'{i}-{j}'
+                self.fresh(tag)
+                (self.tmp / 'ccid').write_text(reply + '\n')
+                self.assertEqual(self.collect(shell, tag)['iccid'], want, reply)
+
+
 @unittest.skipUnless(shutil.which('node'), 'Node.js is needed for the LuCI JS tests')
 class OwnNumberRow(unittest.TestCase):
     """home.js's paintIdent alone: the row is there only with a number, masked like the IMSI until revealed."""
@@ -398,7 +538,7 @@ const out = {}, row = { style: { display: 'none' } };
 const M = { set: (id, t) => { out[id] = t; }, v: (id) => id === 'msisdn-r' ? row : null };
 const self = { identShown: ''' + json.dumps(shown) + r''', paintIdent: ''' + src[start:end] + '\n\t}' + r''' };
 self.paintIdent(''' + json.dumps(cell) + r''');
-process.stdout.write(JSON.stringify({ shown: row.style.display !== 'none', value: out.msisdn, imsi: out.imsi }));
+process.stdout.write(JSON.stringify({ shown: row.style.display !== 'none', value: out.msisdn, imsi: out.imsi, iccid: out.iccid }));
 '''
         r = subprocess.run(['node', '-'], input=js, capture_output=True, text=True)
         self.assertEqual(r.returncode, 0, r.stderr)
@@ -417,6 +557,12 @@ process.stdout.write(JSON.stringify({ shown: row.style.display !== 'none', value
         t = self.paint({'ident': {}, 'msisdn': '+905551234567'}, shown=True)
         self.assertEqual(t['value'], '+905551234567')
 
+    def test_an_iccid_with_letters_is_masked_like_any(self):
+        t = self.paint({'ident': {'iccid': '89860A1B2C3D4E5F6071'}})
+        self.assertEqual(t['iccid'], '8986****071')
+        self.assertEqual(self.paint({'ident': {'iccid': '89860A1B2C3D4E5F6071'}}, shown=True)['iccid'],
+                         '89860A1B2C3D4E5F6071')
+
     def test_without_a_number_the_row_is_hidden(self):
         for cell in ({'ident': {'imsi': '286016012345678'}, 'msisdn': None, 'msisdn_src': None},
                      {'ident': {'imsi': '286016012345678'}}, None, {'error': 'AT backend did not answer'}):
@@ -427,3 +573,92 @@ process.stdout.write(JSON.stringify({ shown: row.style.display !== 'none', value
 
 if __name__ == '__main__':
     unittest.main()
+
+
+class LiveBearer(ShellTest):
+    """The data device and the bearer's QoS follow netifd's live WAN (after kanoqwq's dashboard-network.sh): the
+    counters are read from the WAN's l3_device before a configured data_device, and AT+CGEQOSRDP asks the CID behind
+    that device - sipa_eth<n> of the card in use - never a fixed 1, and nothing while the WAN is down."""
+
+    def setUp(self):
+        super().setUp()
+        self.stub('fake-at', r"""printf '%s\n' "$*" >> "$STUBLOG/at-commands"
+case "$*" in
+  *AT+CFUN?*)       printf '+CFUN: 1\nOK\n' ;;
+  *AT+CEREG?*)      printf '+CEREG: 2,1,"1A2B","01234567",7\nOK\n' ;;
+  *AT+CGEQOSRDP=*)  cat "$STUBLOG/qos" ;;
+  *)                printf 'OK\n' ;;
+esac""")
+        # ubus: the WAN's status, a second file for the second call when there is one (the connection changed)
+        self.stub('ubus', 'n=$(cat "$STUBLOG/ubus-n" 2>/dev/null || echo 0); n=$((n + 1)); echo $n > "$STUBLOG/ubus-n"; '
+                          'if [ -f "$STUBLOG/wan.$n" ]; then cat "$STUBLOG/wan.$n"; else cat "$STUBLOG/wan.1"; fi')
+        self.stub('uci', 'exit 1')
+
+    def wan(self, n, up=True, device='sipa_eth0', uptime=100):
+        dev = f'\t"l3_device": "{device}",\n' if device else ''
+        (self.tmp / f'wan.{n}').write_text(f'{{\n\t"up": {"true" if up else "false"},\n\t"uptime": {uptime},\n{dev}'
+                                          f'\t"proto": "mu300cell"\n}}\n')
+
+    def round(self, shell, qos):
+        for f in ('at-commands', 'ubus-n', 'wan.2'):
+            (self.tmp / f).unlink(missing_ok=True)
+        (self.tmp / 'qos').write_text(qos)
+        run = self.tmp / f'run{self.id()}{len(list(self.tmp.iterdir()))}'
+        r = self.script(shell, CELL, 'full', MU300_AT=self.stubs / 'fake-at', MU300_DASH_DIR=run,
+                        MU300_DASH_IDENT_DIR=run / 'ident', MU300_DASH_POOL_DIR=run / 'pool')
+        self.assertEqual(r.returncode, 0, r.stderr)
+        log = (self.tmp / 'at-commands').read_text()
+        return json.loads((run / 'cell.json').read_text())['qos'], [l for l in log.split('\n') if 'CGEQOSRDP' in l]
+
+    def test_the_cid_of_the_live_device(self):
+        for shell in self.each_shell():
+            self.wan(1, device='sipa_eth2')
+            qos, asked = self.round(shell, '+CGEQOSRDP: 3,9,0,0,0,0,100000,50000\nOK\n')
+            self.assertEqual(qos, {'qci': 9, 'dl': 100.0, 'ul': 50.0})
+            self.assertEqual(len(asked), 1)
+            self.assertTrue(asked[0].endswith('AT+CGEQOSRDP=3'), asked)
+
+    def test_nothing_while_the_wan_is_down_or_on_a_foreign_device(self):
+        for shell in self.each_shell():
+            for kw in (dict(up=False), dict(device=''), dict(device='sipa_eth8'), dict(device='wwan0')):
+                with self.subTest(**kw):
+                    self.wan(1, **kw)
+                    qos, asked = self.round(shell, '+CGEQOSRDP: 1,9,0,0,0,0,1000,1000\nOK\n')
+                    self.assertIsNone(qos)
+                    self.assertEqual(asked, [])
+
+    def test_another_cids_answer_or_a_new_connection_is_not_shown(self):
+        for shell in self.each_shell():
+            self.wan(1)
+            qos, _ = self.round(shell, '+CGEQOSRDP: 2,9,0,0,0,0,1000,1000\nOK\n')
+            self.assertIsNone(qos)
+            for second in (dict(uptime=3), dict(device='sipa_eth1'), dict(up=False)):
+                with self.subTest(**second):
+                    self.wan(1)
+                    self.round(shell, '')            # (clears the second file)
+                    self.wan(1)
+                    (self.tmp / 'qos').write_text('+CGEQOSRDP: 1,9,0,0,0,0,1000,1000\nOK\n')
+                    self.wan(2, **{**dict(up=True, device='sipa_eth0', uptime=100), **second})
+                    run = self.tmp / f'run-second-{len(list(self.tmp.iterdir()))}'
+                    (self.tmp / 'ubus-n').unlink(missing_ok=True)
+                    r = self.script(shell, CELL, 'full', MU300_AT=self.stubs / 'fake-at', MU300_DASH_DIR=run,
+                                    MU300_DASH_IDENT_DIR=run / 'ident', MU300_DASH_POOL_DIR=run / 'pool')
+                    self.assertEqual(r.returncode, 0, r.stderr)
+                    self.assertIsNone(json.loads((run / 'cell.json').read_text())['qos'])
+
+    def test_the_counters_follow_the_live_device(self):
+        info = Info('test_dns_from_multiline_status')
+        info.setUp()
+        try:
+            for shell in info.each_shell():
+                # a configured data_device does not win over the WAN's live one
+                info.stub('uci', 'case "$*" in *unisoc_modem.main.data_device) echo sipa_eth9 ;; *) exit 1 ;; esac')
+                self.assertEqual(info.info(shell)['data_device'], 'sipa_eth0')
+                # a WAN without a device: the configured one; a name that is no interface name: the default
+                (info.tmp / 'wan.json').write_text('{\n\t"up": false\n}')
+                self.assertEqual(info.info(shell)['data_device'], 'sipa_eth9')
+                info.stub('uci', 'case "$*" in *unisoc_modem.main.data_device) echo "../x" ;; *) exit 1 ;; esac')
+                self.assertEqual(info.info(shell)['data_device'], 'sipa_eth0')
+                (info.tmp / 'wan.json').write_text(WAN)
+        finally:
+            info.tearDown()

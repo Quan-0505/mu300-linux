@@ -148,6 +148,10 @@ sha_ok() { [ ${#1} = 64 ] && case $1 in *[!0-9a-f]*) return 1 ;; esac; }
 detect() {
     MODEL=$(getprop ro.product.model); PRODUCT=$(getprop ro.product.device)
     case "$MODEL / $PRODUCT" in
+        # the ZTE V50 (experimental, FINDINGS 95): exactly V50 / MU3351 on ums9620; any other V50 is no device known
+        "V50 / MU3351"|*" / MU3351"|"V50 / "*)
+            DEVICE=
+            [ "$MODEL / $PRODUCT" = "V50 / MU3351" ] && [ "$(getprop ro.board.platform)" = ums9620 ] && DEVICE=v50 ;;
         *U30Air*|*U30_Air*|*"U30 Air"*) DEVICE=u30air ;;
         *MU300*|*F50*|*mu300*) DEVICE=f50 ;;
         *) DEVICE= ;;
@@ -188,6 +192,10 @@ job_state() {  # none | running | done | interrupted
     _p=$(cat "$JOB/pid" 2>/dev/null)
     # the pid is that job's only in the Android boot it was started in
     if [ -n "$_p" ] && [ "$(cat "$JOB/boot" 2>/dev/null)" = "$(boot_now)" ] && kill -0 "$_p" 2>/dev/null; then echo running
+    # The job writes its status and then ends: one that ended between the look for the status above and the look
+    # at its process here wrote it meanwhile, and is done. (Without this second look a job that finished well was
+    # now and then "interrupted" for a watcher: tests/test_android_web.py EndToEnd, on a loaded CI machine.)
+    elif [ -f "$JOB/rc" ]; then echo done
     else echo interrupted; fi
 }
 boot_now() { cat "${MU300_BOOT_ID:-/proc/sys/kernel/random/boot_id}" 2>/dev/null | tr -d ' \n'; }
@@ -354,8 +362,12 @@ status() {
         "$ANDROID_SLOT" "$LINUX_SLOT" "$(slots_ok && echo 1 || echo 0)" "$(root_kind)" \
         "$(js "$(magisk -v 2>/dev/null | head -n1)")" "$([ -x "$MAGISKBIN/magiskboot" ] && echo 1 || echo 0)" "$(js "$BB")"
     printf ',"misc":{"valid":%s,"bc":"%s"},"linux_boot":"%s"' "$_valid" "$([ "$_valid" = 1 ] && echo "$_bc")" "$(linux_boot_kind)"
-    printf ',"disk":%s,"last_end":%s,"region":{"off":%s,"size":%s,"existing":"%s","dirty":%s},"parts":%s' \
-        "$(num "$disk")" "$(num "$last_end")" "$(num "$OFF")" "$(num "$SIZE")" "$existing" "$_dirty" "$(parts_json)"
+    # part: the region is the GPT partition named mu300root another installer made (part_fs: what it holds, mu300root,
+    # ext4 or none; part_count: how many have that name); foreign_image: that installer's image file in Android's data
+    # (tools/storage.sh, FINDINGS 179)
+    printf ',"disk":%s,"last_end":%s,"region":{"off":%s,"size":%s,"existing":"%s","dirty":%s,"part":%s,"part_fs":"%s","part_count":%s,"foreign_image":%s},"parts":%s' \
+        "$(num "$disk")" "$(num "$last_end")" "$(num "$OFF")" "$(num "$SIZE")" "$existing" "$_dirty" "$(num "${IN_PART:-0}")" \
+        "${PART_FS:-none}" "$(num "${PART_COUNT:-0}")" "$(num "${FOREIGN_IMAGE:-0}")" "$(parts_json)"
     printf ',"sd":{"dev":%s,"bytes":%s,"small":%s,"existing":"%s"}' "$(js "$SD_DEV")" "$(num "$SD_BYTES")" "$(num "$SD_SMALL")" "$SD_EX"
     printf ',"data_free":%s,"stalled":%s,"module":%s,"job":%s' "$(num "$_free")" "$_stalled" \
         "$([ -f "$MODULES/mu300_linux_switch/switch.sh" ] && [ ! -e "$MODULES/mu300_linux_switch/remove" ] && echo 1 || echo 0)" "$(job_json)"
@@ -667,18 +679,18 @@ ustep() {
 un_check() {
     detect
     mkdir -p "$R" && chmod 700 "$R" || die "cannot use $R; nothing was changed"
-    [ -n "$DEVICE" ] || die "this does not look like a ZTE F50/MU300 or U30 Air; nothing was changed"
+    [ -n "$DEVICE" ] || die "this does not look like a ZTE F50/MU300, U30 Air or V50; nothing was changed"
     slots_ok || die "cannot tell which slot Android runs from, or boot_a and boot_b are the same partition; nothing was changed"
     say "Android runs from slot $ANDROID_SLOT; Linux is on slot $LINUX_SLOT (boot_$LINUX_SLOT)"
     region_probe || die "could not read the partition table; nothing was changed"
     region_find_existing
     if [ "$existing" = yes ]; then
-        # the region lies completely after the last partition and before the backup GPT, on a 1 MiB boundary
-        [ $((OFF / 512)) -ge "$last_end" ] && [ $(( (OFF + SIZE) / 512 )) -le $((disk - 34)) ] ||
-            die "the mu300root filesystem overlaps a partition; nothing was changed"
+        # the region lies completely after the last partition and before the backup GPT (or inside the GPT partition
+        # named mu300root that another installer made: region_in_bounds), on a 1 MiB boundary
+        region_in_bounds "$OFF" "$SIZE" || die "the mu300root filesystem overlaps a partition; nothing was changed"
         [ $((OFF % 1048576)) -eq 0 ] || die "unexpected filesystem offset $OFF; nothing was changed"
         [ $((SIZE / 1048576)) -gt 0 ] || die "the mu300root filesystem has no size; nothing was changed"
-        say "Linux filesystem: offset $OFF, $((SIZE / 1048576)) MiB"
+        say "Linux filesystem: offset $OFF, $((SIZE / 1048576)) MiB$([ "${IN_PART:-0}" = 1 ] && echo ", in the GPT partition named mu300root (the partition stays; remove it with the installer that made it)")"
     else
         say "no mu300root filesystem on the eMMC"
     fi
@@ -732,8 +744,8 @@ un_erase() {  # un_erase secure|quick|keep: the Linux filesystem in the free eMM
     done
     _skip=$((OFF / 1048576)); _mib=$((SIZE / 1048576)); _end=$((_skip + _mib))
     # once more, in the units the writes use: every megabyte written lies behind the last partition and before the
-    # backup partition table
-    [ $((_skip * 2048)) -ge "$last_end" ] && [ $((_end * 2048)) -le $((disk - 34)) ] ||
+    # backup partition table, or inside the GPT partition named mu300root
+    region_in_bounds $((_skip * 1048576)) $((_mib * 1048576)) ||
         die "the region does not lie in the free space; the filesystem was not erased"
     if [ "$1" = quick ]; then
         # superblock, group descriptors and the first inode tables: no filesystem for mount or blkid any more

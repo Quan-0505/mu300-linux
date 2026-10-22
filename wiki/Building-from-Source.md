@@ -53,7 +53,9 @@ applied (about 10 minutes on Apple silicon). Then:
 * **Install your own build:** `./install.sh --build` uses your local kernel outputs and builds the root filesystems
   instead of downloading them.
 * **Release:** `tools/make-release.sh TAG --publish` (it refuses to publish an image that contains firmware, Android
-  files, host keys or local settings), or the Release workflow in GitHub Actions.
+  files, host keys or local settings), or the Release workflow in GitHub Actions. TAG is `vYYYY.MM.DD.N`: the day
+  (UTC) of the build and the number of the release that day; `tools/make-release.sh --next-tag` prints it (see
+  [Updating](Updating#release-names)).
 * **Magisk zips:** `tools/make-magisk-zips.sh RELEASE_DIR OUT_DIR`.
 
 ## Sources
@@ -63,6 +65,9 @@ applied (about 10 minutes on Apple silicon). Then:
 * Wi-Fi, Bluetooth and GPU drivers: realme C51/C53 AndroidT kernel release (GPL-2.0).
 * Mainline 6.18 and 7.2: kernel.org Linux plus the port in
   [`upstream/`](https://github.com/dikeckaan/mu300-linux/tree/main/upstream).
+* Call audio is not built here: its drivers, scripts and tools are the audio extra,
+  [mu300-audio](https://github.com/dikeckaan/mu300-audio), built there against each kernel's build kit (made from this
+  repository's build trees of a release). The kernels keep the DSP's memory reservation and the ALSA/ASoC core.
 * Each release's notes list the exact source commits.
 
 ## Other distributions

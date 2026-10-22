@@ -36,7 +36,7 @@ var BAND_CAPS = { nr: [ 1, 5, 6, 8, 28, 41, 78 ], lte: [ 1, 3, 5, 8, 34, 38, 39,
 function lockDeviations(l) {
 	if (!l || l.error || !l.mode) return null;
 	var out = [], caps = l.caps || {};
-	var names = { '4g': _('4G only'), sa: '5G SA', nsa: '5G NSA' };
+	var names = { auto152: _('Automatic without 2G (152)'), '4g': _('4G only'), sa: '5G SA', nsa: '5G NSA' };
 	if (l.mode.label && l.mode.label !== 'auto')
 		out.push(_('Network mode: %s').format(names[l.mode.label] || l.mode.label));
 	if (l.endc && l.endc !== '1') out.push(_('EN-DC off'));
@@ -99,6 +99,15 @@ return view.extend({
 		root.innerHTML = this.html();
 		this.wire(root);
 		var self = this;
+		/* WPA3 on the hotspot was switched off at boot (openwrt-wifi-wpa2-only, FINDINGS 80): the notice of Status >
+		 * Overview, from the same module (its own English, Turkish and Chinese), above the cards until dismissed */
+		if (typeof L.require === 'function')
+			Promise.resolve().then(function() { return L.require('view.status.include.05_mu300_wpa2'); }).then(function(m) {
+				return m && m.load().then(function(n) {
+					var box = m.render(n);
+					if (box) root.insertBefore(box, root.firstChild);
+				});
+			}).catch(function() {});
 		var intervalMs = DEFAULT_POLL_S * 1000;
 		var config = L.resolveDefault(uci.load('unisoc_modem')).then(function() {
 			intervalMs = pollSeconds(uci.get('unisoc_modem', 'main', 'home_refresh_interval')) * 1000;
@@ -201,6 +210,7 @@ return view.extend({
     <div class="mud-op" id="mud-op">--</div>
     <div class="mud-cellline" id="mud-cellline"></div>
     <div class="mud-note" id="mud-stale" style="display:none;margin:4px 0 0;color:var(--warning,#f59e0b)"></div>
+    <a class="mud-note" id="mud-update" href="${L.url('admin/system/mu300-update')}" style="display:none;margin:4px 0 0;color:var(--brand,var(--primary,#2f7bf6))"></a>
   </div>
   <div class="mud-hero-r">
     <div class="mud-rsrp" id="mud-rsrp">--</div>
@@ -238,6 +248,7 @@ return view.extend({
         <div class="mud-r" id="mud-simsrc-r" style="display:none"><span class="mud-k">${_('SIM source')}</span><span class="mud-v" id="mud-simsrc">--</span></div>
         <div class="mud-r"><span class="mud-k">${_('Session duration')}</span><span class="mud-v" id="mud-sess">--</span></div>
         <div class="mud-r"><span class="mud-k">${_('Registration')}</span><span class="mud-v" id="mud-reg">--</span></div>
+        <div class="mud-r"><span class="mud-k">${_('Data roaming')}</span><span class="mud-v" id="mud-roam">--</span></div>
         <div class="mud-r"><span class="mud-k">DNS</span><span class="mud-v" id="mud-dns">--</span></div>
       </div>
     </div>
@@ -311,6 +322,7 @@ return view.extend({
   <div class="mud-ctl" style="grid-template-columns:repeat(auto-fit,minmax(150px,1fr))">
     <button class="mud-btn" id="mud-btn-data">${_('Data connection')}</button>
     <button class="mud-btn" id="mud-btn-radio">${_('Cellular radio')}</button>
+    <button class="mud-btn" id="mud-btn-roam">${_('Data roaming')}</button>
     <button class="mud-btn" id="mud-btn-wifi">${_('Wi-Fi hotspot')}</button>
     <button class="mud-btn warn" id="mud-btn-modem">${_('Restart modem')}</button>
     <button class="mud-btn warn" id="mud-btn-reboot">${_('Restart device')}</button>
@@ -359,9 +371,20 @@ return view.extend({
 			var on = self.lastCell && self.lastCell.cfun === 1;
 			var btn = this;
 			(on
-				? M.confirmBox(_('Turn off cellular radio'), _('Cellular connectivity will be interrupted.'), { danger: true })
-				: M.confirmBox(_('Turn on cellular radio'), _('The SFUN power-on sequence will run (up to about 1 minute).'))
+				? M.confirmBox(_('Turn off cellular radio'), _('This SIM will have no calls, SMS or data, and its radio stays off after a reboot until you turn it on again.'), { danger: true })
+				: M.confirmBox(_('Turn on cellular radio'), _('The radio of the SIM in use comes on and stays on after a reboot (up to about 1 minute).'))
 			).then(function(go) { if (go) act('radio', on ? 'off' : 'on', null, btn); });
+		};
+		/* data roaming of the SIM in use (mobile-data, FINDINGS 120): off keeps data down while the SIM is registered
+		 * as roaming. Some SIMs say "roaming" at home (an MVNO on another operator's network, national roaming). */
+		q('btn-roam').onclick = function() {
+			var ro = self.lastInfo && self.lastInfo.wan && self.lastInfo.wan.roaming;
+			var on = !ro || !!ro.allowed;
+			var btn = this;
+			(on
+				? M.confirmBox(_('Turn data roaming off'), _('While the SIM is registered on a roaming network, mobile data stays off; SMS, calls and the registration are not affected. Some SIMs report roaming at home (an MVNO, national roaming): there, data would stop as well.'))
+				: M.confirmBox(_('Allow data roaming'), _('Mobile data is used on roaming networks too, which can cost extra. Some SIMs report roaming at home (an MVNO, national roaming) and need this to have data at all.'))
+			).then(function(go) { if (go) act('roaming', on ? 'off' : 'on', null, btn); });
 		};
 		q('btn-wifi').onclick = function() {
 			var on = self.lastInfo && self.lastInfo.wifi && self.lastInfo.wifi.up;
@@ -589,7 +612,7 @@ return view.extend({
 			else if (lte) {
 				var act = (c.operator && c.operator.act) || (c.reg && c.reg.act);
 				rat = (act == 13) ? '5G NSA' : (act == 11 || act == 18 || act == 19) ? '5G' : (act == 7 || act == 10) ? '4G' : (act >= 2 && act <= 6) ? '3G' : '4G';
-			} else if (c.cfun === 0) rat = _('Radio off');
+			} else if (c.cfun === 0 || c.cfun === 4) rat = _('Radio off');
 		}
 		if (c && c.error) { rat = _('No response'); col = M.qCol('poor'); }
 		var ratEl = M.v('rat');
@@ -656,6 +679,9 @@ return view.extend({
 			this.lastNet = { ts: i.ts, rx: net.rx, tx: net.tx };
 		}
 		this.paintUsage(i.traffic || null);
+		/* a newer release: the updater's own note (mu300-update notice, at boot and every 6 hours), a link to System > Update */
+		M.v('update').style.display = i.update ? '' : 'none';
+		if (i.update) M.set('update', _('Version %s is out: update').format(i.update));
 		var w = i.wan || {};
 		M.v('ip').innerHTML = M.esc(w.ip4 || '--') + (w.ip6 ? '<br>' + M.esc(w.ip6) : '');
 		M.set('dns', w.dns || '--');
@@ -670,6 +696,9 @@ return view.extend({
 			if (c.reg5g && c.reg5g.stat == 1) reg += ' · 5G ' + regmap[c.reg5g.stat];
 		} else if (c && c.error) reg = M.errText(c);
 		M.set('reg', reg);
+		var ro = w.roaming || null;
+		M.set('roam', !ro ? '--' : ro.held ? _('Off: data held back while roaming') : ro.allowed ? _('Allowed') : _('Off'));
+		M.v('roam').style.color = ro && ro.held ? 'var(--warning,#f59e0b)' : '';
 
 		var anchor = (c && c.lte && c.lte.band) ? c.lte : null;
 		M.v('lteanchor').innerHTML = anchor ?
@@ -792,6 +821,7 @@ return view.extend({
 		var b;
 		b = M.v('btn-data'); b.className = 'mud-btn' + (w.up ? ' on' : ''); b.textContent = _('Data connection');
 		b = M.v('btn-radio'); b.className = 'mud-btn' + (c && c.cfun === 1 ? ' on' : ''); b.textContent = _('Cellular radio');
+		b = M.v('btn-roam'); b.className = 'mud-btn' + (!w.roaming || w.roaming.allowed ? ' on' : ''); b.textContent = _('Data roaming');
 		b = M.v('btn-wifi'); b.className = 'mud-btn' + (wf.up ? ' on' : ''); b.textContent = _('Wi-Fi hotspot');
 	}
 });

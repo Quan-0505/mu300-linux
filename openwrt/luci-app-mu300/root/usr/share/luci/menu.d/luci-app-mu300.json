@@ -29,6 +29,13 @@
 		"depends": { "acl": [ "luci-app-mu300" ] }
 	},
 
+	"admin/modem/simcard": {
+		"title": "SIM settings",
+		"order": 9,
+		"action": { "type": "view", "path": "mu300/simcard" },
+		"depends": { "acl": [ "luci-app-mu300" ] }
+	},
+
 	"admin/modem/locks": {
 		"title": "Network locks",
 		"order": 1,
@@ -99,6 +106,18 @@
 		"title": "Device management",
 		"order": 6,
 		"action": { "type": "view", "path": "mu300/device" },
+		"depends": { "acl": [ "luci-app-mu300" ] }
+	},
+	"admin/system/mu300-update": {
+		"title": "Update",
+		"order": 14,
+		"action": { "type": "view", "path": "mu300/update" },
+		"depends": { "acl": [ "luci-app-mu300" ] }
+	},
+	"admin/system/mu300-backup": {
+		"title": "Backup of settings",
+		"order": 14,
+		"action": { "type": "view", "path": "mu300/backup" },
 		"depends": { "acl": [ "luci-app-mu300" ] }
 	},
 	"admin/system/mu300-languages": {

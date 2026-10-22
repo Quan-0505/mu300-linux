@@ -2,9 +2,11 @@
 that past bugs taught (see each test)."""
 import json
 import os
+import gzip
 import re
 import shutil
 import subprocess
+import sys
 import tempfile
 import unittest
 from pathlib import Path
@@ -12,6 +14,8 @@ from pathlib import Path
 from helpers import BIN, TOP, shells
 
 OPENWRT = TOP / 'openwrt' / 'overlay'
+# the PowerShell the installers are made of: the rules of Windows PowerShell 5.1 hold for every file of it
+POWERSHELL = ('install.ps1', 'uninstall.ps1', 'tools/answers.ps1', 'tools/gui-launch.ps1')
 LUCI_OVERLAY = TOP / 'openwrt' / 'luci-overlay'
 
 
@@ -128,7 +132,7 @@ class Rules(unittest.TestCase):
         # Windows PowerShell 5.1 drops the double quotes inside an argument to a native program: `tr -d "\000"`
         # reached the device as tr -d \000 ("delete the character 0"), and every empty region was "not empty".
         # A command for the device (SuDo, adb shell) may therefore contain no `" and no "".
-        for name in ('install.ps1', 'uninstall.ps1'):
+        for name in POWERSHELL:
             for n, line in enumerate((TOP / name).read_text().splitlines(), 1):
                 code = line.split('#', 1)[0] if not line.lstrip().startswith('#') else ''
                 if re.search(r'\bSuDo(ToFile)?\s+"|adb shell\s+"', code) and ('`"' in code or '""' in code):
@@ -143,7 +147,7 @@ class Rules(unittest.TestCase):
 
     def test_powershell_scripts_are_ascii(self):
         # Windows PowerShell 5.1 reads a file without a BOM as ANSI: non-ASCII text in the script is garbled
-        for name in ('install.ps1', 'uninstall.ps1'):
+        for name in POWERSHELL + ('tests/installer.Tests.ps1', 'tests/answers.Tests.ps1'):
             data = (TOP / name).read_bytes()
             bad = [i for i, b in enumerate(data) if b > 127]
             self.assertFalse(bad, f'{name}: non-ASCII byte at offset {bad[:1]}')
@@ -151,7 +155,7 @@ class Rules(unittest.TestCase):
     def test_windows_pushes_text_with_lf(self):
         # a CRLF clone pushed its scripts as they were and Android's sh ran none of them (issue #7): the Windows
         # installers send text files through PushUnix, never a plain adb push
-        for name in ('install.ps1', 'uninstall.ps1'):
+        for name in POWERSHELL:
             for n, line in enumerate((TOP / name).read_text().splitlines(), 1):
                 if 'adb push' in line:
                     self.assertNotRegex(line, r'\.(sh|prop)\b|mu300-linux"|\$f"', f'{name}:{n}')
@@ -171,8 +175,21 @@ class Rules(unittest.TestCase):
                                         f'{name}:{m + 1}: an apostrophe inside the script of line {n + 1}')
                         break
 
+    def test_ubuntu_has_the_panels_lock_and_forwarding_programs(self):
+        # Ubuntu runs openwrt-luci's lock and forwarding adapters as they are (FINDINGS 189): the same bytes, executable
+        for f in ('usr/libexec/unisoc-modem/lock', 'usr/libexec/unisoc-modem/at', 'usr/libexec/unisoc-modem/boot-replay',
+                  'usr/libexec/unisoc-modem/forward', 'usr/share/unisoc-modem/lib.sh'):
+            with self.subTest(file=f):
+                ours, luci = TOP / 'rootfs/overlay' / f, TOP / 'openwrt/luci-app-mu300/root' / f
+                self.assertEqual(ours.read_bytes(), luci.read_bytes(), f'{f}: copy openwrt/luci-app-mu300/root/{f} over it')
+                if f.startswith('usr/libexec'):
+                    self.assertTrue(os.access(ours, os.X_OK), f)
+        units = (TOP / 'rootfs/assemble.sh').read_text()
+        for u in ('mu300-lock-replay.service:multi-user.target', 'mu300-sms-forward.service:multi-user.target'):
+            self.assertIn(u, units)
+
     def test_every_tool_that_mounts_the_filesystem_knows_the_card(self):
-        for f in ('uninstall.sh', 'uninstall.ps1', 'tools/reset-password.sh', 'tools/android-import-hotspot.sh'):
+        for f in ('uninstall.sh', 'uninstall.ps1', 'tools/reset-password.sh'):
             self.assertIn('mu300sd', (TOP / f).read_text(), f)
 
     def test_every_system_list_has_openwrt_luci(self):
@@ -273,11 +290,41 @@ class Rules(unittest.TestCase):
         self.assertNotRegex(extra, r'(?m)^    vpn-mihomo\)')
         self.assertNotIn('fetch-', extra)
 
+    def test_the_release_source_is_wired(self):
+        # a published image must not carry a configured release source, and both image trees must have the example
+        # (openwrt/overlay is the only overlay an OpenWrt image gets, so the Ubuntu one alone would miss them)
+        rel = (TOP / 'tools/make-release.sh').read_text()
+        self.assertIn("^etc/mu300/(hotspot|vpn|toolkit|mobile-data)\\.conf$", rel)
+        self.assertRegex(rel, r"\^etc/mu300/update-source\$")
+        self.assertNotIn('update-source.example', rel)
+        for f in ('rootfs/overlay/etc/mu300/update-source.example', 'openwrt/overlay/etc/mu300/update-source.example'):
+            text = (TOP / f).read_text()
+            for s in ('MU300_DOWNLOAD_URL=http://mirror.lan/', 'MU300_API_URL=https://', '403', 'MU300_MIRROR_FALLBACK=0'):
+                self.assertIn(s, text, f)
+        # the panel's field, the op behind it and the status field that feeds it name the same thing
+        js = (TOP / 'openwrt/luci-app-mu300/htdocs/luci-static/resources/view/mu300/update.js').read_text()
+        self.assertIn("op: 'source'", js)
+        self.assertIn("confirm: 'source'", js)
+        self.assertIn('st.source || {}', js)
+        common = (TOP / 'openwrt/luci-app-mu300/htdocs/luci-static/resources/mu300/common.js').read_text()
+        self.assertIn("'flags', 'confirm', 'url'", common)
+        dash = (TOP / 'openwrt/luci-app-mu300/root/usr/libexec/rpcd/mu300dash').read_text()
+        self.assertIn('|source|dismiss)', dash)
+        self.assertIn('allowed "$url"', dash)
+        adapter = (TOP / 'openwrt/luci-app-mu300/root/usr/libexec/unisoc-modem/update').read_text()
+        self.assertIn('"$CMD" source', adapter)
+        # the fallback tells an unreachable mirror from an answering one by curl's exit codes, so both images carry
+        # curl (the OpenWrt one had only the wget family, where every failure looks the same)
+        self.assertRegex((TOP / 'openwrt/build-rootfs.sh').read_text(), r'apk add[^>]*\bcurl\b')
+        updater = (TOP / 'rootfs/overlay/opt/mu300/bin/mu300-update').read_text()
+        self.assertIn('source) shift; source_cmd "$@"', updater)
+        self.assertIn('"source":%s}', updater)
+
     def test_the_vpn_module_wiring(self):
         # mu300-update knows the module (fixed asset names, the repository's latest release, MU300_VPN_URL), and
         # mu300-extra lists vpn and its engine extras from it (module v2: the core, and the bundle as the fallback)
         up = (BIN / 'mu300-update').read_text()
-        self.assertRegex(up, r'(?m)^EXTRAS="vpn lang vpn-mihomo panel vpn-xray vpn-singbox vpn-dae"$')
+        self.assertRegex(up, r'(?m)^EXTRAS="vpn lang vpn-mihomo panel vpn-xray vpn-singbox vpn-dae audio"$')
         self.assertRegex(up, r'(?m)^VPN_ENGINE_EXTRAS="vpn-xray vpn-singbox vpn-mihomo vpn-dae"$')
         self.assertRegex(up, r'(?m)^VPN_REPO=dikeckaan/mu300-linux-vpn$')
         self.assertIn('VPN_URL=${MU300_VPN_URL:-https://github.com/$VPN_REPO/releases/latest/download}', up)
@@ -319,6 +366,155 @@ class Rules(unittest.TestCase):
         ci = (TOP / '.github/workflows/tests.yml').read_text()
         self.assertIn('jq', re.search(r'sudo apt-get install -y -qq ([^>]*)>', ci).group(1).split())
 
+    def test_images_carry_docker(self):
+        # FINDINGS 130: Docker in every image - Ubuntu's own packages, OpenWrt's feed; neither starts dockerd at boot,
+        # both keep its data on the Linux partition beside the systems (an update never copies it) and use Docker's
+        # nftables backend (no iptables-nft translation, no xt_addrtype that the 5.4 kernel lacks)
+        def words(block):
+            return block.replace('\\\n', ' ').split()
+        docker = (TOP / 'rootfs/Dockerfile').read_text()
+        apt = words(re.search(r'apt-get install -y --no-install-recommends(.*?)&&', docker, re.S).group(1))
+        self.assertIn('docker.io', apt)
+        self.assertIn('docker-compose-v2', apt)
+        self.assertNotIn('docker-ce', apt)
+        self.assertIn('usermod -aG sudo,docker ubuntu', docker)
+        # by its socket, not at boot
+        self.assertIn('systemctl disable docker.service containerd.service', docker)
+        self.assertIn('systemctl is-enabled docker.socket', docker)
+        for f in ('/usr/bin/containerd-stress', '/usr/bin/ctr', '/usr/libexec/docker/cli-plugins/docker-trust'):
+            self.assertIn('path-exclude=' + f, docker)
+        conf = json.loads((TOP / 'rootfs/overlay/etc/docker/daemon.json').read_text())
+        self.assertEqual(conf['data-root'], '/mnt/mu300-disk/docker/ubuntu')
+        self.assertEqual(conf['storage-driver'], 'overlay2')
+        self.assertEqual(conf['firewall-backend'], 'nftables')
+        self.assertIs(conf['features']['containerd-snapshotter'], False)
+        # Docker must not refuse to start while the system forwards nothing (no uplink yet)
+        self.assertIs(conf['ip-forward'], False)
+
+        owrt = (TOP / 'openwrt/build-rootfs.sh').read_text()
+        # OpenWrt: in the image with MU300_DOCKER=1, ready to install (its settings and zone only) by default - 190 MB,
+        # twice over during an update, do not fit OpenWrt's smallest region (800 MiB)
+        self.assertIn('case ${MU300_DOCKER:-0} in', owrt)
+        self.assertIn('-e MU300_DOCKER="$DOCKER"', owrt)
+        block = owrt[owrt.index('if [ "$MU300_DOCKER" = 1 ]; then'):]
+        block = block[:block.index('\nfi\n')]
+        self.assertIn('\n    apk add dockerd docker docker-compose >/dev/null\n', block)
+        # the panel's page for it only on openwrt-luci, before the loop that adds the translations of the luci-apps
+        self.assertIn('[ -d /in/luci-plugin ] && apk add luci-app-dockerman >/dev/null', block)
+        self.assertLess(owrt.index('apk add luci-app-dockerman'), owrt.index('for c in base $(apk list --installed'))
+        # what its kmods put in /etc/modules.d goes; it does not start at boot
+        self.assertLess(block.index('ls /etc/modules.d /etc/modules-boot.d > /tmp/modules.before'),
+                        block.index('apk add dockerd'))
+        self.assertIn('/etc/rc.d/S*dockerd', block)
+        self.assertIn('echo "dockerd starts at boot"', owrt)
+        self.assertIn('rm -f $R/etc/uhttpd.key $R/etc/uhttpd.crt', owrt)
+        # the build script is one single-quoted sh -c argument: no apostrophe may be in it
+        start = "mu300-$FLAVOUR-base:$VER /bin/sh -eu -c '"
+        body = owrt[owrt.index(start) + len(start):owrt.rindex("ls -la /out/$OUT'")]
+        self.assertNotIn("'", body)
+        # the package reads Docker's own file (alt_config_file), which an apk add on the device leaves as it is
+        cfg = (OPENWRT / 'etc/config/dockerd').read_text()
+        self.assertIn("\toption alt_config_file '/etc/docker/daemon.json'\n", cfg)
+        conf = json.loads((OPENWRT / 'etc/docker/daemon.json').read_text())
+        self.assertEqual(conf['data-root'], '/mnt/mu300-disk/docker/openwrt')
+        self.assertIn('/mnt/mu300-disk/docker/$MU300_SYSTEM', owrt)
+        self.assertEqual(conf['firewall-backend'], 'nftables')
+        self.assertEqual(conf['storage-driver'], 'overlay2')
+        self.assertIs(conf['features']['containerd-snapshotter'], False)
+        self.assertEqual(conf['default-address-pools'], [{'base': '172.16.0.0/12', 'size': 20}])
+        sysctl = (OPENWRT / 'etc/sysctl.d/13-mu300-docker.conf').read_text()
+        self.assertIn('net.bridge.bridge-nf-call-iptables=0', sysctl)
+        # the firewall: the docker zone covers only Docker's range, never br-lan; out to wan, in from the LAN only
+        zone = (OPENWRT / 'etc/uci-defaults/95-mu300-docker').read_text()
+        self.assertTrue(os.access(OPENWRT / 'etc/uci-defaults/95-mu300-docker', os.X_OK))
+        for line in ("set network.docker.device='docker0'", "set network.@device[-1].name='docker0'",
+                     "add_list firewall.docker.network='docker'", "add_list firewall.docker.device='br-+'", "add_list firewall.docker.device='!br-lan'",
+                     "add_list firewall.docker.subnet='172.16.0.0/12'", "set firewall.docker_wan.dest='wan'",
+                     "set firewall.lan_docker.src='lan'"):
+            self.assertIn(line, zone)
+        self.assertNotRegex(zone, r"src='wan'")
+        # containers never reach the router itself, nor the LAN, nor one Docker network another (security review)
+        self.assertIn("set firewall.docker.input='REJECT'", zone)
+        self.assertIn("set firewall.docker.forward='REJECT'", zone)
+        self.assertNotIn("firewall.docker.input='ACCEPT'", zone)
+        self.assertNotRegex(zone, r"src='docker'\nset firewall\.[a-z_]*\.dest='lan'")
+        # Ubuntu: a container opens nothing on the device (the host firewall drops Docker's bridges, never br-lan)
+        fw = (TOP / 'rootfs/overlay/etc/mu300/firewall.nft').read_text()
+        self.assertIn('iifname "docker0" counter drop', fw)
+        self.assertIn('iifname "br-*" iifname != "br-lan" counter drop', fw)
+        # the marker is a file of the device, so a zone the user deleted is not made again after an update
+        self.assertIn('[ -e /etc/mu300/docker-zone ] && exit 0', zone)
+
+    def test_release_audit_refuses_the_audio_stack(self):
+        # make-release.sh: call audio is the audio extra's (FINDINGS 194): no kernel bundle carries a driver of the
+        # call-audio stack (mainline's sprd-dma.ko is the stack's own; 5.4's is the vendor kernel's DMA driver and
+        # stays), and no image its programs or services. The audit's own lines, run against bundles made here.
+        rel = (TOP / 'tools' / 'make-release.sh').read_text()
+        audit = rel[rel.index('AUDIO_KO="'):rel.index('[ $fail = 0 ] || { echo "audit failed')]
+        self.assertEqual(23, len(re.search(r'AUDIO_KO="([^"]*)"', audit).group(1).split()))
+        with tempfile.TemporaryDirectory() as d:
+            d = Path(d)
+
+            def bundle(name, *mods):
+                src = d / 'src' / name
+                shutil.rmtree(src, ignore_errors=True)
+                (src / 'modules').mkdir(parents=True)
+                for m in ('sipc-core.ko',) + mods:
+                    (src / 'modules' / m).write_text('')
+                subprocess.run(['tar', '-czf', str(d / f'{name}.tar.gz'), '-C', str(src), '.'], check=True)
+
+            def manifest(name, *paths):
+                with gzip.open(d / f'{name}.manifest.gz', 'wt') as f:
+                    for p in ('etc/mu300/image-version',) + paths:
+                        f.write(f'f 755 0 0 1 {"0" * 64} {p}\n')
+
+            def run():
+                r = subprocess.run(['sh', '-c', 'fail=0\n' + audit + 'echo "fail=$fail"'], env={'D': str(d), 'PATH': os.environ['PATH']},
+                                   capture_output=True, text=True)
+                return r.stdout
+
+            bundle('mu300-kernel', 'sprd-dma.ko', 'virt-dma.ko')
+            bundle('mu300-kernel-6.18')
+            bundle('mu300-kernel-7.2')
+            manifest('mu300-ubuntu-rootfs', 'opt/mu300/bin/mu300-atd', 'etc/systemd/system/mu300-atd.service')
+            manifest('mu300-openwrt-rootfs', 'etc/init.d/mu300-atd')
+            self.assertIn('fail=0', run())
+            for name, mods in (('mu300-kernel', ('audio_sipc.ko',)), ('mu300-kernel-6.18', ('sprd-dma.ko',)),
+                               ('mu300-kernel-7.2', ('snd-soc-sprd-card.ko',))):
+                bundle(name, *mods)
+                out = run()
+                self.assertIn('fail=1', out, name)
+                self.assertIn(f'{name} carries {mods[0]}', out)
+                bundle(name)
+            for name, path in (('mu300-ubuntu-rootfs', 'opt/mu300/bin/mu300-voice'),
+                               ('mu300-ubuntu-rootfs', 'etc/systemd/system/mu300-audio.service'),
+                               ('mu300-openwrt-rootfs', 'etc/init.d/mu300-audio'),
+                               ('mu300-ubuntu-rootfs', 'etc/modprobe.d/mu300-audio.conf')):
+                manifest(name, path)
+                self.assertIn('fail=1', run(), path)
+                manifest(name)
+            self.assertIn('fail=0', run())
+
+    def test_e2fsck_is_pinned_and_everywhere(self):
+        # tools/e2fsck/build.sh: a pinned e2fsprogs (its signed SHA-256) in a pinned image (FINDINGS 182), and every
+        # path that builds a boot ramdisk hands it over
+        text = (TOP / 'tools' / 'e2fsck' / 'build.sh').read_text()
+        self.assertRegex(text, r'(?m)^VER=1\.47\.4$')
+        self.assertRegex(text, r'(?m)^SHA=[0-9a-f]{64}$')
+        self.assertRegex(text, r'(?m)^IMG=alpine:[0-9.]+@sha256:[0-9a-f]{64}$')
+        self.assertIn('sha256sum -c', text)
+        for f, s in (('tools/make-release.sh', '--e2fsck "$IN/tools/e2fsck/e2fsck"'),
+                     ('tools/make-release.sh', 'has no sbin/e2fsck'),
+                     ('upstream/make-bundle.sh', '--e2fsck "$W/e2fsck"'),
+                     ('install.sh', '${E2FSCK:+--e2fsck "$E2FSCK"}'),
+                     ('install.ps1', "'--e2fsck', \"$REL\\kernel\\e2fsck\"")):
+            self.assertIn(s, (TOP / f).read_text(), f)
+        # init: before every mount of the root, and never a gate (root_fsck always returns 0)
+        init = (TOP / 'boot' / 'init').read_text()
+        self.assertEqual(3, init.count('root_fsck "$'))
+        block = re.search(r'# --- fsck begin\n(.*?)# --- fsck end', init, re.S).group(1)
+        self.assertNotRegex(block, r'return [1-9]')
+
     def test_init_finds_partitions_after_the_modules(self):
         # the eMMC driver is one of the vendor modules: misc and boot_b cannot be found before they are loaded
         init = (TOP / 'boot' / 'init').read_text()
@@ -347,7 +543,7 @@ class Rules(unittest.TestCase):
         self.assertIn("'MU300: only the eMMC and the card slot', 'MU300: CD GPIO deferred', "
                       "'of_remove_property(pdev->dev.of_node, cd)'", port)
         self.assertRegex((TOP / 'upstream' / 'make-bundle.sh').read_text(),
-                         r"printf 'sdcard\\nlinux-slot\\n' > \"\$W/b/features\"")
+                         r"printf 'sdcard\\nlinux-slot\\ngpt-root\\n' > \"\$W/b/features\"")
 
     def test_mainline_keeps_the_emmc_at_mmc0(self):
         # Both hosts probe asynchronously and the stock DT has no mmc aliases, so the card slot could take mmc0 and
@@ -368,6 +564,73 @@ class Rules(unittest.TestCase):
         self.assertIn('\\t\\tWRITE_ONCE(sdhci_sprd_emmc_added, true);', port)
         # and the build stops when the edit did not apply
         self.assertIn("'MU300: the eMMC is mmc0', 'WRITE_ONCE(sdhci_sprd_emmc_added, true);'", port)
+
+    def test_mainline_v50_bits_bind_only_on_a_v50(self):
+        """The ZTE V50 (FINDINGS 95, kano's port): its LED driver binds only ZTE's AW9523B node, its eMMC host is kept
+        awake only where that node is, and a kernel bundle names the V50 only when it has the driver. The F50's and
+        the U30 Air's device trees have no such node: there the kernel does what it did."""
+        cfg = (TOP / 'upstream' / 'mu300-mainline.config').read_text()
+        self.assertRegex(cfg, r'(?m)^CONFIG_LEDS_AW9523B=y$')
+        port = (TOP / 'upstream' / 'port' / 'install.py').read_text()
+        self.assertIn("('LEDS_AW9523B', 'leds-aw9523b',", port)
+        drv = (TOP / 'upstream' / 'port' / 'drivers' / 'leds' / 'leds-aw9523b.c').read_text()
+        self.assertEqual(re.findall(r'\.compatible = "([^"]+)"', drv), ['awinic,aw9523b'])
+        for s in ('"aw9523b,led_enable", &enabled) || enabled != 1', '"aw9523b,gpio_enable", &gpio_enabled) || gpio_enabled',
+                  'if (ret != AW_ID_VALUE) {', '"v50:net1:white"', '"v50:wifi:blue"', 'devm_add_action_or_reset(dev, aw9523b_off, chip)'):
+            self.assertIn(s, drv)
+        p17 = (TOP / 'upstream' / 'patches' / '0017-mmc-sdhci-sprd-V50-eMMC-host-kept-awake.patch').read_text()
+        for s in ('+\tif (mmc_card_is_removable(host->mmc))\n+\t\treturn false;',
+                  '+\tnp = of_find_compatible_node(NULL, NULL, "awinic,aw9523b");',
+                  '+\tif (sdhci_sprd_keep_awake(host)) {\n+\t\tpm_runtime_forbid(&pdev->dev);',
+                  '+\tif (sdhci_sprd_keep_awake(host))\n+\t\tpm_runtime_allow(&pdev->dev);\n \tpm_runtime_put_noidle(&pdev->dev);'):
+            self.assertIn(s, p17)
+        # the patch touches nothing else
+        self.assertEqual(re.findall(r'(?m)^\+\+\+ (\S+)', p17), ['b/drivers/mmc/host/sdhci-sprd.c'])
+        bundle = (TOP / 'upstream' / 'make-bundle.sh').read_text()
+        self.assertIn("if grep -qx 'CONFIG_LEDS_AW9523B=y' \"$UO/kernel.config\"; then\n    echo \"f50 u30air v50\"", bundle)
+        self.assertIn('else\n    echo "f50 u30air" > "$W/b/devices"', bundle)
+        # the 5.4 bundle does not name it
+        self.assertIn('echo "f50 u30air" > "$K/devices"', (TOP / 'tools' / 'make-release.sh').read_text())
+
+    def test_mainline_emmc_timing_falls_back(self):
+        """FINDINGS 160 (issue #226): an eMMC whose HS400ES selection fails at a cold boot is initialised again at
+        HS200, then HS/DDR52, then HS, instead of being given up after mmc_rescan's attempts at HS400ES; a boot whose
+        HS400ES works drops nothing. The test hook in sdhci-sprd is off by default and touches only CMD13 while a new
+        card is set up at HS400ES; a test build sets it through build.sh's MU300_CMDLINE_EXTRA, never a release."""
+        p = (TOP / 'upstream' / 'patches' / '0021-mmc-HS400ES-failure-falls-back-to-HS200.patch').read_text()
+        self.assertEqual(re.findall(r'(?m)^\+\+\+ (\S+)', p), ['b/drivers/mmc/core/mmc.c', 'b/drivers/mmc/host/sdhci-sprd.c'])
+        core = p[p.index('+++ b/drivers/mmc/core/mmc.c'):p.index('--- a/drivers/mmc/host/sdhci-sprd.c')]
+        # the ladder: HS400ES drops HS400 with it, then HS200, then DDR52; a removed card drops nothing
+        for s in ('+\tif (err == -ENOMEDIUM)\n+\t\treturn;',
+                  '+\tif (card->mmc_avail_type & EXT_CSD_CARD_TYPE_HS400ES) {\n'
+                  '+\t\thost->caps2 &= ~(MMC_CAP2_HS400_ES | MMC_CAP2_HS400);',
+                  '+\t\thost->caps2 &= ~(MMC_CAP2_HS200 | MMC_CAP2_HS400);',
+                  '+\t} else if (card->mmc_avail_type & EXT_CSD_CARD_TYPE_DDR_52) {\n+\t\thost->caps &= ~MMC_CAP_DDR;',
+                  '+\tpr_warn("%s: %s failed (%d), the next initialisation uses %s\\n",',
+                  '+timing_failed:\n+\tmmc_timing_fallback(card, err);\n free_card:'):
+            self.assertIn(s, core)
+        # exactly the four failures of the timing selection go through it, nothing before or after
+        self.assertEqual(len(re.findall(r'(?m)^-\t+goto free_card;$', core)), 4)
+        self.assertEqual(len(re.findall(r'(?m)^\+\t+goto timing_failed;$', core)), 4)
+        self.assertEqual(core.count('goto timing_failed;'), 4)
+        # the card type is chosen again from the host caps at every initialisation, also of a known card: what the
+        # caps drop relies on (kept in the context of the patch would be too far; the header says it)
+        self.assertIn('"since host caps could have been changed when debugging"', p)
+        hook = p[p.index('+++ b/drivers/mmc/host/sdhci-sprd.c'):]
+        for s in ('+static unsigned int fail_hs400es;\n+module_param(fail_hs400es, uint, 0644);',
+                  '+\tif (unlikely(sprd_host->fail_hs400es) && mmc->ios.enhanced_strobe &&\n'
+                  '+\t    !mmc->card && mrq->cmd->opcode == MMC_SEND_STATUS) {\n+\t\tmrq->cmd->error = -EILSEQ;',
+                  '+\tsprd_host->fail_hs400es = fail_hs400es > 0;'):
+            self.assertIn(s, hook)
+        self.assertNotRegex(hook, r'(?m)^\+static unsigned int fail_hs400es\s*=')
+        build = (TOP / 'upstream' / 'build.sh').read_text()
+        self.assertIn('--set-str CMDLINE "$c $MU300_CMDLINE_EXTRA"', build)
+        # after the check of the config file (which would refuse a changed CMDLINE), before the build
+        self.assertLess(build.index('config options not taken'), build.index('MU300_CMDLINE_EXTRA'))
+        self.assertLess(build.index('MU300_CMDLINE_EXTRA'), build.index('make O=$O ARCH=arm64 -j"$(nproc)" Image'))
+        for wf in ('release.yml', 'mainline.yml'):
+            self.assertNotIn('MU300_CMDLINE_EXTRA', (TOP / '.github' / 'workflows' / wf).read_text())
+        self.assertNotIn('fail_hs400es', (TOP / 'upstream' / 'mu300-mainline.config').read_text())
 
     def test_mainline_drives_the_u30_air_charger(self):
         # Without a driver the charger kept what Android left in it: charging off (CHG_CONFIG 0), 500 mA input, and
@@ -442,23 +705,41 @@ class Rules(unittest.TestCase):
         self.assertIn(r"'\t.charger_det = SPRD_SC2730_CHG_DET,\n};\n', UMP9620_DATA)", port)
         self.assertIn("'.charger_det = SPRD_UMP9620_CHG_DET,'", port)
         # Android's last capacity in the FGU's user area is whole percent in bits 7:0 and tenths in bits 11:8 (575 =
-        # 0x23f = 63.2 %), not 0.1 %; mainline writes whole percent; an ambiguous or invalid value goes to the OCV; the
-        # charger's Full (from a charger driver) means 100 %; the capacity is saved as it changes and stays 0-100
+        # 0x23f = 63.2 %), not 0.1 %; mainline writes whole percent; a valid value is taken as it is, only an invalid
+        # one goes to the OCV (FINDINGS 181: no migration guess); the charger's Full (from a charger driver) means 100 %
+        # with the battery current within the node's fullbatt-current, no OCV percentage or voltage (the 4.146 V of a
+        # real Full is below fullbatt-voltage); the capacity is saved as it changes and stays 0-100
         patches = TOP / 'upstream' / 'patches'
         self.assertFalse((patches / '0011-power-sc27xx-fuel-gauge-UMP9620-capacity-in-tenths.patch').exists())
         p11 = (patches / '0011-power-sc27xx-fuel-gauge-UMP9620-saved-capacity-and-full.patch').read_text()
         for s in ('+#define UMP9620_FGU_CAP_INTEGER_MASK\tGENMASK(7, 0)', '+#define UMP9620_FGU_CAP_DECIMAL_MASK\tGENMASK(11, 8)',
                   '+\t\tcap = clamp(cap, 0, 100);', '+\tvalid = whole <= 100 && tenths <= 9 && !(whole == 100 && tenths);',
-                  '+\tambiguous = tenths && value <= 1000 && !(value % 10);',
-                  '+\tif (valid && (!ambiguous || abs(cur) >= UMP9620_FGU_RELAXED_MA)) {',
+                  '+\tif (valid) {',
                   '+\t*cap = power_supply_ocv2cap_simple(data->cap_table, data->table_len, ocv);',
                   '+\tif (!is_first_poweron && data->var == &ump9620_info)',
                   '+\tif (data->var == &ump9620_info && chg_sts == POWER_SUPPLY_STATUS_FULL && cap != 100 &&',
-                  '+\t    sc27xx_fgu_has_charger() &&', '+\t\tsc27xx_fgu_adjust_cap(data, 100);',
+                  '+\t    sc27xx_fgu_has_charger() && ump9620_fgu_full_current(data)) {',
+                  '+\treturn abs(cur) <= (int)(data->full_current_ua / 1000);',
+                  '+\t\t\tof_property_read_u32(bat, "fullbatt-current", &data->full_current_ua);',
+                  '+\t\tsc27xx_fgu_adjust_cap(data, 100);',
                   '+\t\tif (*cap != data->saved_cap && sc27xx_fgu_save_last_cap(data, *cap))',
                   '+\t\tval->intval = clamp(value, 0, 100);'):
             self.assertIn(s, p11)
         self.assertNotIn('* 10;', p11)
+        for s in ('ambiguous', 'UMP9620_FGU_RELAXED_MA', 'UMP9620_FGU_FULL_MIN_CAP', 'fullbatt-voltage"'):
+            self.assertNotIn(s, ''.join(l for l in p11.splitlines(True) if l.startswith('+')))
+        # (FINDINGS 105, after kanoqwq's 2af101f8) the capacity is read and kept once more at a power-off, on UMP9620
+        # with a battery only; the user area's steps stay regmap_update_bits() as in Unisoc's driver and the U30 Air's
+        # stock module (FINDINGS 181), with its 200 us wait after the release too
+        p18 = (patches / '0018-power-sc27xx-fuel-gauge-UMP9620-capacity-kept-at-power-off.patch').read_text()
+        for s in ('+static void sc27xx_fgu_shutdown(struct platform_device *pdev)',
+                  '+\tif (!data || data->var != &ump9620_info || !data->bat_present)',
+                  '+\t\tret = sc27xx_fgu_save_last_cap(data, clamp(cap, 0, 100));',
+                  '+\t\tret = sc27xx_fgu_save_boot_mode(data, SC27XX_FGU_NORMAIL_POWERTON);',
+                  '+\t.shutdown = sc27xx_fgu_shutdown,'):
+            self.assertIn(s, p18)
+        self.assertNotIn('regmap_write_bits(data', p18)
+        self.assertEqual(p18.count('+\tif (!ret && data->var == &ump9620_info)\n+\t\tudelay(200);'), 2)
         # mu300-usb reaches the chip past the driver and leaves its watchdog off then
         usb = (BIN / 'mu300-usb').read_text()
         self.assertIn('[ -e "$R/sys/bus/i2c/devices/$BUS-006b/driver" ] && FORCE=-f', usb)
@@ -559,12 +840,14 @@ class Rules(unittest.TestCase):
         # 5.4 reads the card as well (FINDINGS 31j): its bundle says so, and the release audit fails when any of the
         # three bundles does not (mu300-update refuses such a bundle for a system on the card)
         mr = (TOP / 'tools' / 'make-release.sh').read_text()
-        self.assertIn("printf 'sdcard\\nlinux-slot\\n' > \"$K/features\"", mr)
+        self.assertIn("printf 'sdcard\\nlinux-slot\\ngpt-root\\n' > \"$K/features\"", mr)
         self.assertLess(mr.index('$K/features'), mr.index('tar -C "$K" -czf "$D/mu300-kernel.tar.gz" .'))
         self.assertIn('for a in mu300-kernel mu300-kernel-6.18 mu300-kernel-7.2; do\n'
                       '    tar -xzOf "$D/$a.tar.gz" ./features 2>/dev/null | grep -qx sdcard', mr)
         # and that its init works with Linux on either slot (mu300-update refuses one without it on slot a)
         self.assertIn('    tar -xzOf "$D/$a.tar.gz" ./features 2>/dev/null | grep -qx linux-slot', mr)
+        # and that its init finds a system in a GPT partition named mu300root (FINDINGS 178; mu300-update asks)
+        self.assertIn('    tar -xzOf "$D/$a.tar.gz" ./features 2>/dev/null | grep -qx gpt-root', mr)
 
     def test_release_can_be_a_prerelease(self):
         # a release is published as a prerelease first and promoted to "latest" only after a board ran it: the
@@ -720,8 +1003,13 @@ class Rules(unittest.TestCase):
         v6 = 'openwrt/luci-overlay/lib/netifd/proto/mu300cell-v6.sh'
         patch = {'openwrt/patches/fw4-sipa-offload.patch': 'x\n',
                  'openwrt/patches/fw4-old-kernel-flowtable.patch': 'x\n',
-                 'openwrt/patches/wifi-scripts-no-dfs.patch': 'x\n'}
+                 'openwrt/patches/wifi-scripts-no-dfs.patch': 'x\n',
+                 'openwrt/patches/wifi-scripts-wpa2-only.patch': 'x\n'}
         for system in ('openwrt', 'openwrt-luci'):
+            with self.subTest(system=system, missing='the WPA2-only patch'):
+                r = run({cell: 'x\n', v6: 'x\n', **{k: v for k, v in patch.items() if 'wpa2' not in k}}, system)
+                self.assertEqual(r.returncode, 1, r.stderr)
+                self.assertIn('wifi-scripts-wpa2-only.patch', r.stderr)
             with self.subTest(system=system, missing='mu300cell.sh'):
                 r = run(patch, system)
                 self.assertEqual(r.returncode, 1, r.stderr)
@@ -857,6 +1145,26 @@ class Rules(unittest.TestCase):
             self.assertIn(pre + '\tsmp_store_release(&sc2355_hif.hif, (void *)hif);', text)
             self.assertIn(pre + '\tWRITE_ONCE(sc2355_hif.hif, NULL);', text)
 
+    def test_wifi_per_frame_logs_are_bounded(self):
+        # FINDINGS 92 (after kanoqwq's clean-tf-7.2 3cbf37fc): three lines the TX path wrote for every frame - a
+        # group frame's LUT lookup (pr_info), a frame for a client that has left (pr_err) and a send that failed
+        # (netdev_err) - are debug or rate-limited; the frames are still dropped and freed as before
+        wlan = TOP / 'upstream' / 'modules' / 'sprd_wlan_combo'
+        for name in ('pcie.c', 'sdio.c'):
+            text = (wlan / 'sc2355' / name).read_text()
+            self.assertNotIn('pr_info("%s, %d, group lut_index=%d\\n"', text, name)
+            self.assertNotIn('pr_err("%s, %d, sta disconn, no data tx!"', text, name)
+            self.assertIn('pr_debug_ratelimited("%s, %d, group lut_index=%d\\n"', text, name)
+            self.assertIn('\t\tpr_debug_ratelimited("%s, %d, sta disconn, no data tx!\\n", __func__, __LINE__);\n'
+                          '\t\treturn -EPERM;', text, name)
+        iface = (wlan / 'common' / 'iface.c').read_text()
+        body = iface[iface.index('static netdev_tx_t iface_start_xmit('):]
+        body = body[:body.index('\n}\n')]
+        self.assertIn('\t\tif (net_ratelimit())\n\t\t\tnetdev_err(ndev, "%s drop msg due to TX Err\\n", __func__);', body)
+        after = body[body.index('drop msg due to TX Err'):]
+        self.assertLess(after.index('dev_kfree_skb(skb);'), after.index('return NETDEV_TX_OK;'))
+        self.assertLess(after.index('sprd_chip_free_msg(&vif->priv->chip, msg);'), after.index('return NETDEV_TX_OK;'))
+
     def test_wifi_notify_init_unwinds_and_registers_the_reset_notifier_last(self):
         # kanoqwq/mu300-linux@23361ce: a failed notify_init left the WCN reset notifier registered on a freed priv
         iface = (TOP / 'upstream' / 'modules' / 'sprd_wlan_combo' / 'common' / 'iface.c').read_text()
@@ -887,7 +1195,8 @@ class Rules(unittest.TestCase):
         self.assertLess(q.index('READ_ONCE(rx_mgmt->stopping)'), q.index('sprd_alloc_work(0)'))
         self.assertIn('if (!READ_ONCE(rx_mgmt->stopping))\n\t\tsc2355_queue_rx_buff_work(', body('static void rx_refill_retry('))
         f = body('int sc2355_mm_fill_buffer(')
-        self.assertLess(f.index('READ_ONCE(rx_mgmt->stopping)'), f.index('atomic_xchg(&mm_entry->alloc_num, 0)'))
+        # read under refill_lock since the bus-completion resume (FINDINGS 195)
+        self.assertLess(f.index('if (rx_mgmt->stopping) {'), f.index('atomic_xchg(&mm_entry->alloc_num, 0)'))
         d = body('int sc2355_rx_deinit(')
         order = ['WRITE_ONCE(rx_mgmt->stopping, true);', 'cancel_delayed_work_sync(&rx_mgmt->refill_retry);',
                  'flush_workqueue(rx_mgmt->rx_queue);', 'flush_workqueue(rx_mgmt->rx_net_workq);',
@@ -938,6 +1247,30 @@ class Rules(unittest.TestCase):
         tx = (wlan / 'tx.c').read_text()
         self.assertNotIn('pr_err("%s, %d: _fc_ no credit!\\n"', tx)
         self.assertIn('pr_debug_ratelimited("%s, %d: _fc_ no credit!\\n"', tx)
+
+    def test_wifi_ap_get_station_answers_for_its_stations_only(self):
+        # FINDINGS 180 (after kanoqwq's f59a296): on an access point get_station handed out the interface's own
+        # counters and the station side's GET_STATION for any address; now -ENOENT unless the address is one of this
+        # interface's peers, and nothing filled in for one (the firmware has no per-client figures); dump_station
+        # refuses a negative index; get_channel answers for link 0 only. The 5.4 patch adds the same code
+        mainline = (TOP / 'upstream' / 'modules' / 'sprd_wlan_combo' / 'common' / 'cfg80211.c').read_text()
+        patch = (TOP / 'kernel' / 'patches' / 'wlan_combo-ap-stats-scope.patch').read_text()
+        lines = ('static bool sprd_ap_has_peer(struct sprd_vif *vif, const u8 *mac)',
+                 '\tif (!is_valid_ether_addr(mac) || ether_addr_equal(mac, vif->ndev->dev_addr))',
+                 '\t\tif (READ_ONCE(hif->peer_entry[i].ctx_id) == vif->ctx_id &&',
+                 '\tif (vif->wdev.iftype == NL80211_IFTYPE_AP || vif->wdev.iftype == NL80211_IFTYPE_P2P_GO) {',
+                 '\t\tif (!sprd_ap_has_peer(vif, mac))\n\t\t\treturn -ENOENT;\n\t\tsinfo->filled = 0;\n\t\treturn 0;',
+                 '\tif (idx < 0 || (vif->wdev.iftype != NL80211_IFTYPE_AP && vif->wdev.iftype != NL80211_IFTYPE_P2P_GO))',
+                 '\tif (link_id || (wdev->iftype != NL80211_IFTYPE_AP && wdev->iftype != NL80211_IFTYPE_P2P_GO) ||',
+                 '\t*chandef = wdev->links[0].ap.chandef;')
+        added = '\n'.join(l[1:] if l[:1] in '+ ' else l for l in patch.splitlines())
+        for s in lines:
+            self.assertIn(s, mainline)
+            self.assertIn(s, added)
+        self.assertNotIn('links[link_id]', mainline)
+        # the AP branch comes before anything of the station side's is filled in
+        f = mainline[mainline.index('int sprd_cfg80211_get_station('):]
+        self.assertLess(f.index('sprd_ap_has_peer(vif, mac)'), f.index('sinfo->tx_bytes = ndev->stats.tx_bytes;'))
 
     def test_wifi_routine_events_are_not_logged_as_errors(self):
         # issue #140: the vendor printed per-poll survey data, the multicast default of the peer lookup, the
@@ -1032,6 +1365,17 @@ class ApkRetry(unittest.TestCase):
             r = subprocess.run(shell + ['-eu', '-c', self.block + 'apk del x >/dev/null 2>&1 || true\necho done'],
                                env=env, capture_output=True, text=True, timeout=30)
             self.assertEqual((r.returncode, r.stdout.strip()), (0, 'done'), r.stderr)
+
+
+
+class SelfUpdateCopies(unittest.TestCase):
+    def test_a_git_worktree_is_a_git_copy(self):
+        # in a worktree .git is a file: taken for a downloaded copy, the uncommitted work in it was overwritten with
+        # GitHub's main by the installer's self-update (2026-10-17, FINDINGS 179); install.ps1's Test-Path sees both
+        su = (TOP / 'tools' / 'self-update.sh').read_text()
+        self.assertIn('if [ -e "$TOP/.git" ] && command -v git >/dev/null; then', su)
+        self.assertNotIn('-d "$TOP/.git"', su)
+        self.assertIn("(Test-Path (Join-Path $Top '.git'))", (TOP / 'install.ps1').read_text())
 
 
 if __name__ == '__main__':

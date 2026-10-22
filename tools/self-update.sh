@@ -20,7 +20,8 @@ self_update() {
         echo "  $(t 'could not check GitHub for a newer installer; continuing with this copy')"
         return 0
     fi
-    if [ -d "$TOP/.git" ] && command -v git >/dev/null; then
+    # (-e: in a git worktree .git is a file, and such a copy was taken for a download and overwritten with main)
+    if [ -e "$TOP/.git" ] && command -v git >/dev/null; then
         [ "$(git -C "$TOP" rev-parse HEAD 2>/dev/null)" = "$_su_remote" ] && return 0
         # a copy that already has GitHub's commit is ahead of it (someone working on the project): leave it alone
         git -C "$TOP" merge-base --is-ancestor "$_su_remote" HEAD 2>/dev/null && return 0
@@ -65,5 +66,7 @@ self_update() {
         echo "  $(t '{1} files updated' "$_su_n")"
     fi
     echo "  $(t 'restarting the updated installer')"
+    # a secret answer was taken out of the environment (tools/answers.sh): the restarted installer needs it once more
+    for _su_k in ${ANSWERS_SECRET:-}; do eval "[ -z \"\${$_su_k+set}\" ] || export $_su_k"; done
     MU300_SELF_UPDATED=1 MU300_LANG=$MU300_LANG exec sh "$_su_script" "$@"
 }

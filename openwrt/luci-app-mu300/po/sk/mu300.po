@@ -13,6 +13,9 @@ msgstr "Mobilná sieť"
 msgid "Dual SIM"
 msgstr "Dual SIM"
 
+msgid "SIM settings"
+msgstr "Nastavenia SIM"
+
 msgid "Network locks"
 msgstr "Zámky siete"
 
@@ -36,6 +39,12 @@ msgstr "Spotreba dát"
 
 msgid "Device management"
 msgstr "Správa zariadenia"
+
+msgid "Update"
+msgstr "Aktualizovať"
+
+msgid "Backup of settings"
+msgstr "Záloha nastavení"
 
 msgid "Languages"
 msgstr "Jazyky"
@@ -316,6 +325,75 @@ msgstr "Požiadavka zlyhala"
 msgid "(empty)"
 msgstr "(prázdne)"
 
+msgid "Passphrase (8 characters or more)"
+msgstr "Heslová fráza (aspoň 8 znakov)"
+
+msgid "The passphrase again"
+msgstr "Heslová fráza znova"
+
+msgid "Download the backup"
+msgstr "Stiahnuť zálohu"
+
+msgid "Back up the settings"
+msgstr "Zálohovať nastavenia"
+
+msgid "One file with the hotspot, mobile data and the APN, the network locks, the VPN profiles and settings, SMS forwarding, the LAN address, the host name, the time zone and the SSH keys. It holds passwords: with a passphrase it is encrypted, and only that passphrase opens it again."
+msgstr "Jeden súbor s hotspotom, mobilnými dátami a APN, zámkami siete, profilmi a nastaveniami VPN, preposielaním SMS, adresou LAN, názvom hostiteľa, časovým pásmom a kľúčmi SSH. Obsahuje heslá: s heslovou frázou sa zašifruje a otvorí ho len tá fráza."
+
+msgid "Include the login password"
+msgstr "Zahrnúť prihlasovacie heslo"
+
+msgid "Passphrase, if the file is encrypted"
+msgstr "Heslová fráza, ak je súbor zašifrovaný"
+
+msgid "Show what would change"
+msgstr "Ukázať, čo by sa zmenilo"
+
+msgid "Restore"
+msgstr "Obnoviť"
+
+msgid "The file is larger than 4 MiB"
+msgstr "Súbor je väčší ako 4 MiB"
+
+msgid "The settings of the file replace these. The hotspot, mobile data or the LAN may restart, and this page may lose its connection for a moment."
+msgstr "Nastavenia zo súboru nahradia tieto. Hotspot, mobilné dáta alebo LAN sa môžu reštartovať a táto stránka môže na chvíľu stratiť spojenie."
+
+msgid "Restore from a backup"
+msgstr "Obnoviť zo zálohy"
+
+msgid "Every value of the file is checked first; one that is refused and nothing is changed. What is the same is left alone, and no VPN profile, subscription or SSH key of this device is removed."
+msgstr "Každá hodnota súboru sa najprv skontroluje; ak je jedna odmietnutá, nič sa nezmení. Čo je rovnaké, zostane, a žiadny profil VPN, odber ani kľúč SSH tohto zariadenia sa neodstráni."
+
+msgid "Keep this device's login password"
+msgstr "Ponechať prihlasovacie heslo tohto zariadenia"
+
+msgid "Take a file of another device model"
+msgstr "Prijať súbor z iného modelu zariadenia"
+
+msgid "The two passphrases differ"
+msgstr "Heslové frázy sa líšia"
+
+msgid "The passphrase needs 8 characters or more"
+msgstr "Heslová fráza musí mať aspoň 8 znakov"
+
+msgid "Saved (encrypted)"
+msgstr "Uložené (zašifrované)"
+
+msgid "Saved. The file is not encrypted: it holds passwords, keep it safe."
+msgstr "Uložené. Súbor nie je zašifrovaný: obsahuje heslá, uložte ho bezpečne."
+
+msgid "Choose a backup file first"
+msgstr "Najprv vyberte súbor zálohy"
+
+msgid "Restoring…"
+msgstr "Obnovuje sa…"
+
+msgid "Restored"
+msgstr "Obnovené"
+
+msgid "The restore did not finish: see the lines above"
+msgstr "Obnovenie sa nedokončilo: pozri riadky vyššie"
+
 msgid "Loading…"
 msgstr "Načítava sa…"
 
@@ -388,6 +466,18 @@ msgstr "Hardware max"
 msgid "Frequencies in MHz."
 msgstr "Frequencies in MHz."
 
+msgid "Highlighted cores are online. A core taken offline stays offline, also after a reboot, until it is brought back. CPU0 always stays online."
+msgstr "Zvýraznené jadrá sú online. Vypnuté jadro zostane offline, aj po reštarte, kým ho znova nezapnete. CPU0 zostáva vždy online."
+
+msgid "Low latency: on"
+msgstr "Nízka latencia: zapnutá"
+
+msgid "Low latency: off"
+msgstr "Nízka latencia: vypnutá"
+
+msgid "Low latency keeps CPU0 out of its idle states, as ZTE's U30 Air firmware does: Wi-Fi delays are much shorter, and the device draws more power. Off by default."
+msgstr "Nízka latencia drží CPU0 mimo stavov nečinnosti, rovnako ako firmvér ZTE U30 Air: oneskorenia Wi-Fi sú oveľa kratšie a zariadenie spotrebúva viac energie. Predvolene vypnutá."
+
 msgid "Thermal"
 msgstr "Teplota"
 
@@ -405,6 +495,111 @@ msgstr "Prahové body"
 
 msgid "Cooling devices"
 msgstr "Chladiace zariadenia"
+
+msgid "Stress test started"
+msgstr "Záťažový test spustený"
+
+msgid "Saved: it takes effect at the next reboot"
+msgstr "Uložené: prejaví sa pri ďalšom reštarte"
+
+msgid "CPU voltage offset (EXPERIMENTAL)"
+msgstr "Posun napätia CPU (EXPERIMENTÁLNE)"
+
+msgid "Experimental: changing the CPU voltage can make the device unstable, corrupt your data and permanently damage your device. Use it entirely at your own risk."
+msgstr "Experimentálne: zmena napätia CPU môže spôsobiť nestabilitu zariadenia, poškodiť vaše dáta a natrvalo poškodiť vaše zariadenie. Používate ju výlučne na vlastné riziko."
+
+msgid "CPU voltage offset unavailable"
+msgstr "Posun napätia CPU nie je k dispozícii"
+
+msgid "Not available with this kernel (a mainline kernel of this release or later has it)."
+msgstr "S týmto jadrom nie je k dispozícii (má ho jadro mainline z tohto vydania alebo novšie)."
+
+msgid "Off: the stock voltages"
+msgstr "Vypnuté: továrenské napätia"
+
+msgid "Changes at the next reboot"
+msgstr "Zmení sa pri ďalšom reštarte"
+
+msgid "Trial boot: kept once this boot has been up 10 minutes"
+msgstr "Skúšobné spustenie: zachová sa, keď toto spustenie beží 10 minút"
+
+msgid "Kept: this offset passed its trial boot"
+msgstr "Zachované: tento posun prešiel skúšobným spustením"
+
+msgid "a boot with it ended without a clean shutdown"
+msgstr "spustenie s ním skončilo bez čistého vypnutia"
+
+msgid "its trial boot ended before 10 minutes"
+msgstr "jeho skúšobné spustenie skončilo skôr ako za 10 minút"
+
+msgid "invalid value"
+msgstr "neplatná hodnota"
+
+msgid "unknown SoC firmware"
+msgstr "neznámy firmvér SoC"
+
+msgid "refused by the kernel"
+msgstr "odmietnuté jadrom"
+
+msgid "the kernel could not start CPU scaling with it"
+msgstr "jadro s ním nedokázalo spustiť škálovanie frekvencie CPU"
+
+msgid "Offsets in µV for the three CPU domains (cores 0-3, 4-6 and 7), in whole steps. A new offset takes effect at the next reboot, as a trial: it is kept once that boot has been up 10 minutes, and dropped (back to 0) if a boot with it ends in a crash, a watchdog reset or a power cut."
+msgstr "Posuny v µV pre tri domény CPU (jadrá CPU 0-3, 4-6 a 7), v celých krokoch. Nový posun sa prejaví pri ďalšom reštarte ako skúšobný: zachová sa, keď toto spustenie beží 10 minút, a zahodí sa (späť na 0), ak spustenie s ním skončí pádom, resetom watchdogu alebo výpadkom napájania."
+
+msgid "Running now (µV)"
+msgstr "Teraz beží (µV)"
+
+msgid "Saved for the next boot (µV)"
+msgstr "Uložené pre ďalšie spustenie (µV)"
+
+msgid "State"
+msgstr "Stav"
+
+msgid "Taken back automatically: %s µV (%s)"
+msgstr "Automaticky vrátené: %s µV (%s)"
+
+msgid "The SoC firmware of this device is not one whose voltage encoding is known: only the stock voltages are possible."
+msgstr "Firmvér SoC tohto zariadenia nepatrí medzi tie, ktorých kódovanie napätia je známe: možné sú iba továrenské napätia."
+
+msgid "Domain"
+msgstr "Doména"
+
+msgid "Offset now (µV)"
+msgstr "Aktuálny posun (µV)"
+
+msgid "Highest step"
+msgstr "Najvyšší stupeň"
+
+msgid "New offset (µV)"
+msgstr "Nový posun (µV)"
+
+msgid "Limits: %d to %d µV, in steps of %d µV."
+msgstr "Limity: %d až %d µV, v krokoch po %d µV."
+
+msgid "Save for the next boot"
+msgstr "Uložiť pre ďalšie spustenie"
+
+msgid "Each offset must be a multiple of %d µV between %d and %d."
+msgstr "Každý posun musí byť násobkom %d µV v rozsahu %d až %d."
+
+msgid "Type %s to confirm."
+msgstr "Na potvrdenie napíšte %s."
+
+msgid "Back to the stock voltages"
+msgstr "Späť na továrenské napätia"
+
+msgid "Type %s to confirm:"
+msgstr "Na potvrdenie napíšte %s:"
+
+msgid "Run a 10-minute CPU stress test"
+msgstr "Spustiť 10-minútový záťažový test CPU"
+
+msgid "Test a new offset under load during its trial boot. The device may crash if the voltage is too low; the next boot then runs at the stock voltages."
+msgstr "Otestujte nový posun pod záťažou počas jeho skúšobného spustenia. Ak je napätie príliš nízke, zariadenie môže spadnúť; ďalšie spustenie potom beží s továrenskými napätiami."
+
+msgid "A stress test is running."
+msgstr "Prebieha záťažový test."
 
 msgid "USB role"
 msgstr "Rola USB"
@@ -583,6 +778,12 @@ msgstr "Odstrániť uloženú hodnotu"
 msgid "Presets"
 msgstr "Predvoľby"
 
+msgid "Form (URL-encoded)"
+msgstr "Formulár (kódovanie URL)"
+
+msgid "Plain text"
+msgstr "Obyčajný text"
+
 msgid "Received messages are sent on as they reach the SMS pool. A failed delivery is retried after 30 s, then after twice as long each time (an hour at most), ten times in all."
 msgstr "Prijaté správy sa preposielajú hneď, ako prídu do fondu SMS. Neúspešné doručenie sa zopakuje po 30 s a potom zakaždým po dvojnásobnom čase (najviac hodina), celkovo desaťkrát."
 
@@ -621,12 +822,6 @@ msgstr "Adresa (http:// alebo https://)"
 
 msgid "Body"
 msgstr "Telo"
-
-msgid "Form (URL-encoded)"
-msgstr "Formulár (kódovanie URL)"
-
-msgid "Plain text"
-msgstr "Obyčajný text"
 
 msgid "Fields: sender, time, text, device, message (the template filled in)"
 msgstr "Polia: sender, time, text, device, message (vyplnená šablóna)"
@@ -745,6 +940,9 @@ msgstr "Zatiaľ žiadne doručenia"
 msgid "Test started with the saved settings; the result appears in the delivery log."
 msgstr "Test spustený s uloženými nastaveniami; výsledok sa zobrazí v zázname doručení."
 
+msgid "Automatic without 2G (152)"
+msgstr "Automaticky bez 2G (152)"
+
 msgid "4G only"
 msgstr "Iba 4G"
 
@@ -813,6 +1011,9 @@ msgstr "Trvanie relácie"
 
 msgid "Registration"
 msgstr "Registrácia"
+
+msgid "Data roaming"
+msgstr "Dátový roaming"
 
 msgid "Bandwidth"
 msgstr "Šírka pásma"
@@ -940,14 +1141,26 @@ msgstr "Pripájanie dát…"
 msgid "Turn off cellular radio"
 msgstr "Vypnúť mobilné rádio"
 
-msgid "Cellular connectivity will be interrupted."
-msgstr "Mobilné pripojenie bude prerušené."
+msgid "This SIM will have no calls, SMS or data, and its radio stays off after a reboot until you turn it on again."
+msgstr "Táto SIM nebude mať hovory, SMS ani dáta a jej rádio zostane vypnuté aj po reštarte, kým ho znova nezapnete."
 
 msgid "Turn on cellular radio"
 msgstr "Zapnúť mobilné rádio"
 
-msgid "The SFUN power-on sequence will run (up to about 1 minute)."
-msgstr "Prebehne sekvencia zapnutia SFUN (až asi 1 minúta)."
+msgid "The radio of the SIM in use comes on and stays on after a reboot (up to about 1 minute)."
+msgstr "Rádio používanej SIM sa zapne a zostane zapnuté aj po reštarte (až asi 1 minúta)."
+
+msgid "Turn data roaming off"
+msgstr "Vypnúť dátový roaming"
+
+msgid "While the SIM is registered on a roaming network, mobile data stays off; SMS, calls and the registration are not affected. Some SIMs report roaming at home (an MVNO, national roaming): there, data would stop as well."
+msgstr "Kým je SIM registrovaná v roamingovej sieti, mobilné dáta zostávajú vypnuté; SMS, hovory a registrácia nie sú dotknuté. Niektoré SIM hlásia roaming aj doma (MVNO, národný roaming): tam by sa dáta tiež zastavili."
+
+msgid "Allow data roaming"
+msgstr "Povoliť dátový roaming"
+
+msgid "Mobile data is used on roaming networks too, which can cost extra. Some SIMs report roaming at home (an MVNO, national roaming) and need this to have data at all."
+msgstr "Mobilné dáta sa používajú aj v roamingových sieťach, čo môže stáť navyše. Niektoré SIM hlásia roaming aj doma (MVNO, národný roaming) a bez toho by nemali dáta vôbec."
 
 msgid "Cellular connectivity may stop for 1–2 minutes."
 msgstr "Mobilné pripojenie sa môže na 1–2 minúty zastaviť."
@@ -1054,6 +1267,9 @@ msgstr "Kotva B%s"
 msgid "No serving cell"
 msgstr "Žiadna obsluhujúca bunka"
 
+msgid "Version %s is out: update"
+msgstr "Vyšla verzia %s: aktualizujte"
+
 msgid "Not registered"
 msgstr "Neregistrované"
 
@@ -1074,6 +1290,15 @@ msgstr "Iba tiesňové volania"
 
 msgid "Status %s"
 msgstr "Stav %s"
+
+msgid "Off: data held back while roaming"
+msgstr "Vypnuté: dáta pozastavené pri roamingu"
+
+msgid "Allowed"
+msgstr "Povolené"
+
+msgid "Off"
+msgstr "Vypnuté"
 
 msgid "LTE anchor"
 msgstr "Kotva LTE"
@@ -1224,9 +1449,6 @@ msgstr "Kód"
 
 msgid "Translated"
 msgstr "Preložené"
-
-msgid "State"
-msgstr "Stav"
 
 msgid "LuCI's own translations come from OpenWrt. This panel's translations other than Turkish and Chinese are machine (AI) translations; corrections are welcome."
 msgstr "Vlastné preklady LuCI pochádzajú z OpenWrt. Preklady tohto panelu okrem turečtiny a čínštiny sú strojové (AI); opravy sú vítané."
@@ -1594,14 +1816,20 @@ msgstr "0 % batériu nikdy nenabíja (zariadenie beží z nabíjačky), 100 % ju
 msgid "80 % keeps the battery healthier on a device that stays plugged in."
 msgstr "80 % šetrí batériu zariadenia, ktoré zostáva pripojené k sieti."
 
+msgid "When the charger switches the device on"
+msgstr "Keď nabíjačka zapne zariadenie"
+
+msgid "Charge only, until a key starts it"
+msgstr "Len nabíjať, kým ho nespustí tlačidlo"
+
+msgid "Start normally"
+msgstr "Spustiť normálne"
+
 msgid "Keep as is"
 msgstr "Ponechať bez zmeny"
 
 msgid "LTE only (5G off)"
 msgstr "Iba LTE (5G vypnuté)"
-
-msgid "Off"
-msgstr "Vypnuté"
 
 msgid "On"
 msgstr "Zapnuté"
@@ -1795,6 +2023,78 @@ msgstr "Switch to SIM%d"
 # Source-language fallback for untranslated new controls.
 msgid "Use SIM%d at next boot"
 msgstr "Use SIM%d at next boot"
+
+msgid "Built-in SIM 1"
+msgstr "Vstavaná SIM 1"
+
+msgid "Built-in SIM 2"
+msgstr "Vstavaná SIM 2"
+
+msgid "Built-in SIM 3"
+msgstr "Vstavaná SIM 3"
+
+msgid "External SIM"
+msgstr "Externá SIM"
+
+msgid "SIM card"
+msgstr "SIM karta"
+
+msgid "Built-in SIM 3 shares SIM2, the external SIM shares SIM1. The card chosen here is switched in before the modem starts, at the next boot; without a choice the cards stay as the bootloader sets them."
+msgstr "Vstavaná SIM 3 zdieľa SIM2, externá SIM zdieľa SIM1. Tu zvolená karta sa prepne pred spustením modemu, pri ďalšom štarte; bez voľby zostanú karty tak, ako ich nastaví zavádzač."
+
+msgid "As the bootloader sets them"
+msgstr "Ako ich nastaví zavádzač"
+
+msgid "Applying the radio setting…"
+msgstr "Používa sa nastavenie rádia…"
+
+msgid "SIM settings are not available"
+msgstr "Nastavenia SIM nie sú k dispozícii"
+
+msgid "Modem default"
+msgstr "Predvolené modemu"
+
+msgid "SIM%d"
+msgstr "SIM%d"
+
+msgid "in use"
+msgstr "používa sa"
+
+msgid "Turn off the radio of SIM%d"
+msgstr "Vypnúť rádio SIM%d"
+
+msgid "Radio"
+msgstr "Rádio"
+
+msgid "VoLTE"
+msgstr "VoLTE"
+
+msgid "VoNR"
+msgstr "VoNR"
+
+msgid "Modem: %s"
+msgstr "Modem: %s"
+
+msgid "Sent to this SIM when its radio next starts."
+msgstr "Odošle sa tejto SIM pri ďalšom spustení jej rádia."
+
+msgid "VoLTE and VoNR for each SIM, kept across reboots and sent again whenever that SIM starts. VoLTE is on unless switched off; VoNR stays as the modem has it until set."
+msgstr "VoLTE a VoNR pre každú SIM, zachovajú sa po reštarte a odošlú sa znova pri každom spustení danej SIM. VoLTE je zapnuté, kým ho nevypnete; VoNR zostáva podľa modemu, kým ho nenastavíte."
+
+msgid "All radios off (airplane mode)"
+msgstr "Všetky rádiá vypnuté (režim lietadlo)"
+
+msgid "All radios on"
+msgstr "Všetky rádiá zapnuté"
+
+msgid "No SIM will have calls, SMS or data, also after a reboot, until a radio is turned on again here or with the dashboard's radio button."
+msgstr "Žiadna SIM nebude mať hovory, SMS ani dáta, ani po reštarte, kým sa rádio znova nezapne tu alebo tlačidlom rádia na prehľade."
+
+msgid "Each SIM's radio stays as set here after a reboot. A SIM whose radio is off has no calls, SMS or data, and the device does not switch to it."
+msgstr "Rádio každej SIM zostane po reštarte tak, ako je nastavené tu. SIM s vypnutým rádiom nemá hovory, SMS ani dáta a zariadenie na ňu neprepne."
+
+msgid "The setting is saved, but the radio did not follow it yet."
+msgstr "Nastavenie je uložené, ale rádio sa ním zatiaľ neriadi."
 
 msgid "Recipient: number, e.g. 10086 or +86..."
 msgstr "Príjemca: číslo, napr. 10086 alebo +86..."
@@ -2045,6 +2345,402 @@ msgstr "Vypnúť"
 msgid "64 makes every packet leave like the device's own traffic"
 msgstr "S 64 odchádza každý paket ako vlastná prevádzka zariadenia"
 
+msgid "Check for updates"
+msgstr "Skontrolovať aktualizácie"
+
+msgid "Checking the file"
+msgstr "Kontrola súboru"
+
+msgid "Update from a file"
+msgstr "Aktualizácia zo súboru"
+
+msgid "Back to the previous version"
+msgstr "Späť na predchádzajúcu verziu"
+
+msgid "Back to the previous boot image"
+msgstr "Späť na predchádzajúci spúšťací obraz"
+
+msgid "Remove the previous version"
+msgstr "Odstrániť predchádzajúcu verziu"
+
+msgid "Kernel change"
+msgstr "Zmena jadra"
+
+msgid "Starting…"
+msgstr "Spúšťa sa…"
+
+msgid "Downloading"
+msgstr "Sťahovanie"
+
+msgid "All files are here and verified"
+msgstr "Všetky súbory sú tu a overené"
+
+msgid "Unpacking the new system"
+msgstr "Rozbaľuje sa nový systém"
+
+msgid "Carrying over your settings"
+msgstr "Prenášajú sa vaše nastavenia"
+
+msgid "Writing down the packages you installed"
+msgstr "Zapisujú sa balíky, ktoré ste nainštalovali"
+
+msgid "Switching to the new system"
+msgstr "Prepína sa na nový systém"
+
+msgid "Kernel and boot image"
+msgstr "Jadro a spúšťací obraz"
+
+msgid "Restart the device?"
+msgstr "Reštartovať zariadenie?"
+
+msgid "The device restarts now. The default boot is Android, so it starts Android: switch to Linux from there to start the updated system."
+msgstr "Zariadenie sa teraz reštartuje. Predvolené spúšťanie je Android, takže sa spustí Android: odtiaľ prepnite na Linux, aby sa spustil aktualizovaný systém."
+
+msgid "The device restarts now and is away for about a minute. If the new system does not start, the device goes back to Android by itself after the failed attempts."
+msgstr "Zariadenie sa teraz reštartuje a asi minútu bude nedostupné. Ak sa nový systém nespustí, zariadenie sa po neúspešných pokusoch samo vráti do Androidu."
+
+msgid "Restart"
+msgstr "Reštartovať"
+
+msgid "Restarting… open this page again in about a minute."
+msgstr "Reštartuje sa… otvorte túto stránku znova asi o minútu."
+
+msgid "Running for %s. It goes on when this page is closed; do not switch the device off."
+msgstr "Beží %s. Pokračuje aj po zatvorení tejto stránky; zariadenie nevypínajte."
+
+msgid "Done. Restart the device to start it."
+msgstr "Hotovo. Reštartujte zariadenie, aby sa zmena prejavila."
+
+msgid "Done. Nothing needs a restart."
+msgstr "Hotovo. Reštart nie je potrebný."
+
+msgid "It did not finish, and part of it was done: read the log before you restart."
+msgstr "Nedokončilo sa to a časť sa vykonala: pred reštartom si prečítajte záznam."
+
+msgid "It did not finish. Nothing was changed; the log says why."
+msgstr "Nedokončilo sa to. Nič sa nezmenilo; dôvod je v zázname."
+
+msgid "Log"
+msgstr "Záznam"
+
+msgid "Restart now"
+msgstr "Reštartovať teraz"
+
+msgid "Later"
+msgstr "Neskôr"
+
+msgid "Close"
+msgstr "Zavrieť"
+
+msgid "Updating is not available on this system"
+msgstr "Aktualizácia nie je v tomto systéme dostupná"
+
+msgid "Another update is running on the device"
+msgstr "Na zariadení beží iná aktualizácia"
+
+msgid "It was started outside this page (a terminal, the toolkit). Nothing can be started here until it has finished."
+msgstr "Bolo to spustené mimo tejto stránky (terminál, toolkit). Kým sa to neskončí, nedá sa tu nič spustiť."
+
+msgid "Restart needed"
+msgstr "Je potrebný reštart"
+
+msgid "This system was updated and still runs the old version. The new one starts at the next restart."
+msgstr "Tento systém bol aktualizovaný a stále beží stará verzia. Nová sa spustí pri ďalšom reštarte."
+
+msgid "Installed"
+msgstr "Nainštalované"
+
+msgid "This system"
+msgstr "Tento systém"
+
+msgid "Also on this device"
+msgstr "Tiež na tomto zariadení"
+
+msgid "Kernel"
+msgstr "Jadro"
+
+msgid "choice %s"
+msgstr "voľba %s"
+
+msgid "Boot image"
+msgstr "Spúšťací obraz"
+
+msgid "from the installer"
+msgstr "z inštalátora"
+
+msgid "Default boot"
+msgstr "Predvolené spúšťanie"
+
+msgid "Free space"
+msgstr "Voľné miesto"
+
+msgid "Release signatures"
+msgstr "Podpisy vydaní"
+
+msgid "checked with the project's key"
+msgstr "kontrolujú sa kľúčom projektu"
+
+msgid "this system has no release key"
+msgstr "tento systém nemá kľúč vydaní"
+
+msgid "The default boot is Android: a restart goes to Android, and Linux is started from there."
+msgstr "Predvolené spúšťanie je Android: reštart vedie do Androidu a Linux sa spúšťa odtiaľ."
+
+msgid "Linux is locked as the default boot: a failed start does not send the device to Android by itself, except the first starts of a new boot image."
+msgstr "Linux je zamknutý ako predvolené spúšťanie: neúspešné spustenie zariadenie samo do Androidu neprepne, okrem prvých spustení nového spúšťacieho obrazu."
+
+msgid "If Linux fails to start %d times in a row, the device starts Android by itself."
+msgstr "Ak sa Linux nespustí %d-krát po sebe, zariadenie samo spustí Android."
+
+msgid "Report of the last update"
+msgstr "Správa o poslednej aktualizácii"
+
+msgid "Online update"
+msgstr "Aktualizácia online"
+
+msgid "Asking GitHub…"
+msgstr "Dopyt na GitHub…"
+
+msgid "Checked %s ago"
+msgstr "Skontrolované pred %s"
+
+msgid "Not checked yet"
+msgstr "Zatiaľ neskontrolované"
+
+msgid "Mirror (release files)"
+msgstr "Zrkadlo (súbory vydania)"
+
+msgid "Leave empty for GitHub."
+msgstr "Prázdne pre GitHub."
+
+msgid "Install the packages I added again after the update (needs the device online at the first start)"
+msgstr "Po aktualizácii znova nainštalovať balíky, ktoré som pridal (pri prvom spustení musí byť zariadenie online)"
+
+msgid "Pre-release"
+msgstr "Predbežné vydanie"
+
+msgid "Newest release"
+msgstr "Najnovšie vydanie"
+
+msgid "Release notes"
+msgstr "Poznámky k vydaniu"
+
+msgid "Download"
+msgstr "Stiahnutie"
+
+msgid "Free space needed"
+msgstr "Potrebné voľné miesto"
+
+msgid "not enough: remove the previous version first"
+msgstr "nestačí: najprv odstráňte predchádzajúcu verziu"
+
+msgid "A pre-release is a release still being tried: it can have faults a release does not. The previous version is kept all the same."
+msgstr "Predbežné vydanie je vydanie, ktoré sa ešte skúša: môže mať chyby, ktoré bežné vydanie nemá. Predchádzajúca verzia sa aj tak uchová."
+
+msgid "This system is newer than the newest release (a test release)."
+msgstr "Tento systém je novší než najnovšie vydanie (testovacie vydanie)."
+
+msgid "Up to date."
+msgstr "Aktuálne."
+
+msgid "This release is not signed, and this system checks signatures: it is not installed from here. Update from its file below, which asks you to confirm."
+msgstr "Toto vydanie nie je podpísané a tento systém kontroluje podpisy: odtiaľto sa neinštaluje. Aktualizujte z jeho súboru nižšie, ktorý si vyžiada potvrdenie."
+
+msgid "Update to %s"
+msgstr "Aktualizovať na %s"
+
+msgid "Choose at least one system"
+msgstr "Vyberte aspoň jeden systém"
+
+msgid "Update to %s?"
+msgstr "Aktualizovať na %s?"
+
+msgid "The device downloads %s, puts the new system beside the running one and switches to it at the next restart. Your settings are carried over and the previous version is kept. It takes several minutes; do not switch the device off."
+msgstr "Zariadenie stiahne %s, uloží nový systém vedľa bežiaceho a pri ďalšom reštarte naň prepne. Vaše nastavenia sa prenesú a predchádzajúca verzia sa uchová. Trvá to niekoľko minút; zariadenie nevypínajte."
+
+msgid "Also offer the pre-release %s"
+msgstr "Ponúkať aj predbežné vydanie %s"
+
+msgid "Systems to update:"
+msgstr "Systémy na aktualizáciu:"
+
+msgid "GitHub could not be reached: the device has no internet connection, or GitHub did not answer. Without internet, update from a file below."
+msgstr "GitHub sa nepodarilo kontaktovať: zariadenie nemá pripojenie na internet alebo GitHub neodpovedal. Bez internetu aktualizujte zo súboru nižšie."
+
+msgid "release"
+msgstr "vydanie"
+
+msgid "For a device without internet: download the Magisk zip of a release for this system and this kernel on another computer, from the release page on GitHub, and upload it here. For this device that is:"
+msgstr "Pre zariadenie bez internetu: na inom počítači stiahnite zo stránky vydania na GitHube Magisk zip vydania pre tento systém a toto jadro a nahrajte ho sem. Pre toto zariadenie je to:"
+
+msgid "Uploaded file"
+msgstr "Nahraný súbor"
+
+msgid "Checking the file…"
+msgstr "Kontrola súboru…"
+
+msgid "It says it is"
+msgstr "Podľa súboru ide o"
+
+msgid "kernel %s"
+msgstr "jadro %s"
+
+msgid "Signature"
+msgstr "Podpis"
+
+msgid "signed with the project's release key"
+msgstr "podpísané kľúčom vydaní projektu"
+
+msgid "WRONG: it does not match the project's release key"
+msgstr "NESPRÁVNY: nezodpovedá kľúču vydaní projektu"
+
+msgid "not signed"
+msgstr "nepodpísané"
+
+msgid "cannot be checked on this system"
+msgstr "na tomto systéme ho nemožno skontrolovať"
+
+msgid "Its system is not installed on this device."
+msgstr "Jeho systém nie je na tomto zariadení nainštalovaný."
+
+msgid "It is the other Ubuntu release, not the one installed."
+msgstr "Je to to druhé vydanie Ubuntu, nie to nainštalované."
+
+msgid "It carries another kernel than this device uses. Take the zip for kernel %s, or change the kernel first."
+msgstr "Obsahuje iné jadro, než aké toto zariadenie používa. Vezmite zip pre jadro %s alebo najprv zmeňte jadro."
+
+msgid "Its kernel does not run on this model."
+msgstr "Jeho jadro na tomto modeli nebeží."
+
+msgid "The file is damaged: its contents do not match their checksums."
+msgstr "Súbor je poškodený: jeho obsah nezodpovedá kontrolným súčtom."
+
+msgid "Its signature is wrong. This file does not come from the project as it is; it is never installed."
+msgstr "Jeho podpis je nesprávny. Tento súbor v tejto podobe nepochádza od projektu; nikdy sa nenainštaluje."
+
+msgid "This file cannot be used here."
+msgstr "Tento súbor tu nemožno použiť."
+
+msgid "Compare the SHA-256 with the one in SHA256SUMS-magisk on the release page: it is the only proof of where an unsigned file comes from."
+msgstr "Porovnajte SHA-256 s hodnotou v SHA256SUMS-magisk na stránke vydania: je to jediný dôkaz pôvodu nepodpísaného súboru."
+
+msgid "This release is installed already; the update would only refresh the boot image."
+msgstr "Toto vydanie je už nainštalované; aktualizácia by iba obnovila spúšťací obraz."
+
+msgid "I know this file is not signed: nothing proves that it comes from the project. I compared its SHA-256 myself and want it installed."
+msgstr "Viem, že tento súbor nie je podpísaný: nič nedokazuje, že pochádza od projektu. Jeho SHA-256 som sám porovnal a chcem ho nainštalovať."
+
+msgid "I know this is %s, older than the installed %s, and want to go back to it."
+msgstr "Viem, že toto je %s, staršie než nainštalované %s, a chcem sa k nemu vrátiť."
+
+msgid "This is not a release file of this project: a Magisk zip of a release is expected."
+msgstr "Toto nie je súbor vydania tohto projektu: očakáva sa Magisk zip vydania."
+
+msgid "Update from this file"
+msgstr "Aktualizovať z tohto súboru"
+
+msgid "Tick the confirmations above first"
+msgstr "Najprv zaškrtnite potvrdenia vyššie"
+
+msgid "The device puts the system of this file beside the running one and switches to it at the next restart. Your settings are carried over and the previous version is kept. It takes several minutes; do not switch the device off."
+msgstr "Zariadenie uloží systém z tohto súboru vedľa bežiaceho a pri ďalšom reštarte naň prepne. Vaše nastavenia sa prenesú a predchádzajúca verzia sa uchová. Trvá to niekoľko minút; zariadenie nevypínajte."
+
+msgid "Check the file"
+msgstr "Skontrolovať súbor"
+
+msgid "Remove the file"
+msgstr "Odstrániť súbor"
+
+msgid "Previous version"
+msgstr "Predchádzajúca verzia"
+
+msgid "No previous version is kept on this device."
+msgstr "Na tomto zariadení nie je uchovaná žiadna predchádzajúca verzia."
+
+msgid "replaced %s"
+msgstr "nahradené %s"
+
+msgid "I want the previous system back; what I changed since the update stays in the version I leave."
+msgstr "Chcem späť predchádzajúci systém; čo som od aktualizácie zmenil, zostane vo verzii, ktorú opúšťam."
+
+msgid "Back to the previous version?"
+msgstr "Späť na predchádzajúcu verziu?"
+
+msgid "The previous system (%s) becomes the one that starts at the next restart. The version you leave is not kept; settings you changed since the update are not carried back."
+msgstr "Predchádzajúci systém (%s) sa stane tým, ktorý sa spustí pri ďalšom reštarte. Verzia, ktorú opúšťate, sa neuchová; nastavenia zmenené od aktualizácie sa späť neprenesú."
+
+msgid "Go back"
+msgstr "Vrátiť sa"
+
+msgid "The previous version is the one running now: restart first."
+msgstr "Predchádzajúca verzia je tá, ktorá práve beží: najprv reštartujte."
+
+msgid "I want the previous kernel and boot image back."
+msgstr "Chcem späť predchádzajúce jadro a spúšťací obraz."
+
+msgid "Back to the previous boot image?"
+msgstr "Späť na predchádzajúci spúšťací obraz?"
+
+msgid "The previous boot image (%s) is written to the Linux slot and starts at the next restart. If it does not start, the device goes back to Android by itself."
+msgstr "Predchádzajúci spúšťací obraz (%s) sa zapíše do slotu Linuxu a spustí sa pri ďalšom reštarte. Ak sa nespustí, zariadenie sa samo vráti do Androidu."
+
+msgid "I do not need to go back: delete the previous system to free its space."
+msgstr "Vracať sa nepotrebujem: vymazať predchádzajúci systém a uvoľniť jeho miesto."
+
+msgid "Remove the previous version?"
+msgstr "Odstrániť predchádzajúcu verziu?"
+
+msgid "The kept copy of the previous system is deleted for good. After that there is no going back to it from this page."
+msgstr "Uchovaná kópia predchádzajúceho systému sa natrvalo vymaže. Potom sa k nej z tejto stránky už nedá vrátiť."
+
+msgid "the vendor kernel"
+msgstr "jadro výrobcu"
+
+msgid "mainline"
+msgstr "mainline"
+
+msgid "not with Ubuntu 26.04"
+msgstr "nie s Ubuntu 26.04"
+
+msgid "Change the kernel"
+msgstr "Zmeniť jadro"
+
+msgid "This kernel is the one in use"
+msgstr "Toto jadro sa práve používa"
+
+msgid "Change the kernel to %s?"
+msgstr "Zmeniť jadro na %s?"
+
+msgid "The device downloads that kernel from the newest release and writes a new boot image; it starts at the next restart. The previous boot image is kept, and if the new one does not start the device goes back to Android by itself. The device must be online."
+msgstr "Zariadenie stiahne toto jadro z najnovšieho vydania a zapíše nový spúšťací obraz; spustí sa pri ďalšom reštarte. Predchádzajúci spúšťací obraz sa uchová, a ak sa nový nespustí, zariadenie sa samo vráti do Androidu. Zariadenie musí byť online."
+
+msgid "Start Android at the next restart"
+msgstr "Pri ďalšom reštarte spustiť Android"
+
+msgid "Start Android at the next restart?"
+msgstr "Pri ďalšom reštarte spustiť Android?"
+
+msgid "The next restart, and the ones after it, start Android instead of Linux. Linux is started again from Android (the Magisk module's Action button, or mu300-linux)."
+msgstr "Ďalší reštart aj tie po ňom spustia Android namiesto Linuxu. Linux sa znova spúšťa z Androidu (tlačidlo Akcia modulu Magisk alebo mu300-linux)."
+
+msgid "Start Android next"
+msgstr "Nabudúce spustiť Android"
+
+msgid "What an update keeps"
+msgstr "Čo aktualizácia zachová"
+
+msgid "An update puts the system of the new release in place and carries over what is yours: the settings, the accounts and their passwords, the device's keys and the home directories. Packages you installed yourself are written down and installed again at the first start, once the device is online. The previous version stays on the device until you remove it, so you can go back."
+msgstr "Aktualizácia nasadí systém nového vydania a prenesie to, čo je vaše: nastavenia, účty a ich heslá, kľúče zariadenia a domovské adresáre. Balíky, ktoré ste nainštalovali sami, sa zapíšu a znova nainštalujú pri prvom spustení, len čo je zariadenie online. Predchádzajúca verzia zostáva na zariadení, kým ju neodstránite, takže sa môžete vrátiť."
+
+msgid "The wiki's Updating page lists exactly what is kept."
+msgstr "Stránka wiki o aktualizácii uvádza presne, čo sa zachová."
+
+msgid "Choose a file first"
+msgstr "Najprv vyberte súbor"
+
+msgid "Uploading: %s of %s"
+msgstr "Nahrávanie: %s z %s"
+
 msgid "running"
 msgstr "beží"
 
@@ -2078,9 +2774,6 @@ msgstr "Nebeží na ňom žiadny profil."
 msgid "Removed"
 msgstr "Odstránené"
 
-msgid "Check for updates"
-msgstr "Skontrolovať aktualizácie"
-
 msgid "Each engine is an extra of its own: install only the ones your profiles need. Xray runs vless, vmess, trojan and ss links (with hev-socks5-tunnel), sing-box the same links and its own JSON, mihomo Clash subscriptions, dae hysteria2, tuic and the rest on newer kernels. WireGuard and OpenVPN are packages of the system."
 msgstr "Každý engine je samostatný doplnok: nainštalujte len tie, ktoré vaše profily potrebujú. Xray spúšťa odkazy vless, vmess, trojan a ss (s hev-socks5-tunnel), sing-box rovnaké odkazy a vlastný JSON, mihomo odbery Clash, dae hysteria2, tuic a ostatné na novších jadrách. WireGuard a OpenVPN sú balíky systému."
 
@@ -2089,9 +2782,6 @@ msgstr "Sťahovanie má desiatky MB na engine: pri mobilných dátach sa započ�
 
 msgid "The available versions come from the latest release of the VPN module."
 msgstr "Dostupné verzie pochádzajú z najnovšieho vydania modulu VPN."
-
-msgid "Update"
-msgstr "Aktualizovať"
 
 msgid "system package"
 msgstr "systémový balík"
@@ -2261,9 +2951,6 @@ msgstr "Spustiť"
 msgid "Stop"
 msgstr "Zastaviť"
 
-msgid "Restart"
-msgstr "Reštartovať"
-
 msgid "Stop the VPN?"
 msgstr "Zastaviť VPN?"
 
@@ -2342,8 +3029,8 @@ msgstr "Ochrana IPv6"
 msgid "Active: IPv6 outside the tunnel is refused"
 msgstr "Aktívna: IPv6 mimo tunela sa odmieta"
 
-msgid "While the VPN is up, IPv6 never leaves beside a tunnel that does not carry it: it is refused at once, so programs and LAN clients fall back to IPv4 instead of leaking or waiting. Automatic: WireGuard uses the IPv6 addresses of its config, the other engines stay IPv4."
-msgstr "Kým VPN beží, IPv6 nikdy neodíde popri tuneli, ktorý ho neprenáša: okamžite sa odmietne, takže programy a klienti LAN prejdú na IPv4 namiesto úniku alebo čakania. Automaticky: WireGuard používa adresy IPv6 zo svojej konfigurácie, ostatné enginy zostávajú na IPv4."
+msgid "While the VPN is up, IPv6 never leaves beside a tunnel that does not carry it: it is refused at once, so programs and LAN clients fall back to IPv4 instead of leaking or waiting. Automatic: WireGuard and OpenVPN use the IPv6 addresses of their config; Xray, sing-box and mihomo are asked at every start whether IPv6 works through the tunnel, and carry it only then; dae stays IPv4."
+msgstr "Kým VPN beží, IPv6 nikdy neodíde popri tuneli, ktorý ho neprenáša: okamžite sa odmietne, takže programy a klienti LAN prejdú na IPv4 namiesto úniku alebo čakania. Automaticky: WireGuard a OpenVPN používajú adresy IPv6 zo svojej konfigurácie; pri Xray, sing-box a mihomo sa pri každom spustení overí, či IPv6 cez tunel funguje, a prenášajú ho len vtedy; dae zostáva na IPv4."
 
 msgid "%d ms"
 msgstr "%d ms"
@@ -2440,9 +3127,6 @@ msgstr "Tento profil pochádza z odberu: jeho ďalšie obnovenie prepíše vaše
 
 msgid "Config of %s"
 msgstr "Konfigurácia %s"
-
-msgid "Close"
-msgstr "Zavrieť"
 
 msgid "Rename"
 msgstr "Premenovať"
@@ -2812,23 +3496,74 @@ msgstr "The CPU adapter gave no valid reply"
 msgid "Invalid CPU profile"
 msgstr "Invalid CPU profile"
 
+msgid "Invalid CPU core"
+msgstr "Neplatné jadro CPU"
+
+msgid "Unknown CPU operation"
+msgstr "Unknown CPU operation"
+
+msgid "Unknown CPU voltage operation"
+msgstr "Neznáma operácia s napätím CPU"
+
+msgid "Invalid CPU voltage request"
+msgstr "Neplatná požiadavka na napätie CPU"
+
+msgid "Invalid CPU voltage offset"
+msgstr "Neplatný posun napätia CPU"
+
+msgid "Type the confirmation word to apply a voltage offset"
+msgstr "Na použitie posunu napätia napíšte potvrdzovacie slovo"
+
+msgid "Invalid stress test length"
+msgstr "Neplatná dĺžka záťažového testu"
+
 msgid "The packages adapter gave no valid reply"
 msgstr "Adaptér balíkov nevrátil platnú odpoveď"
 
 msgid "Invalid packages operation"
 msgstr "Neplatná operácia s balíkmi"
 
+msgid "The sizes parameter must be 0 or 1"
+msgstr "Parameter sizes musí byť 0 alebo 1"
+
+msgid "The update adapter gave no valid reply"
+msgstr "Adaptér aktualizácií nevrátil platnú odpoveď"
+
+msgid "Unknown update operation"
+msgstr "Neznáma operácia aktualizácie"
+
+msgid "Invalid update request"
+msgstr "Neplatná požiadavka na aktualizáciu"
+
+msgid "The backup tool gave no valid reply"
+msgstr "Nástroj zálohy nedal platnú odpoveď"
+
+msgid "Mobile data integration is not provided by this platform"
+msgstr "Integrácia mobilných dát nie je na tejto platforme k dispozícii"
+
+msgid "The SIM settings could not be read"
+msgstr "Nastavenia SIM sa nepodarilo prečítať"
+
+msgid "Radio control is not provided by this platform"
+msgstr "Táto platforma neposkytuje ovládanie rádia"
+
+msgid "A SIM radio change is already running"
+msgstr "Zmena rádia SIM už prebieha"
+
 # Source-language fallback for untranslated new controls.
 msgid "Invalid SIM setting"
 msgstr "Invalid SIM setting"
 
-# Source-language fallback for untranslated new controls.
-msgid "Enable hot switching; reboot if channels are unavailable or wait until idle"
-msgstr "Enable hot switching; reboot if channels are unavailable or wait until idle"
+msgid "The modem did not take the setting; nothing was saved"
+msgstr "Modem nastavenie neprijal; nič sa neuložilo"
 
 # Source-language fallback for untranslated new controls.
 msgid "SIM control failed"
 msgstr "SIM control failed"
+
+# Source-language fallback for untranslated new controls.
+msgid "Enable hot switching; reboot if channels are unavailable or wait until idle"
+msgstr "Enable hot switching; reboot if channels are unavailable or wait until idle"
 
 msgid "Request too large"
 msgstr "Požiadavka je príliš veľká"
@@ -2983,12 +3718,18 @@ msgstr "Počet riadkov je od 1 do 1000"
 msgid "The log could not be read"
 msgstr "Záznam sa nepodarilo prečítať"
 
+msgid "The radio of this SIM is switched off in its settings"
+msgstr "Rádio tejto SIM je v jej nastaveniach vypnuté"
+
 # Source-language fallback for untranslated new controls.
 msgid "Use SIM control or reboot for managed dual-SIM radio"
 msgstr "Use SIM control or reboot for managed dual-SIM radio"
 
-msgid "Radio did not come up"
-msgstr "Rádio sa nespustilo"
+msgid "The radio did not follow its setting"
+msgstr "Rádio sa neriadilo svojím nastavením"
+
+msgid "The data roaming setting could not be saved"
+msgstr "Nastavenie dátového roamingu sa nepodarilo uložiť"
 
 msgid "Expected on or off"
 msgstr "Očakávalo sa on alebo off"
@@ -3011,8 +3752,26 @@ msgstr "The CPU profile could not be read"
 msgid "The CPU profile could not be set"
 msgstr "The CPU profile could not be set"
 
-msgid "Unknown CPU operation"
-msgstr "Unknown CPU operation"
+msgid "The CPU core could not be switched"
+msgstr "Jadro CPU sa nepodarilo prepnúť"
+
+msgid "Invalid low latency setting"
+msgstr "Neplatné nastavenie nízkej latencie"
+
+msgid "The low latency setting could not be applied"
+msgstr "Nastavenie nízkej latencie sa nepodarilo použiť"
+
+msgid "The CPU voltage offset could not be read"
+msgstr "Posun napätia CPU sa nepodarilo prečítať"
+
+msgid "The CPU voltage offset was refused"
+msgstr "Posun napätia CPU bol odmietnutý"
+
+msgid "The CPU voltage offset could not be turned off"
+msgstr "Posun napätia CPU sa nepodarilo vypnúť"
+
+msgid "The stress test could not be started"
+msgstr "Záťažový test sa nepodarilo spustiť"
 
 msgid "USB role adapter is not executable"
 msgstr "Adaptér roly USB nie je spustiteľný"
@@ -3223,3 +3982,45 @@ msgstr "TTL sa nepodarilo nastaviť"
 
 msgid "Unknown TTL operation"
 msgstr "Neznáma operácia TTL"
+
+msgid "An update task is already running"
+msgstr "Úloha aktualizácie už beží"
+
+msgid "The task could not be started"
+msgstr "Úlohu sa nepodarilo spustiť"
+
+msgid "The updater gave no valid reply"
+msgstr "Aktualizačný program nevrátil platnú odpoveď"
+
+msgid "This needs confirmation"
+msgstr "Toto vyžaduje potvrdenie"
+
+msgid "Check for updates first"
+msgstr "Najprv skontrolujte aktualizácie"
+
+msgid "The upload directory is not safe; nothing was changed"
+msgstr "Adresár na nahrávanie nie je bezpečný; nič sa nezmenilo"
+
+msgid "Not enough memory for this upload"
+msgstr "Nedostatok pamäte na toto nahranie"
+
+msgid "Not enough free space on the Linux partition"
+msgstr "Nedostatok voľného miesta na oddiele Linux"
+
+msgid "The file was not checked; upload it again"
+msgstr "Súbor nebol skontrolovaný; nahrajte ho znova"
+
+msgid "This file is not for this device"
+msgstr "Tento súbor nie je pre toto zariadenie"
+
+msgid "The signature of this file is wrong"
+msgstr "Podpis tohto súboru je nesprávny"
+
+msgid "This file is not signed: that needs confirmation"
+msgstr "Tento súbor nie je podpísaný: to vyžaduje potvrdenie"
+
+msgid "This file is older than what is installed: that needs confirmation"
+msgstr "Tento súbor je starší než to, čo je nainštalované: to vyžaduje potvrdenie"
+
+msgid "The release source was not changed"
+msgstr "Zdroj vydania sa nezmenil"

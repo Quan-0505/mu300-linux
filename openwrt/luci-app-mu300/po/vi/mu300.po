@@ -13,6 +13,9 @@ msgstr "Di động"
 msgid "Dual SIM"
 msgstr "Dual SIM"
 
+msgid "SIM settings"
+msgstr "Cài đặt SIM"
+
 msgid "Network locks"
 msgstr "Khóa mạng"
 
@@ -36,6 +39,12 @@ msgstr "Lưu lượng dữ liệu"
 
 msgid "Device management"
 msgstr "Quản lý thiết bị"
+
+msgid "Update"
+msgstr "Cập nhật"
+
+msgid "Backup of settings"
+msgstr "Sao lưu cài đặt"
 
 msgid "Languages"
 msgstr "Ngôn ngữ"
@@ -316,6 +325,75 @@ msgstr "Yêu cầu thất bại"
 msgid "(empty)"
 msgstr "(trống)"
 
+msgid "Passphrase (8 characters or more)"
+msgstr "Cụm mật khẩu (8 ký tự trở lên)"
+
+msgid "The passphrase again"
+msgstr "Nhập lại cụm mật khẩu"
+
+msgid "Download the backup"
+msgstr "Tải bản sao lưu"
+
+msgid "Back up the settings"
+msgstr "Sao lưu cài đặt"
+
+msgid "One file with the hotspot, mobile data and the APN, the network locks, the VPN profiles and settings, SMS forwarding, the LAN address, the host name, the time zone and the SSH keys. It holds passwords: with a passphrase it is encrypted, and only that passphrase opens it again."
+msgstr "Một tệp chứa điểm phát sóng, dữ liệu di động và APN, khóa mạng, hồ sơ và cài đặt VPN, chuyển tiếp SMS, địa chỉ LAN, tên máy, múi giờ và khóa SSH. Tệp có mật khẩu: với cụm mật khẩu tệp được mã hóa, và chỉ cụm đó mở lại được."
+
+msgid "Include the login password"
+msgstr "Kèm mật khẩu đăng nhập"
+
+msgid "Passphrase, if the file is encrypted"
+msgstr "Cụm mật khẩu, nếu tệp đã mã hóa"
+
+msgid "Show what would change"
+msgstr "Hiển thị những gì sẽ thay đổi"
+
+msgid "Restore"
+msgstr "Khôi phục"
+
+msgid "The file is larger than 4 MiB"
+msgstr "Tệp lớn hơn 4 MiB"
+
+msgid "The settings of the file replace these. The hotspot, mobile data or the LAN may restart, and this page may lose its connection for a moment."
+msgstr "Cài đặt trong tệp sẽ thay thế cài đặt này. Điểm phát sóng, dữ liệu di động hoặc LAN có thể khởi động lại, và trang này có thể mất kết nối trong giây lát."
+
+msgid "Restore from a backup"
+msgstr "Khôi phục từ bản sao lưu"
+
+msgid "Every value of the file is checked first; one that is refused and nothing is changed. What is the same is left alone, and no VPN profile, subscription or SSH key of this device is removed."
+msgstr "Mọi giá trị trong tệp được kiểm tra trước; nếu một giá trị bị từ chối thì không có gì thay đổi. Những gì giống nhau được giữ nguyên, và không hồ sơ VPN, gói đăng ký hay khóa SSH nào của thiết bị bị xóa."
+
+msgid "Keep this device's login password"
+msgstr "Giữ mật khẩu đăng nhập của thiết bị này"
+
+msgid "Take a file of another device model"
+msgstr "Chấp nhận tệp của mẫu thiết bị khác"
+
+msgid "The two passphrases differ"
+msgstr "Hai cụm mật khẩu khác nhau"
+
+msgid "The passphrase needs 8 characters or more"
+msgstr "Cụm mật khẩu cần 8 ký tự trở lên"
+
+msgid "Saved (encrypted)"
+msgstr "Đã lưu (đã mã hóa)"
+
+msgid "Saved. The file is not encrypted: it holds passwords, keep it safe."
+msgstr "Đã lưu. Tệp không được mã hóa: tệp có mật khẩu, hãy giữ an toàn."
+
+msgid "Choose a backup file first"
+msgstr "Hãy chọn tệp sao lưu trước"
+
+msgid "Restoring…"
+msgstr "Đang khôi phục…"
+
+msgid "Restored"
+msgstr "Đã khôi phục"
+
+msgid "The restore did not finish: see the lines above"
+msgstr "Khôi phục chưa xong: xem các dòng ở trên"
+
 msgid "Loading…"
 msgstr "Đang tải…"
 
@@ -388,6 +466,18 @@ msgstr "Hardware max"
 msgid "Frequencies in MHz."
 msgstr "Frequencies in MHz."
 
+msgid "Highlighted cores are online. A core taken offline stays offline, also after a reboot, until it is brought back. CPU0 always stays online."
+msgstr "Các nhân được tô sáng đang trực tuyến. Nhân đã tắt sẽ vẫn ngoại tuyến, kể cả sau khi khởi động lại, cho đến khi được bật lại. CPU0 luôn trực tuyến."
+
+msgid "Low latency: on"
+msgstr "Độ trễ thấp: bật"
+
+msgid "Low latency: off"
+msgstr "Độ trễ thấp: tắt"
+
+msgid "Low latency keeps CPU0 out of its idle states, as ZTE's U30 Air firmware does: Wi-Fi delays are much shorter, and the device draws more power. Off by default."
+msgstr "Chế độ độ trễ thấp giữ CPU0 không vào các trạng thái nghỉ, giống firmware U30 Air của ZTE: độ trễ Wi-Fi ngắn hơn nhiều và thiết bị tiêu thụ nhiều điện hơn. Mặc định tắt."
+
 msgid "Thermal"
 msgstr "Nhiệt"
 
@@ -405,6 +495,111 @@ msgstr "Điểm ngưỡng"
 
 msgid "Cooling devices"
 msgstr "Thiết bị làm mát"
+
+msgid "Stress test started"
+msgstr "Đã bắt đầu kiểm tra tải nặng"
+
+msgid "Saved: it takes effect at the next reboot"
+msgstr "Đã lưu: có hiệu lực ở lần khởi động lại tới"
+
+msgid "CPU voltage offset (EXPERIMENTAL)"
+msgstr "Độ lệch điện áp CPU (THỬ NGHIỆM)"
+
+msgid "Experimental: changing the CPU voltage can make the device unstable, corrupt your data and permanently damage your device. Use it entirely at your own risk."
+msgstr "Thử nghiệm: thay đổi điện áp CPU có thể khiến thiết bị hoạt động không ổn định, làm hỏng dữ liệu của bạn và gây hư hại vĩnh viễn cho thiết bị của bạn. Bạn hoàn toàn tự chịu rủi ro khi sử dụng."
+
+msgid "CPU voltage offset unavailable"
+msgstr "Không có độ lệch điện áp CPU"
+
+msgid "Not available with this kernel (a mainline kernel of this release or later has it)."
+msgstr "Không khả dụng với kernel này (kernel mainline từ bản phát hành này trở về sau có tính năng này)."
+
+msgid "Off: the stock voltages"
+msgstr "Tắt: điện áp gốc của nhà sản xuất"
+
+msgid "Changes at the next reboot"
+msgstr "Thay đổi ở lần khởi động lại tới"
+
+msgid "Trial boot: kept once this boot has been up 10 minutes"
+msgstr "Khởi động thử: được giữ khi lần khởi động này chạy đủ 10 phút"
+
+msgid "Kept: this offset passed its trial boot"
+msgstr "Đã giữ: độ lệch này đã vượt qua lần khởi động thử"
+
+msgid "a boot with it ended without a clean shutdown"
+msgstr "một lần khởi động với độ lệch này đã kết thúc mà không tắt máy đúng cách"
+
+msgid "its trial boot ended before 10 minutes"
+msgstr "lần khởi động thử của nó kết thúc trước 10 phút"
+
+msgid "invalid value"
+msgstr "giá trị không hợp lệ"
+
+msgid "unknown SoC firmware"
+msgstr "firmware SoC không xác định"
+
+msgid "refused by the kernel"
+msgstr "bị kernel từ chối"
+
+msgid "the kernel could not start CPU scaling with it"
+msgstr "kernel không thể khởi động điều chỉnh tần số CPU với độ lệch này"
+
+msgid "Offsets in µV for the three CPU domains (cores 0-3, 4-6 and 7), in whole steps. A new offset takes effect at the next reboot, as a trial: it is kept once that boot has been up 10 minutes, and dropped (back to 0) if a boot with it ends in a crash, a watchdog reset or a power cut."
+msgstr "Độ lệch tính bằng µV cho ba miền CPU (nhân 0-3, 4-6 và 7), theo từng bước nguyên. Độ lệch mới có hiệu lực ở lần khởi động lại tới, dưới dạng thử: nó được giữ khi lần khởi động đó chạy đủ 10 phút, và bị loại bỏ (về 0) nếu một lần khởi động với nó kết thúc bằng sự cố, watchdog đặt lại hoặc mất điện."
+
+msgid "Running now (µV)"
+msgstr "Đang chạy (µV)"
+
+msgid "Saved for the next boot (µV)"
+msgstr "Đã lưu cho lần khởi động tới (µV)"
+
+msgid "State"
+msgstr "Trạng thái"
+
+msgid "Taken back automatically: %s µV (%s)"
+msgstr "Tự động thu hồi: %s µV (%s)"
+
+msgid "The SoC firmware of this device is not one whose voltage encoding is known: only the stock voltages are possible."
+msgstr "Firmware SoC của thiết bị này không thuộc loại có mã hóa điện áp đã biết: chỉ có thể dùng điện áp gốc của nhà sản xuất."
+
+msgid "Domain"
+msgstr "Miền"
+
+msgid "Offset now (µV)"
+msgstr "Độ lệch hiện tại (µV)"
+
+msgid "Highest step"
+msgstr "Bậc cao nhất"
+
+msgid "New offset (µV)"
+msgstr "Độ lệch mới (µV)"
+
+msgid "Limits: %d to %d µV, in steps of %d µV."
+msgstr "Giới hạn: %d đến %d µV, theo bước %d µV."
+
+msgid "Save for the next boot"
+msgstr "Lưu cho lần khởi động tới"
+
+msgid "Each offset must be a multiple of %d µV between %d and %d."
+msgstr "Mỗi độ lệch phải là bội số của %d µV trong khoảng %d đến %d."
+
+msgid "Type %s to confirm."
+msgstr "Nhập %s để xác nhận."
+
+msgid "Back to the stock voltages"
+msgstr "Quay về điện áp gốc của nhà sản xuất"
+
+msgid "Type %s to confirm:"
+msgstr "Nhập %s để xác nhận:"
+
+msgid "Run a 10-minute CPU stress test"
+msgstr "Chạy kiểm tra tải nặng CPU 10 phút"
+
+msgid "Test a new offset under load during its trial boot. The device may crash if the voltage is too low; the next boot then runs at the stock voltages."
+msgstr "Kiểm tra độ lệch mới dưới tải trong lần khởi động thử của nó. Thiết bị có thể gặp sự cố nếu điện áp quá thấp; khi đó lần khởi động tiếp theo sẽ chạy ở điện áp gốc của nhà sản xuất."
+
+msgid "A stress test is running."
+msgstr "Đang chạy kiểm tra tải nặng."
 
 msgid "USB role"
 msgstr "Vai trò USB"
@@ -583,6 +778,12 @@ msgstr "Xóa giá trị đã lưu"
 msgid "Presets"
 msgstr "Mẫu có sẵn"
 
+msgid "Form (URL-encoded)"
+msgstr "Biểu mẫu (mã hóa URL)"
+
+msgid "Plain text"
+msgstr "Văn bản thuần"
+
 msgid "Received messages are sent on as they reach the SMS pool. A failed delivery is retried after 30 s, then after twice as long each time (an hour at most), ten times in all."
 msgstr "Tin nhắn nhận được sẽ được chuyển tiếp ngay khi vào kho SMS. Lần gửi thất bại được thử lại sau 30 giây, sau đó mỗi lần cách gấp đôi (tối đa một giờ), tổng cộng mười lần."
 
@@ -621,12 +822,6 @@ msgstr "Địa chỉ (http:// hoặc https://)"
 
 msgid "Body"
 msgstr "Nội dung"
-
-msgid "Form (URL-encoded)"
-msgstr "Biểu mẫu (mã hóa URL)"
-
-msgid "Plain text"
-msgstr "Văn bản thuần"
 
 msgid "Fields: sender, time, text, device, message (the template filled in)"
 msgstr "Các trường: sender, time, text, device, message (mẫu đã điền)"
@@ -745,6 +940,9 @@ msgstr "Chưa có lần gửi nào"
 msgid "Test started with the saved settings; the result appears in the delivery log."
 msgstr "Đã bắt đầu thử với cài đặt đã lưu; kết quả sẽ hiện trong nhật ký gửi."
 
+msgid "Automatic without 2G (152)"
+msgstr "Tự động không có 2G (152)"
+
 msgid "4G only"
 msgstr "Chỉ 4G"
 
@@ -813,6 +1011,9 @@ msgstr "Thời lượng phiên"
 
 msgid "Registration"
 msgstr "Đăng ký"
+
+msgid "Data roaming"
+msgstr "Chuyển vùng dữ liệu"
 
 msgid "Bandwidth"
 msgstr "Băng thông"
@@ -940,14 +1141,26 @@ msgstr "Đang kết nối dữ liệu…"
 msgid "Turn off cellular radio"
 msgstr "Tắt radio di động"
 
-msgid "Cellular connectivity will be interrupted."
-msgstr "Kết nối di động sẽ bị gián đoạn."
+msgid "This SIM will have no calls, SMS or data, and its radio stays off after a reboot until you turn it on again."
+msgstr "SIM này sẽ không có cuộc gọi, SMS hay dữ liệu, và radio của nó vẫn tắt sau khi khởi động lại cho đến khi bạn bật lại."
 
 msgid "Turn on cellular radio"
 msgstr "Bật radio di động"
 
-msgid "The SFUN power-on sequence will run (up to about 1 minute)."
-msgstr "Trình tự bật nguồn SFUN sẽ chạy (tối đa khoảng 1 phút)."
+msgid "The radio of the SIM in use comes on and stays on after a reboot (up to about 1 minute)."
+msgstr "Radio của SIM đang dùng được bật và vẫn bật sau khi khởi động lại (tối đa khoảng 1 phút)."
+
+msgid "Turn data roaming off"
+msgstr "Tắt chuyển vùng dữ liệu"
+
+msgid "While the SIM is registered on a roaming network, mobile data stays off; SMS, calls and the registration are not affected. Some SIMs report roaming at home (an MVNO, national roaming): there, data would stop as well."
+msgstr "Khi SIM đang đăng ký trên mạng chuyển vùng, dữ liệu di động vẫn tắt; SMS, cuộc gọi và việc đăng ký không bị ảnh hưởng. Một số SIM báo chuyển vùng ngay cả trong nước (một MVNO, chuyển vùng quốc gia): ở đó dữ liệu cũng sẽ dừng."
+
+msgid "Allow data roaming"
+msgstr "Cho phép chuyển vùng dữ liệu"
+
+msgid "Mobile data is used on roaming networks too, which can cost extra. Some SIMs report roaming at home (an MVNO, national roaming) and need this to have data at all."
+msgstr "Dữ liệu di động cũng được dùng trên mạng chuyển vùng, có thể tốn thêm phí. Một số SIM báo chuyển vùng ngay cả trong nước (một MVNO, chuyển vùng quốc gia) và cần tùy chọn này mới có dữ liệu."
 
 msgid "Cellular connectivity may stop for 1–2 minutes."
 msgstr "Kết nối di động có thể dừng trong 1–2 phút."
@@ -1054,6 +1267,9 @@ msgstr "Neo B%s"
 msgid "No serving cell"
 msgstr "Không có cell phục vụ"
 
+msgid "Version %s is out: update"
+msgstr "Đã có phiên bản %s: cập nhật"
+
 msgid "Not registered"
 msgstr "Chưa đăng ký"
 
@@ -1074,6 +1290,15 @@ msgstr "Chỉ cuộc gọi khẩn cấp"
 
 msgid "Status %s"
 msgstr "Trạng thái %s"
+
+msgid "Off: data held back while roaming"
+msgstr "Tắt: dữ liệu bị giữ lại khi chuyển vùng"
+
+msgid "Allowed"
+msgstr "Được phép"
+
+msgid "Off"
+msgstr "Tắt"
 
 msgid "LTE anchor"
 msgstr "Neo LTE"
@@ -1224,9 +1449,6 @@ msgstr "Mã"
 
 msgid "Translated"
 msgstr "Đã dịch"
-
-msgid "State"
-msgstr "Trạng thái"
 
 msgid "LuCI's own translations come from OpenWrt. This panel's translations other than Turkish and Chinese are machine (AI) translations; corrections are welcome."
 msgstr "Bản dịch riêng của LuCI đến từ OpenWrt. Các bản dịch của bảng điều khiển này, trừ tiếng Thổ Nhĩ Kỳ và tiếng Trung, là bản dịch máy (AI); rất hoan nghênh các góp ý sửa lỗi."
@@ -1594,14 +1816,20 @@ msgstr "0 % không bao giờ sạc pin (thiết bị chạy bằng bộ sạc), 
 msgid "80 % keeps the battery healthier on a device that stays plugged in."
 msgstr "80 % giúp pin bền hơn trên thiết bị luôn cắm sạc."
 
+msgid "When the charger switches the device on"
+msgstr "Khi bộ sạc bật thiết bị"
+
+msgid "Charge only, until a key starts it"
+msgstr "Chỉ sạc, cho đến khi một phím khởi động nó"
+
+msgid "Start normally"
+msgstr "Khởi động bình thường"
+
 msgid "Keep as is"
 msgstr "Giữ nguyên"
 
 msgid "LTE only (5G off)"
 msgstr "Chỉ LTE (tắt 5G)"
-
-msgid "Off"
-msgstr "Tắt"
 
 msgid "On"
 msgstr "Bật"
@@ -1795,6 +2023,78 @@ msgstr "Switch to SIM%d"
 # Source-language fallback for untranslated new controls.
 msgid "Use SIM%d at next boot"
 msgstr "Use SIM%d at next boot"
+
+msgid "Built-in SIM 1"
+msgstr "SIM tích hợp 1"
+
+msgid "Built-in SIM 2"
+msgstr "SIM tích hợp 2"
+
+msgid "Built-in SIM 3"
+msgstr "SIM tích hợp 3"
+
+msgid "External SIM"
+msgstr "SIM ngoài"
+
+msgid "SIM card"
+msgstr "Thẻ SIM"
+
+msgid "Built-in SIM 3 shares SIM2, the external SIM shares SIM1. The card chosen here is switched in before the modem starts, at the next boot; without a choice the cards stay as the bootloader sets them."
+msgstr "SIM tích hợp 3 dùng chung SIM2, SIM ngoài dùng chung SIM1. Thẻ được chọn ở đây sẽ được chuyển vào trước khi modem khởi động, ở lần khởi động tiếp theo; nếu không chọn, các thẻ giữ nguyên như bootloader thiết lập."
+
+msgid "As the bootloader sets them"
+msgstr "Như bootloader thiết lập"
+
+msgid "Applying the radio setting…"
+msgstr "Đang áp dụng cài đặt radio…"
+
+msgid "SIM settings are not available"
+msgstr "Không có cài đặt SIM"
+
+msgid "Modem default"
+msgstr "Mặc định của modem"
+
+msgid "SIM%d"
+msgstr "SIM%d"
+
+msgid "in use"
+msgstr "đang dùng"
+
+msgid "Turn off the radio of SIM%d"
+msgstr "Tắt radio của SIM%d"
+
+msgid "Radio"
+msgstr "Radio"
+
+msgid "VoLTE"
+msgstr "VoLTE"
+
+msgid "VoNR"
+msgstr "VoNR"
+
+msgid "Modem: %s"
+msgstr "Modem: %s"
+
+msgid "Sent to this SIM when its radio next starts."
+msgstr "Sẽ được gửi tới SIM này khi radio của nó khởi động lần tới."
+
+msgid "VoLTE and VoNR for each SIM, kept across reboots and sent again whenever that SIM starts. VoLTE is on unless switched off; VoNR stays as the modem has it until set."
+msgstr "VoLTE và VoNR cho từng SIM, được giữ qua khởi động lại và gửi lại mỗi khi SIM đó khởi động. VoLTE bật trừ khi bị tắt; VoNR giữ như modem cho đến khi được đặt."
+
+msgid "All radios off (airplane mode)"
+msgstr "Tắt mọi radio (chế độ máy bay)"
+
+msgid "All radios on"
+msgstr "Bật mọi radio"
+
+msgid "No SIM will have calls, SMS or data, also after a reboot, until a radio is turned on again here or with the dashboard's radio button."
+msgstr "Không SIM nào có cuộc gọi, SMS hay dữ liệu, kể cả sau khi khởi động lại, cho đến khi một radio được bật lại tại đây hoặc bằng nút radio trên bảng điều khiển."
+
+msgid "Each SIM's radio stays as set here after a reboot. A SIM whose radio is off has no calls, SMS or data, and the device does not switch to it."
+msgstr "Radio của mỗi SIM giữ như cài đặt ở đây sau khi khởi động lại. SIM có radio tắt sẽ không có cuộc gọi, SMS hay dữ liệu, và thiết bị không chuyển sang SIM đó."
+
+msgid "The setting is saved, but the radio did not follow it yet."
+msgstr "Cài đặt đã được lưu nhưng radio chưa làm theo."
 
 msgid "Recipient: number, e.g. 10086 or +86..."
 msgstr "Người nhận: số, ví dụ 10086 hoặc +86..."
@@ -2045,6 +2345,402 @@ msgstr "Tắt"
 msgid "64 makes every packet leave like the device's own traffic"
 msgstr "Với 64, mọi gói tin đi ra giống như lưu lượng của chính thiết bị"
 
+msgid "Check for updates"
+msgstr "Kiểm tra bản cập nhật"
+
+msgid "Checking the file"
+msgstr "Đang kiểm tra tệp"
+
+msgid "Update from a file"
+msgstr "Cập nhật từ tệp"
+
+msgid "Back to the previous version"
+msgstr "Quay lại phiên bản trước"
+
+msgid "Back to the previous boot image"
+msgstr "Quay lại ảnh khởi động trước"
+
+msgid "Remove the previous version"
+msgstr "Gỡ phiên bản trước"
+
+msgid "Kernel change"
+msgstr "Đổi nhân"
+
+msgid "Starting…"
+msgstr "Đang bắt đầu…"
+
+msgid "Downloading"
+msgstr "Đang tải xuống"
+
+msgid "All files are here and verified"
+msgstr "Đã có đủ tệp và đã xác minh"
+
+msgid "Unpacking the new system"
+msgstr "Đang giải nén hệ thống mới"
+
+msgid "Carrying over your settings"
+msgstr "Đang chuyển cài đặt của bạn sang"
+
+msgid "Writing down the packages you installed"
+msgstr "Đang ghi lại các gói bạn đã cài"
+
+msgid "Switching to the new system"
+msgstr "Đang chuyển sang hệ thống mới"
+
+msgid "Kernel and boot image"
+msgstr "Nhân và ảnh khởi động"
+
+msgid "Restart the device?"
+msgstr "Khởi động lại thiết bị?"
+
+msgid "The device restarts now. The default boot is Android, so it starts Android: switch to Linux from there to start the updated system."
+msgstr "Thiết bị sẽ khởi động lại ngay. Khởi động mặc định là Android nên thiết bị vào Android: hãy chuyển sang Linux từ đó để chạy hệ thống đã cập nhật."
+
+msgid "The device restarts now and is away for about a minute. If the new system does not start, the device goes back to Android by itself after the failed attempts."
+msgstr "Thiết bị sẽ khởi động lại ngay và không truy cập được trong khoảng một phút. Nếu hệ thống mới không khởi động được, thiết bị tự quay về Android sau các lần thử thất bại."
+
+msgid "Restart"
+msgstr "Khởi động lại"
+
+msgid "Restarting… open this page again in about a minute."
+msgstr "Đang khởi động lại… hãy mở lại trang này sau khoảng một phút."
+
+msgid "Running for %s. It goes on when this page is closed; do not switch the device off."
+msgstr "Đã chạy được %s. Việc này vẫn tiếp tục khi đóng trang; đừng tắt thiết bị."
+
+msgid "Done. Restart the device to start it."
+msgstr "Xong. Khởi động lại thiết bị để chạy."
+
+msgid "Done. Nothing needs a restart."
+msgstr "Xong. Không cần khởi động lại."
+
+msgid "It did not finish, and part of it was done: read the log before you restart."
+msgstr "Chưa hoàn tất và đã làm được một phần: hãy đọc nhật ký trước khi khởi động lại."
+
+msgid "It did not finish. Nothing was changed; the log says why."
+msgstr "Chưa hoàn tất. Không có gì bị thay đổi; nhật ký cho biết lý do."
+
+msgid "Log"
+msgstr "Nhật ký"
+
+msgid "Restart now"
+msgstr "Khởi động lại ngay"
+
+msgid "Later"
+msgstr "Để sau"
+
+msgid "Close"
+msgstr "Đóng"
+
+msgid "Updating is not available on this system"
+msgstr "Hệ thống này không hỗ trợ cập nhật"
+
+msgid "Another update is running on the device"
+msgstr "Một bản cập nhật khác đang chạy trên thiết bị"
+
+msgid "It was started outside this page (a terminal, the toolkit). Nothing can be started here until it has finished."
+msgstr "Việc này được bắt đầu từ bên ngoài trang (terminal, bộ công cụ). Không thể bắt đầu việc gì ở đây cho đến khi nó xong."
+
+msgid "Restart needed"
+msgstr "Cần khởi động lại"
+
+msgid "This system was updated and still runs the old version. The new one starts at the next restart."
+msgstr "Hệ thống này đã được cập nhật nhưng vẫn đang chạy phiên bản cũ. Phiên bản mới sẽ chạy ở lần khởi động lại tiếp theo."
+
+msgid "Installed"
+msgstr "Đã cài đặt"
+
+msgid "This system"
+msgstr "Hệ thống này"
+
+msgid "Also on this device"
+msgstr "Cũng có trên thiết bị này"
+
+msgid "Kernel"
+msgstr "Nhân"
+
+msgid "choice %s"
+msgstr "lựa chọn %s"
+
+msgid "Boot image"
+msgstr "Ảnh khởi động"
+
+msgid "from the installer"
+msgstr "từ trình cài đặt"
+
+msgid "Default boot"
+msgstr "Khởi động mặc định"
+
+msgid "Free space"
+msgstr "Dung lượng trống"
+
+msgid "Release signatures"
+msgstr "Chữ ký bản phát hành"
+
+msgid "checked with the project's key"
+msgstr "được kiểm tra bằng khóa của dự án"
+
+msgid "this system has no release key"
+msgstr "hệ thống này không có khóa phát hành"
+
+msgid "The default boot is Android: a restart goes to Android, and Linux is started from there."
+msgstr "Khởi động mặc định là Android: khởi động lại sẽ vào Android, và Linux được chạy từ đó."
+
+msgid "Linux is locked as the default boot: a failed start does not send the device to Android by itself, except the first starts of a new boot image."
+msgstr "Linux được khóa làm khởi động mặc định: một lần khởi động thất bại không tự đưa thiết bị về Android, trừ những lần khởi động đầu của ảnh khởi động mới."
+
+msgid "If Linux fails to start %d times in a row, the device starts Android by itself."
+msgstr "Nếu Linux khởi động thất bại %d lần liên tiếp, thiết bị sẽ tự khởi động Android."
+
+msgid "Report of the last update"
+msgstr "Báo cáo của lần cập nhật gần nhất"
+
+msgid "Online update"
+msgstr "Cập nhật trực tuyến"
+
+msgid "Asking GitHub…"
+msgstr "Đang hỏi GitHub…"
+
+msgid "Checked %s ago"
+msgstr "Đã kiểm tra %s trước"
+
+msgid "Not checked yet"
+msgstr "Chưa kiểm tra"
+
+msgid "Mirror (release files)"
+msgstr "Bản sao (tệp bản phát hành)"
+
+msgid "Leave empty for GitHub."
+msgstr "Để trống để dùng GitHub."
+
+msgid "Install the packages I added again after the update (needs the device online at the first start)"
+msgstr "Cài lại các gói tôi đã thêm sau khi cập nhật (thiết bị cần trực tuyến ở lần khởi động đầu tiên)"
+
+msgid "Pre-release"
+msgstr "Bản tiền phát hành"
+
+msgid "Newest release"
+msgstr "Bản phát hành mới nhất"
+
+msgid "Release notes"
+msgstr "Ghi chú phát hành"
+
+msgid "Download"
+msgstr "Tải xuống"
+
+msgid "Free space needed"
+msgstr "Dung lượng trống cần có"
+
+msgid "not enough: remove the previous version first"
+msgstr "không đủ: hãy gỡ phiên bản trước đã"
+
+msgid "A pre-release is a release still being tried: it can have faults a release does not. The previous version is kept all the same."
+msgstr "Bản tiền phát hành là bản phát hành còn đang được thử: nó có thể có lỗi mà bản phát hành không có. Phiên bản trước vẫn được giữ lại như thường."
+
+msgid "This system is newer than the newest release (a test release)."
+msgstr "Hệ thống này mới hơn bản phát hành mới nhất (một bản thử nghiệm)."
+
+msgid "Up to date."
+msgstr "Đã là mới nhất."
+
+msgid "This release is not signed, and this system checks signatures: it is not installed from here. Update from its file below, which asks you to confirm."
+msgstr "Bản phát hành này chưa được ký, và hệ thống này kiểm tra chữ ký: nó không được cài từ đây. Hãy cập nhật từ tệp của nó bên dưới, nơi sẽ yêu cầu bạn xác nhận."
+
+msgid "Update to %s"
+msgstr "Cập nhật lên %s"
+
+msgid "Choose at least one system"
+msgstr "Hãy chọn ít nhất một hệ thống"
+
+msgid "Update to %s?"
+msgstr "Cập nhật lên %s?"
+
+msgid "The device downloads %s, puts the new system beside the running one and switches to it at the next restart. Your settings are carried over and the previous version is kept. It takes several minutes; do not switch the device off."
+msgstr "Thiết bị tải xuống %s, đặt hệ thống mới bên cạnh hệ thống đang chạy và chuyển sang nó ở lần khởi động lại tiếp theo. Cài đặt của bạn được chuyển sang và phiên bản trước được giữ lại. Việc này mất vài phút; đừng tắt thiết bị."
+
+msgid "Also offer the pre-release %s"
+msgstr "Hiển thị cả bản tiền phát hành %s"
+
+msgid "Systems to update:"
+msgstr "Hệ thống cần cập nhật:"
+
+msgid "GitHub could not be reached: the device has no internet connection, or GitHub did not answer. Without internet, update from a file below."
+msgstr "Không kết nối được với GitHub: thiết bị không có kết nối internet hoặc GitHub không phản hồi. Nếu không có internet, hãy cập nhật từ tệp ở bên dưới."
+
+msgid "release"
+msgstr "phiên-bản"
+
+msgid "For a device without internet: download the Magisk zip of a release for this system and this kernel on another computer, from the release page on GitHub, and upload it here. For this device that is:"
+msgstr "Dành cho thiết bị không có internet: trên một máy tính khác, tải Magisk zip của một bản phát hành dành cho hệ thống này và nhân này từ trang phát hành trên GitHub, rồi tải lên đây. Với thiết bị này, tệp đó là:"
+
+msgid "Uploaded file"
+msgstr "Tệp đã tải lên"
+
+msgid "Checking the file…"
+msgstr "Đang kiểm tra tệp…"
+
+msgid "It says it is"
+msgstr "Tệp tự nhận là"
+
+msgid "kernel %s"
+msgstr "nhân %s"
+
+msgid "Signature"
+msgstr "Chữ ký"
+
+msgid "signed with the project's release key"
+msgstr "được ký bằng khóa phát hành của dự án"
+
+msgid "WRONG: it does not match the project's release key"
+msgstr "SAI: không khớp với khóa phát hành của dự án"
+
+msgid "not signed"
+msgstr "không có chữ ký"
+
+msgid "cannot be checked on this system"
+msgstr "không thể kiểm tra trên hệ thống này"
+
+msgid "Its system is not installed on this device."
+msgstr "Hệ thống trong tệp này chưa được cài trên thiết bị."
+
+msgid "It is the other Ubuntu release, not the one installed."
+msgstr "Đây là bản phát hành Ubuntu kia, không phải bản đã cài."
+
+msgid "It carries another kernel than this device uses. Take the zip for kernel %s, or change the kernel first."
+msgstr "Tệp chứa một nhân khác với nhân thiết bị này đang dùng. Hãy lấy zip dành cho nhân %s, hoặc đổi nhân trước."
+
+msgid "Its kernel does not run on this model."
+msgstr "Nhân của tệp không chạy được trên mẫu máy này."
+
+msgid "The file is damaged: its contents do not match their checksums."
+msgstr "Tệp bị hỏng: nội dung không khớp với mã kiểm tra."
+
+msgid "Its signature is wrong. This file does not come from the project as it is; it is never installed."
+msgstr "Chữ ký của tệp sai. Tệp này không còn nguyên vẹn như dự án phát hành; nó không bao giờ được cài đặt."
+
+msgid "This file cannot be used here."
+msgstr "Không thể dùng tệp này ở đây."
+
+msgid "Compare the SHA-256 with the one in SHA256SUMS-magisk on the release page: it is the only proof of where an unsigned file comes from."
+msgstr "Hãy so sánh SHA-256 với giá trị trong SHA256SUMS-magisk trên trang phát hành: đó là bằng chứng duy nhất về nguồn gốc của một tệp không có chữ ký."
+
+msgid "This release is installed already; the update would only refresh the boot image."
+msgstr "Bản phát hành này đã được cài đặt; việc cập nhật chỉ ghi lại ảnh khởi động."
+
+msgid "I know this file is not signed: nothing proves that it comes from the project. I compared its SHA-256 myself and want it installed."
+msgstr "Tôi biết tệp này không có chữ ký: không có gì chứng minh nó đến từ dự án. Tôi đã tự so sánh SHA-256 của nó và muốn cài đặt."
+
+msgid "I know this is %s, older than the installed %s, and want to go back to it."
+msgstr "Tôi biết đây là %s, cũ hơn bản %s đã cài, và muốn quay lại bản này."
+
+msgid "This is not a release file of this project: a Magisk zip of a release is expected."
+msgstr "Đây không phải tệp phát hành của dự án này: cần một Magisk zip của một bản phát hành."
+
+msgid "Update from this file"
+msgstr "Cập nhật từ tệp này"
+
+msgid "Tick the confirmations above first"
+msgstr "Hãy đánh dấu các ô xác nhận ở trên trước"
+
+msgid "The device puts the system of this file beside the running one and switches to it at the next restart. Your settings are carried over and the previous version is kept. It takes several minutes; do not switch the device off."
+msgstr "Thiết bị đặt hệ thống trong tệp này bên cạnh hệ thống đang chạy và chuyển sang nó ở lần khởi động lại tiếp theo. Cài đặt của bạn được chuyển sang và phiên bản trước được giữ lại. Việc này mất vài phút; đừng tắt thiết bị."
+
+msgid "Check the file"
+msgstr "Kiểm tra tệp"
+
+msgid "Remove the file"
+msgstr "Gỡ tệp"
+
+msgid "Previous version"
+msgstr "Phiên bản trước"
+
+msgid "No previous version is kept on this device."
+msgstr "Thiết bị này không giữ phiên bản trước nào."
+
+msgid "replaced %s"
+msgstr "bị thay vào %s"
+
+msgid "I want the previous system back; what I changed since the update stays in the version I leave."
+msgstr "Tôi muốn lấy lại hệ thống trước; những gì tôi đã thay đổi từ khi cập nhật sẽ ở lại trong phiên bản tôi rời đi."
+
+msgid "Back to the previous version?"
+msgstr "Quay lại phiên bản trước?"
+
+msgid "The previous system (%s) becomes the one that starts at the next restart. The version you leave is not kept; settings you changed since the update are not carried back."
+msgstr "Hệ thống trước (%s) sẽ là hệ thống chạy ở lần khởi động lại tiếp theo. Phiên bản bạn rời đi không được giữ lại; các cài đặt bạn đã đổi từ khi cập nhật không được mang về."
+
+msgid "Go back"
+msgstr "Quay lại"
+
+msgid "The previous version is the one running now: restart first."
+msgstr "Phiên bản trước chính là bản đang chạy: hãy khởi động lại trước."
+
+msgid "I want the previous kernel and boot image back."
+msgstr "Tôi muốn lấy lại nhân và ảnh khởi động trước."
+
+msgid "Back to the previous boot image?"
+msgstr "Quay lại ảnh khởi động trước?"
+
+msgid "The previous boot image (%s) is written to the Linux slot and starts at the next restart. If it does not start, the device goes back to Android by itself."
+msgstr "Ảnh khởi động trước (%s) được ghi vào khe Linux và chạy ở lần khởi động lại tiếp theo. Nếu nó không khởi động được, thiết bị tự quay về Android."
+
+msgid "I do not need to go back: delete the previous system to free its space."
+msgstr "Tôi không cần quay lại: xóa hệ thống trước để giải phóng dung lượng."
+
+msgid "Remove the previous version?"
+msgstr "Gỡ phiên bản trước?"
+
+msgid "The kept copy of the previous system is deleted for good. After that there is no going back to it from this page."
+msgstr "Bản sao được giữ lại của hệ thống trước sẽ bị xóa vĩnh viễn. Sau đó không thể quay lại nó từ trang này."
+
+msgid "the vendor kernel"
+msgstr "nhân của nhà sản xuất"
+
+msgid "mainline"
+msgstr "mainline"
+
+msgid "not with Ubuntu 26.04"
+msgstr "không dùng với Ubuntu 26.04"
+
+msgid "Change the kernel"
+msgstr "Đổi nhân"
+
+msgid "This kernel is the one in use"
+msgstr "Nhân này đang được dùng"
+
+msgid "Change the kernel to %s?"
+msgstr "Đổi nhân sang %s?"
+
+msgid "The device downloads that kernel from the newest release and writes a new boot image; it starts at the next restart. The previous boot image is kept, and if the new one does not start the device goes back to Android by itself. The device must be online."
+msgstr "Thiết bị tải nhân đó từ bản phát hành mới nhất và ghi một ảnh khởi động mới; nó chạy ở lần khởi động lại tiếp theo. Ảnh khởi động trước được giữ lại, và nếu ảnh mới không khởi động được thì thiết bị tự quay về Android. Thiết bị phải đang trực tuyến."
+
+msgid "Start Android at the next restart"
+msgstr "Khởi động Android ở lần khởi động lại tiếp theo"
+
+msgid "Start Android at the next restart?"
+msgstr "Khởi động Android ở lần khởi động lại tiếp theo?"
+
+msgid "The next restart, and the ones after it, start Android instead of Linux. Linux is started again from Android (the Magisk module's Action button, or mu300-linux)."
+msgstr "Lần khởi động lại tiếp theo và các lần sau đó sẽ vào Android thay vì Linux. Linux được chạy lại từ Android (nút Action của mô-đun Magisk, hoặc mu300-linux)."
+
+msgid "Start Android next"
+msgstr "Lần tới khởi động Android"
+
+msgid "What an update keeps"
+msgstr "Bản cập nhật giữ lại những gì"
+
+msgid "An update puts the system of the new release in place and carries over what is yours: the settings, the accounts and their passwords, the device's keys and the home directories. Packages you installed yourself are written down and installed again at the first start, once the device is online. The previous version stays on the device until you remove it, so you can go back."
+msgstr "Bản cập nhật đặt hệ thống của bản phát hành mới vào chỗ và chuyển sang những gì là của bạn: cài đặt, tài khoản và mật khẩu của chúng, các khóa của thiết bị và các thư mục home. Các gói bạn tự cài được ghi lại và cài lại ở lần khởi động đầu tiên, khi thiết bị trực tuyến. Phiên bản trước nằm lại trên thiết bị cho đến khi bạn gỡ nó, nên bạn có thể quay lại."
+
+msgid "The wiki's Updating page lists exactly what is kept."
+msgstr "Trang Cập nhật của wiki liệt kê chính xác những gì được giữ lại."
+
+msgid "Choose a file first"
+msgstr "Hãy chọn tệp trước"
+
+msgid "Uploading: %s of %s"
+msgstr "Đang tải lên: %s / %s"
+
 msgid "running"
 msgstr "đang chạy"
 
@@ -2078,9 +2774,6 @@ msgstr "Không có hồ sơ nào chạy trên nó."
 msgid "Removed"
 msgstr "Đã gỡ"
 
-msgid "Check for updates"
-msgstr "Kiểm tra bản cập nhật"
-
 msgid "Each engine is an extra of its own: install only the ones your profiles need. Xray runs vless, vmess, trojan and ss links (with hev-socks5-tunnel), sing-box the same links and its own JSON, mihomo Clash subscriptions, dae hysteria2, tuic and the rest on newer kernels. WireGuard and OpenVPN are packages of the system."
 msgstr "Mỗi công cụ là một gói bổ sung riêng: chỉ cài những công cụ mà hồ sơ của bạn cần. Xray chạy các liên kết vless, vmess, trojan và ss (với hev-socks5-tunnel), sing-box chạy cùng các liên kết đó và JSON riêng của nó, mihomo chạy gói đăng ký Clash, dae chạy hysteria2, tuic và phần còn lại trên các kernel mới hơn. WireGuard và OpenVPN là các gói của hệ thống."
 
@@ -2089,9 +2782,6 @@ msgstr "Mỗi công cụ tải xuống hàng chục MB: với dữ liệu di đ�
 
 msgid "The available versions come from the latest release of the VPN module."
 msgstr "Các phiên bản khả dụng lấy từ bản phát hành mới nhất của mô-đun VPN."
-
-msgid "Update"
-msgstr "Cập nhật"
 
 msgid "system package"
 msgstr "gói hệ thống"
@@ -2261,9 +2951,6 @@ msgstr "Khởi động"
 msgid "Stop"
 msgstr "Dừng"
 
-msgid "Restart"
-msgstr "Khởi động lại"
-
 msgid "Stop the VPN?"
 msgstr "Dừng VPN?"
 
@@ -2342,8 +3029,8 @@ msgstr "Bảo vệ IPv6"
 msgid "Active: IPv6 outside the tunnel is refused"
 msgstr "Đang hoạt động: IPv6 ngoài đường hầm bị từ chối"
 
-msgid "While the VPN is up, IPv6 never leaves beside a tunnel that does not carry it: it is refused at once, so programs and LAN clients fall back to IPv4 instead of leaking or waiting. Automatic: WireGuard uses the IPv6 addresses of its config, the other engines stay IPv4."
-msgstr "Khi VPN đang bật, IPv6 không bao giờ đi ra bên cạnh một đường hầm không truyền nó: nó bị từ chối ngay, nên chương trình và máy khách LAN chuyển sang IPv4 thay vì rò rỉ hoặc chờ đợi. Tự động: WireGuard dùng các địa chỉ IPv6 trong cấu hình của nó, các công cụ khác giữ IPv4."
+msgid "While the VPN is up, IPv6 never leaves beside a tunnel that does not carry it: it is refused at once, so programs and LAN clients fall back to IPv4 instead of leaking or waiting. Automatic: WireGuard and OpenVPN use the IPv6 addresses of their config; Xray, sing-box and mihomo are asked at every start whether IPv6 works through the tunnel, and carry it only then; dae stays IPv4."
+msgstr "Khi VPN đang bật, IPv6 không bao giờ đi ra bên cạnh một đường hầm không truyền nó: nó bị từ chối ngay, nên chương trình và máy khách LAN chuyển sang IPv4 thay vì rò rỉ hoặc chờ đợi. Tự động: WireGuard và OpenVPN dùng các địa chỉ IPv6 trong cấu hình của chúng; với Xray, sing-box và mihomo, mỗi lần khởi động đều kiểm tra xem IPv6 có hoạt động qua đường hầm không, và chỉ khi đó chúng mới truyền IPv6; dae giữ IPv4."
 
 msgid "%d ms"
 msgstr "%d ms"
@@ -2440,9 +3127,6 @@ msgstr "Hồ sơ này đến từ một gói đăng ký: lần làm mới tiếp
 
 msgid "Config of %s"
 msgstr "Cấu hình của %s"
-
-msgid "Close"
-msgstr "Đóng"
 
 msgid "Rename"
 msgstr "Đổi tên"
@@ -2812,23 +3496,74 @@ msgstr "The CPU adapter gave no valid reply"
 msgid "Invalid CPU profile"
 msgstr "Invalid CPU profile"
 
+msgid "Invalid CPU core"
+msgstr "Nhân CPU không hợp lệ"
+
+msgid "Unknown CPU operation"
+msgstr "Unknown CPU operation"
+
+msgid "Unknown CPU voltage operation"
+msgstr "Thao tác điện áp CPU không xác định"
+
+msgid "Invalid CPU voltage request"
+msgstr "Yêu cầu điện áp CPU không hợp lệ"
+
+msgid "Invalid CPU voltage offset"
+msgstr "Độ lệch điện áp CPU không hợp lệ"
+
+msgid "Type the confirmation word to apply a voltage offset"
+msgstr "Nhập từ xác nhận để áp dụng độ lệch điện áp"
+
+msgid "Invalid stress test length"
+msgstr "Thời lượng kiểm tra tải nặng không hợp lệ"
+
 msgid "The packages adapter gave no valid reply"
 msgstr "Bộ điều hợp gói không trả về phản hồi hợp lệ"
 
 msgid "Invalid packages operation"
 msgstr "Thao tác gói không hợp lệ"
 
+msgid "The sizes parameter must be 0 or 1"
+msgstr "Tham số sizes phải là 0 hoặc 1"
+
+msgid "The update adapter gave no valid reply"
+msgstr "Bộ điều hợp cập nhật không trả về phản hồi hợp lệ"
+
+msgid "Unknown update operation"
+msgstr "Thao tác cập nhật không xác định"
+
+msgid "Invalid update request"
+msgstr "Yêu cầu cập nhật không hợp lệ"
+
+msgid "The backup tool gave no valid reply"
+msgstr "Công cụ sao lưu không trả lời hợp lệ"
+
+msgid "Mobile data integration is not provided by this platform"
+msgstr "Nền tảng này không cung cấp tích hợp dữ liệu di động"
+
+msgid "The SIM settings could not be read"
+msgstr "Không đọc được cài đặt SIM"
+
+msgid "Radio control is not provided by this platform"
+msgstr "Nền tảng này không hỗ trợ điều khiển radio"
+
+msgid "A SIM radio change is already running"
+msgstr "Đang có một thay đổi radio SIM"
+
 # Source-language fallback for untranslated new controls.
 msgid "Invalid SIM setting"
 msgstr "Invalid SIM setting"
 
-# Source-language fallback for untranslated new controls.
-msgid "Enable hot switching; reboot if channels are unavailable or wait until idle"
-msgstr "Enable hot switching; reboot if channels are unavailable or wait until idle"
+msgid "The modem did not take the setting; nothing was saved"
+msgstr "Modem không nhận cài đặt; chưa lưu gì"
 
 # Source-language fallback for untranslated new controls.
 msgid "SIM control failed"
 msgstr "SIM control failed"
+
+# Source-language fallback for untranslated new controls.
+msgid "Enable hot switching; reboot if channels are unavailable or wait until idle"
+msgstr "Enable hot switching; reboot if channels are unavailable or wait until idle"
 
 msgid "Request too large"
 msgstr "Yêu cầu quá lớn"
@@ -2983,12 +3718,18 @@ msgstr "Số dòng từ 1 đến 1000"
 msgid "The log could not be read"
 msgstr "Không thể đọc nhật ký"
 
+msgid "The radio of this SIM is switched off in its settings"
+msgstr "Radio của SIM này đang tắt trong cài đặt"
+
 # Source-language fallback for untranslated new controls.
 msgid "Use SIM control or reboot for managed dual-SIM radio"
 msgstr "Use SIM control or reboot for managed dual-SIM radio"
 
-msgid "Radio did not come up"
-msgstr "Radio không bật lên được"
+msgid "The radio did not follow its setting"
+msgstr "Radio không làm theo cài đặt"
+
+msgid "The data roaming setting could not be saved"
+msgstr "Không thể lưu cài đặt chuyển vùng dữ liệu"
 
 msgid "Expected on or off"
 msgstr "Cần giá trị on hoặc off"
@@ -3011,8 +3752,26 @@ msgstr "The CPU profile could not be read"
 msgid "The CPU profile could not be set"
 msgstr "The CPU profile could not be set"
 
-msgid "Unknown CPU operation"
-msgstr "Unknown CPU operation"
+msgid "The CPU core could not be switched"
+msgstr "Không thể chuyển nhân CPU"
+
+msgid "Invalid low latency setting"
+msgstr "Thiết lập độ trễ thấp không hợp lệ"
+
+msgid "The low latency setting could not be applied"
+msgstr "Không thể áp dụng thiết lập độ trễ thấp"
+
+msgid "The CPU voltage offset could not be read"
+msgstr "Không thể đọc độ lệch điện áp CPU"
+
+msgid "The CPU voltage offset was refused"
+msgstr "Độ lệch điện áp CPU đã bị từ chối"
+
+msgid "The CPU voltage offset could not be turned off"
+msgstr "Không thể tắt độ lệch điện áp CPU"
+
+msgid "The stress test could not be started"
+msgstr "Không thể bắt đầu kiểm tra tải nặng"
 
 msgid "USB role adapter is not executable"
 msgstr "Bộ điều hợp vai trò USB không thực thi được"
@@ -3223,3 +3982,45 @@ msgstr "Không đặt được TTL"
 
 msgid "Unknown TTL operation"
 msgstr "Thao tác TTL không xác định"
+
+msgid "An update task is already running"
+msgstr "Một tác vụ cập nhật đang chạy"
+
+msgid "The task could not be started"
+msgstr "Không thể bắt đầu tác vụ"
+
+msgid "The updater gave no valid reply"
+msgstr "Trình cập nhật không trả về phản hồi hợp lệ"
+
+msgid "This needs confirmation"
+msgstr "Thao tác này cần xác nhận"
+
+msgid "Check for updates first"
+msgstr "Hãy kiểm tra bản cập nhật trước"
+
+msgid "The upload directory is not safe; nothing was changed"
+msgstr "Thư mục tải lên không an toàn; không có gì bị thay đổi"
+
+msgid "Not enough memory for this upload"
+msgstr "Không đủ bộ nhớ cho lần tải lên này"
+
+msgid "Not enough free space on the Linux partition"
+msgstr "Không đủ dung lượng trống trên phân vùng Linux"
+
+msgid "The file was not checked; upload it again"
+msgstr "Tệp chưa được kiểm tra; hãy tải lên lại"
+
+msgid "This file is not for this device"
+msgstr "Tệp này không dành cho thiết bị này"
+
+msgid "The signature of this file is wrong"
+msgstr "Chữ ký của tệp này không đúng"
+
+msgid "This file is not signed: that needs confirmation"
+msgstr "Tệp này không có chữ ký: cần xác nhận"
+
+msgid "This file is older than what is installed: that needs confirmation"
+msgstr "Tệp này cũ hơn bản đã cài: cần xác nhận"
+
+msgid "The release source was not changed"
+msgstr "Nguồn phát hành không được thay đổi"

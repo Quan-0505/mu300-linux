@@ -57,6 +57,15 @@ Pick it at install ("Which OpenWrt?" -> 2, or `MU300_OPENWRT=luci`), or switch a
 * **Cellular > Device management:** USB role (device or host), the USB network mode (NCM, ECM or RNDIS, applied at the
   next boot), and host-mode adapters that can join the LAN bridge.
 * **Cellular > Adapter settings:** how the panel reaches the modem (AT backend, serial port, custom adapter).
+* **System > Update:** update the device from the browser: what is installed, the newest release on GitHub with its
+  download size, an update that keeps running when the page is closed, an update from an uploaded release file for a
+  device without internet, going back to the previous version, the kernel choice (see
+  [Updating](Updating#from-the-browser-openwrt-with-the-control-panel)). The home page says when a newer release is
+  out.
+* **System > Backup of settings:** your settings as one file (with a passphrase it is encrypted) and back: the
+  hotspot, mobile data and the APN, the network locks, the VPN profiles and settings, SMS forwarding, the LAN address,
+  host name, time zone, SSH keys and, if you ask, the login password. **Show what would change** checks the file
+  first; **Restore** applies only what differs (see [Updating](Updating#backing-up-your-settings)).
 * **System > Languages:** interface language, and the lang extra.
 * **System > Power:** the active power profile and why (in your language), battery, power source and the charger's
   input current, the idle settings of the three profiles, the saver threshold and the charge limit (0-100 %, U30 Air).
@@ -79,10 +88,15 @@ modem operations (names and timings only). On OpenWrt an AT command takes about 
 ## A web panel on Ubuntu (Cockpit)
 
 Ubuntu has no LuCI, but it can have [Cockpit](https://cockpit-project.org/), Ubuntu's own web console (terminal, logs,
-services, networking, storage, accounts), with an **MU300** page: the mobile network (operator, technology,
-registration, signal), mobile data on/off, data usage and live rates, battery and temperatures, SMS, the VPN (on/off,
-profiles), the CPU profile and power state, the hotspot's name and password, joining a Wi-Fi network, and updates.
-Network locks stay a feature of the OpenWrt panel.
+services, networking, storage, accounts), with an **MU300** page whose tabs follow the OpenWrt panel's pages:
+Overview (signal, mobile data, device, data usage, hotspot, VPN, live rates, reconnect / restart), Mobile network
+(APN, data roaming, SIM choice and dual SIM, radio per SIM, VoLTE/VoNR, TTL, USSD), SMS, AT terminal, Data usage
+(billing cycle, monthly cap, history), Wi-Fi (the hotspot's settings and clients, joining a network), VPN (on/off,
+kill switch, exit address, profiles, subscriptions, engines, IPv6, log), Power and CPU (power profiles, charge limit,
+LEDs, zram, CPU profile, the experimental CPU voltage offset), System (host name, time zone, password, SSH, LAN
+address, USB and adb, boot, Docker, logs), Updates (check and install, kernel, mirror, extras, your packages) and
+Backup (the settings as one file, and back). It uses `mu300-api`, the same backend as the web installer's device
+manager. Network, band and cell locks and SMS forwarding stay features of the OpenWrt panel.
 
 ```sh
 sudo mu300-extra install panel                                           # Cockpit from Ubuntu's archive (about 12 MB)
@@ -91,7 +105,8 @@ sudo mu300-extra remove panel
 ```
 
 The installer asks about it too (default no). Then open `https://192.168.77.1:9090` (U30 Air: `.78.1`), accept
-Cockpit's own certificate and log in as `ubuntu`; "Turn on administrative access" for the pages that need root.
+Cockpit's own certificate and log in as `ubuntu`, then turn on administrative access (the "Limited access" button at the top): the MU300 page
+needs it for nearly everything.
 Cockpit listens on the LAN only (USB and the hotspot), the firewall closes it to the cellular side anyway, root cannot
 log in, and a session ends after 15 minutes idle. In English, Turkish and Chinese.
 

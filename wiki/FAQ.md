@@ -14,8 +14,10 @@ The ZTE F50 / MU300 and the ZTE U30 Air (same board, with a battery). The U30 **
 and is not supported.
 
 ### Do I need to root the device?
-Yes. The device must already be rooted and unlocked (booting a modified Android boot image) before you start. How to do
-that is not part of this project, and it is done at your own risk.
+Yes. The device must already be rooted, and able to boot a modified boot image: an unlocked bootloader, or a locked
+one with a patched TrustOS. The bootloader does not have to be unlocked; on a locked one the installer only warns
+and asks whether TrustOS is patched. How to root, unlock or patch a device is not part of this project, it gives no
+guide for it, and it is done at your own risk.
 
 ### Does it work from Windows?
 Yes: `install.ps1` (PowerShell) or `install.cmd` (cmd.exe) on Windows 10/11. macOS and Linux use `install.sh`. You need
@@ -38,7 +40,10 @@ Plug it into a computer with USB and run `ssh ubuntu@192.168.77.1` (Ubuntu) or `
 U30 Air the address is `192.168.78.1`. OpenWrt also has a web page at the same address. Or join its Wi-Fi hotspot.
 
 ### What is the default password?
-There is none: you choose it during installation (at least 6 characters). A Magisk zip generates one and shows it.
+From a computer you choose it during installation (at least 6 characters). A Magisk zip uses the images' own:
+Ubuntu's user `ubuntu` has the password `ubuntu`, OpenWrt's `root` has none until you set one (`passwd`, or LuCI's
+System > Administration). An update keeps the password the system has: the computer installer asks for it and checks
+it (or sets a new one), a Magisk zip keeps it unless a `mu300-install.conf` in the zip says otherwise.
 
 ### Does 5G work?
 Yes: 5G NSA and LTE, shared with Wi-Fi and USB clients, reconnecting by itself after modem resets. See
@@ -74,7 +79,10 @@ sudo mu300-usb adb off          # no adb at all
 A device where you turned adb off, or set it up with a key, before this release stays as it was.
 
 ### Can I make calls or play sound?
-No. The board has no speaker or microphone; call audio is work in progress and carries no sound yet.
+Calls yes, sound on the device no: the board has no speaker or microphone. A call's audio runs through the modem's
+audio DSP, to the device's own taps on the call or a Bluetooth headset (the headset route is not measured yet), with
+the audio extra: `sudo mu300-extra install audio` installs it from [mu300-audio](https://github.com/dikeckaan/mu300-audio) for
+the kernel the device uses, with the DSP image (checked against its pinned sha256).
 
 ### Can I plug in a screen?
 No. HDMI over USB-C does not work (the USB-C power-delivery chip never answers). It is a headless machine.

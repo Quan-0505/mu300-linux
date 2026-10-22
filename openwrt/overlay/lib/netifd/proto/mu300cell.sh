@@ -69,12 +69,39 @@ proto_mu300cell_setup() {
 	out=$(MU300_NETIFD=1 MU300_PDP_TYPE="${pdptype:-IP}" MU300_IPV6="$ipv6" \
 		MU300_APN_AUTH="$auth" MU300_APN_USER="$username" MU300_APN_PASSWORD="$password" \
 		/opt/mu300/bin/mobile-data up "$apn" 2>/tmp/mu300cell.err)
-	if [ $? = 3 ]; then
+	case $? in
+	3)
 		logger -t mu300cell "$(cat /tmp/mu300cell.err)"
 		proto_notify_error "$config" NO_MODEM
 		proto_block_restart "$config"
 		return 1
-	fi
+		;;
+	4)
+		# Data roaming is off (option roaming / roaming_internal '0') and the card is registered as roaming: held
+		# back on purpose (mobile-data logged it once, docs/FINDINGS.md 120). Asked again in a minute - no context is
+		# activated by that, only the registration read - and data comes back by itself at home. ifdown ends it.
+		proto_notify_error "$config" DATA_ROAMING
+		sleep "${MU300_ROAM_RETRY:-60}"
+		proto_setup_failed "$config"
+		return 1
+		;;
+	6)
+		# No card in the SIM slot in use (mu300-sim-state, docs/FINDINGS.md 186): the interface is unavailable, so no
+		# retry every 20 s; the card's event (or mobile-data's watchdog) makes it available again when one answers,
+		# and netifd starts it then - unless somebody took it down (ifdown: autostart off).
+		proto_notify_error "$config" SIM_MISSING
+		proto_set_available "$config" 0
+		return 1
+		;;
+	7)
+		# The SIM's radio is switched off in its settings (mu300-sim-radio, docs/FINDINGS.md 185): no dial until it is
+		# switched on, and no retry meanwhile (the interface unavailable); mu300-sim-radio set ... on (mobile-data
+		# rf-apply) makes it available again, and netifd starts it unless somebody took it down (ifdown).
+		proto_notify_error "$config" SIM_RADIO_DISABLED
+		proto_set_available "$config" 0
+		return 1
+		;;
+	esac
 	ip=$(echo "$out" | sed -n 's/^IP=//p')
 	if [ -z "$ip" ]; then
 		logger -t mu300cell "attach failed: $(cat /tmp/mu300cell.err)"
@@ -167,7 +194,8 @@ proto_mu300cell_setup() {
 		[ -w "/proc/sys/net/ipv6/conf/$ifname/disable_ipv6" ] &&
 			echo 1 > "/proc/sys/net/ipv6/conf/$ifname/disable_ipv6"
 	fi
-	# (the LED: mobile-data up has set it, blue on 4G and white on 5G; "data on" here turned 5G blue)
+	# (the LED: mobile-data up has set it - blue on 4G and white on 5G, on the U30 Air the SIM in use; "data on" here
+	# turned 5G blue)
 	logger -t mu300cell "connected: $ip/${prefix:-32} on $ifname"
 }
 

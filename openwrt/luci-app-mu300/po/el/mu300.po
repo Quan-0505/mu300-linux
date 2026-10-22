@@ -13,6 +13,9 @@ msgstr "Κινητό δίκτυο"
 msgid "Dual SIM"
 msgstr "Dual SIM"
 
+msgid "SIM settings"
+msgstr "Ρυθμίσεις SIM"
+
 msgid "Network locks"
 msgstr "Κλειδώματα δικτύου"
 
@@ -36,6 +39,12 @@ msgstr "Χρήση δεδομένων"
 
 msgid "Device management"
 msgstr "Διαχείριση συσκευής"
+
+msgid "Update"
+msgstr "Ενημέρωση"
+
+msgid "Backup of settings"
+msgstr "Αντίγραφο ασφαλείας ρυθμίσεων"
 
 msgid "Languages"
 msgstr "Γλώσσες"
@@ -316,6 +325,75 @@ msgstr "Το αίτημα απέτυχε"
 msgid "(empty)"
 msgstr "(κενό)"
 
+msgid "Passphrase (8 characters or more)"
+msgstr "Φράση πρόσβασης (8 χαρακτήρες ή περισσότεροι)"
+
+msgid "The passphrase again"
+msgstr "Η φράση πρόσβασης ξανά"
+
+msgid "Download the backup"
+msgstr "Λήψη αντιγράφου"
+
+msgid "Back up the settings"
+msgstr "Αντίγραφο των ρυθμίσεων"
+
+msgid "One file with the hotspot, mobile data and the APN, the network locks, the VPN profiles and settings, SMS forwarding, the LAN address, the host name, the time zone and the SSH keys. It holds passwords: with a passphrase it is encrypted, and only that passphrase opens it again."
+msgstr "Ένα αρχείο με το hotspot, τα δεδομένα κινητής και το APN, τα κλειδώματα δικτύου, τα προφίλ και τις ρυθμίσεις VPN, την προώθηση SMS, τη διεύθυνση LAN, το όνομα κεντρικού υπολογιστή, τη ζώνη ώρας και τα κλειδιά SSH. Περιέχει κωδικούς: με φράση πρόσβασης κρυπτογραφείται, και μόνο αυτή η φράση το ανοίγει ξανά."
+
+msgid "Include the login password"
+msgstr "Να περιληφθεί ο κωδικός σύνδεσης"
+
+msgid "Passphrase, if the file is encrypted"
+msgstr "Φράση πρόσβασης, αν το αρχείο είναι κρυπτογραφημένο"
+
+msgid "Show what would change"
+msgstr "Εμφάνιση του τι θα άλλαζε"
+
+msgid "Restore"
+msgstr "Επαναφορά"
+
+msgid "The file is larger than 4 MiB"
+msgstr "Το αρχείο είναι μεγαλύτερο από 4 MiB"
+
+msgid "The settings of the file replace these. The hotspot, mobile data or the LAN may restart, and this page may lose its connection for a moment."
+msgstr "Οι ρυθμίσεις του αρχείου αντικαθιστούν αυτές. Το hotspot, τα δεδομένα κινητής ή το LAN μπορεί να επανεκκινήσουν, και η σελίδα μπορεί να χάσει τη σύνδεση για λίγο."
+
+msgid "Restore from a backup"
+msgstr "Επαναφορά από αντίγραφο"
+
+msgid "Every value of the file is checked first; one that is refused and nothing is changed. What is the same is left alone, and no VPN profile, subscription or SSH key of this device is removed."
+msgstr "Κάθε τιμή του αρχείου ελέγχεται πρώτα· αν απορριφθεί μία, δεν αλλάζει τίποτα. Ό,τι είναι ίδιο μένει ως έχει, και κανένα προφίλ VPN, συνδρομή ή κλειδί SSH της συσκευής δεν αφαιρείται."
+
+msgid "Keep this device's login password"
+msgstr "Διατήρηση του κωδικού σύνδεσης της συσκευής"
+
+msgid "Take a file of another device model"
+msgstr "Αποδοχή αρχείου άλλου μοντέλου συσκευής"
+
+msgid "The two passphrases differ"
+msgstr "Οι δύο φράσεις διαφέρουν"
+
+msgid "The passphrase needs 8 characters or more"
+msgstr "Η φράση πρόσβασης θέλει 8 χαρακτήρες ή περισσότερους"
+
+msgid "Saved (encrypted)"
+msgstr "Αποθηκεύτηκε (κρυπτογραφημένο)"
+
+msgid "Saved. The file is not encrypted: it holds passwords, keep it safe."
+msgstr "Αποθηκεύτηκε. Το αρχείο δεν είναι κρυπτογραφημένο: περιέχει κωδικούς, φυλάξτε το με ασφάλεια."
+
+msgid "Choose a backup file first"
+msgstr "Επιλέξτε πρώτα ένα αρχείο αντιγράφου"
+
+msgid "Restoring…"
+msgstr "Επαναφορά…"
+
+msgid "Restored"
+msgstr "Επαναφέρθηκε"
+
+msgid "The restore did not finish: see the lines above"
+msgstr "Η επαναφορά δεν ολοκληρώθηκε: δείτε τις παραπάνω γραμμές"
+
 msgid "Loading…"
 msgstr "Φόρτωση…"
 
@@ -388,6 +466,18 @@ msgstr "Hardware max"
 msgid "Frequencies in MHz."
 msgstr "Frequencies in MHz."
 
+msgid "Highlighted cores are online. A core taken offline stays offline, also after a reboot, until it is brought back. CPU0 always stays online."
+msgstr "Οι επισημασμένοι πυρήνες είναι ενεργοί. Ένας πυρήνας που απενεργοποιήθηκε μένει ανενεργός, και μετά από επανεκκίνηση, μέχρι να ενεργοποιηθεί ξανά. Ο CPU0 μένει πάντα ενεργός."
+
+msgid "Low latency: on"
+msgstr "Χαμηλή καθυστέρηση: ενεργή"
+
+msgid "Low latency: off"
+msgstr "Χαμηλή καθυστέρηση: ανενεργή"
+
+msgid "Low latency keeps CPU0 out of its idle states, as ZTE's U30 Air firmware does: Wi-Fi delays are much shorter, and the device draws more power. Off by default."
+msgstr "Η χαμηλή καθυστέρηση κρατά τον CPU0 εκτός των καταστάσεων αδράνειας, όπως το υλικολογισμικό U30 Air της ZTE: οι καθυστερήσεις του Wi-Fi είναι πολύ μικρότερες και η συσκευή καταναλώνει περισσότερη ενέργεια. Ανενεργή από προεπιλογή."
+
 msgid "Thermal"
 msgstr "Θερμικά"
 
@@ -405,6 +495,111 @@ msgstr "Σημεία ορίου"
 
 msgid "Cooling devices"
 msgstr "Συσκευές ψύξης"
+
+msgid "Stress test started"
+msgstr "Η δοκιμή καταπόνησης ξεκίνησε"
+
+msgid "Saved: it takes effect at the next reboot"
+msgstr "Αποθηκεύτηκε: ισχύει από την επόμενη επανεκκίνηση"
+
+msgid "CPU voltage offset (EXPERIMENTAL)"
+msgstr "Μετατόπιση τάσης CPU (ΠΕΙΡΑΜΑΤΙΚΟ)"
+
+msgid "Experimental: changing the CPU voltage can make the device unstable, corrupt your data and permanently damage your device. Use it entirely at your own risk."
+msgstr "Πειραματικό: η αλλαγή της τάσης της CPU μπορεί να κάνει τη συσκευή ασταθή, να αλλοιώσει τα δεδομένα σας και να προκαλέσει μόνιμη ζημιά στη συσκευή σας. Η χρήση γίνεται εξ ολοκλήρου με δική σας ευθύνη."
+
+msgid "CPU voltage offset unavailable"
+msgstr "Η μετατόπιση τάσης CPU δεν είναι διαθέσιμη"
+
+msgid "Not available with this kernel (a mainline kernel of this release or later has it)."
+msgstr "Δεν είναι διαθέσιμο με αυτόν τον πυρήνα (το διαθέτει ένας mainline πυρήνας αυτής της έκδοσης ή νεότερης)."
+
+msgid "Off: the stock voltages"
+msgstr "Ανενεργό: οι εργοστασιακές τάσεις"
+
+msgid "Changes at the next reboot"
+msgstr "Αλλάζει στην επόμενη επανεκκίνηση"
+
+msgid "Trial boot: kept once this boot has been up 10 minutes"
+msgstr "Δοκιμαστική εκκίνηση: διατηρείται μόλις αυτή η εκκίνηση λειτουργήσει 10 λεπτά"
+
+msgid "Kept: this offset passed its trial boot"
+msgstr "Διατηρήθηκε: αυτή η μετατόπιση πέρασε τη δοκιμαστική εκκίνησή της"
+
+msgid "a boot with it ended without a clean shutdown"
+msgstr "μια εκκίνηση με αυτήν έληξε χωρίς ομαλό τερματισμό λειτουργίας"
+
+msgid "its trial boot ended before 10 minutes"
+msgstr "η δοκιμαστική εκκίνησή της έληξε πριν από τα 10 λεπτά"
+
+msgid "invalid value"
+msgstr "μη έγκυρη τιμή"
+
+msgid "unknown SoC firmware"
+msgstr "άγνωστο υλικολογισμικό SoC"
+
+msgid "refused by the kernel"
+msgstr "απορρίφθηκε από τον πυρήνα"
+
+msgid "the kernel could not start CPU scaling with it"
+msgstr "ο πυρήνας δεν μπόρεσε να ξεκινήσει την κλιμάκωση συχνότητας της CPU με αυτήν"
+
+msgid "Offsets in µV for the three CPU domains (cores 0-3, 4-6 and 7), in whole steps. A new offset takes effect at the next reboot, as a trial: it is kept once that boot has been up 10 minutes, and dropped (back to 0) if a boot with it ends in a crash, a watchdog reset or a power cut."
+msgstr "Μετατοπίσεις σε µV για τους τρεις τομείς CPU (πυρήνες CPU 0-3, 4-6 και 7), σε ακέραια βήματα. Μια νέα μετατόπιση ισχύει από την επόμενη επανεκκίνηση, δοκιμαστικά: διατηρείται μόλις εκείνη η εκκίνηση λειτουργήσει 10 λεπτά και απορρίπτεται (επιστροφή στο 0) αν μια εκκίνηση με αυτήν λήξει με κατάρρευση, επαναφορά από watchdog ή διακοπή ρεύματος."
+
+msgid "Running now (µV)"
+msgstr "Λειτουργεί τώρα (µV)"
+
+msgid "Saved for the next boot (µV)"
+msgstr "Αποθηκευμένο για την επόμενη εκκίνηση (µV)"
+
+msgid "State"
+msgstr "Κατάσταση"
+
+msgid "Taken back automatically: %s µV (%s)"
+msgstr "Αναιρέθηκε αυτόματα: %s µV (%s)"
+
+msgid "The SoC firmware of this device is not one whose voltage encoding is known: only the stock voltages are possible."
+msgstr "Το υλικολογισμικό SoC αυτής της συσκευής δεν είναι από εκείνα με γνωστή κωδικοποίηση τάσης: μόνο οι εργοστασιακές τάσεις είναι δυνατές."
+
+msgid "Domain"
+msgstr "Τομέας"
+
+msgid "Offset now (µV)"
+msgstr "Μετατόπιση τώρα (µV)"
+
+msgid "Highest step"
+msgstr "Υψηλότερο βήμα"
+
+msgid "New offset (µV)"
+msgstr "Νέα μετατόπιση (µV)"
+
+msgid "Limits: %d to %d µV, in steps of %d µV."
+msgstr "Όρια: %d έως %d µV, σε βήματα των %d µV."
+
+msgid "Save for the next boot"
+msgstr "Αποθήκευση για την επόμενη εκκίνηση"
+
+msgid "Each offset must be a multiple of %d µV between %d and %d."
+msgstr "Κάθε μετατόπιση πρέπει να είναι πολλαπλάσιο των %d µV μεταξύ %d και %d."
+
+msgid "Type %s to confirm."
+msgstr "Πληκτρολογήστε %s για επιβεβαίωση."
+
+msgid "Back to the stock voltages"
+msgstr "Επιστροφή στις εργοστασιακές τάσεις"
+
+msgid "Type %s to confirm:"
+msgstr "Πληκτρολογήστε %s για επιβεβαίωση:"
+
+msgid "Run a 10-minute CPU stress test"
+msgstr "Εκτέλεση 10λεπτης δοκιμής καταπόνησης CPU"
+
+msgid "Test a new offset under load during its trial boot. The device may crash if the voltage is too low; the next boot then runs at the stock voltages."
+msgstr "Δοκιμάστε μια νέα μετατόπιση υπό φορτίο κατά τη δοκιμαστική εκκίνησή της. Η συσκευή μπορεί να καταρρεύσει αν η τάση είναι πολύ χαμηλή· η επόμενη εκκίνηση τότε λειτουργεί με τις εργοστασιακές τάσεις."
+
+msgid "A stress test is running."
+msgstr "Εκτελείται δοκιμή καταπόνησης."
 
 msgid "USB role"
 msgstr "Ρόλος USB"
@@ -583,6 +778,12 @@ msgstr "Αφαίρεση της αποθηκευμένης τιμής"
 msgid "Presets"
 msgstr "Προεπιλογές"
 
+msgid "Form (URL-encoded)"
+msgstr "Φόρμα (κωδικοποίηση URL)"
+
+msgid "Plain text"
+msgstr "Απλό κείμενο"
+
 msgid "Received messages are sent on as they reach the SMS pool. A failed delivery is retried after 30 s, then after twice as long each time (an hour at most), ten times in all."
 msgstr "Τα ληφθέντα μηνύματα προωθούνται μόλις φτάσουν στη δεξαμενή SMS. Μια αποτυχημένη αποστολή επαναλαμβάνεται μετά από 30 s και μετά κάθε φορά σε διπλάσιο χρόνο (έως μία ώρα), δέκα φορές συνολικά."
 
@@ -621,12 +822,6 @@ msgstr "Διεύθυνση (http:// ή https://)"
 
 msgid "Body"
 msgstr "Σώμα"
-
-msgid "Form (URL-encoded)"
-msgstr "Φόρμα (κωδικοποίηση URL)"
-
-msgid "Plain text"
-msgstr "Απλό κείμενο"
 
 msgid "Fields: sender, time, text, device, message (the template filled in)"
 msgstr "Πεδία: sender, time, text, device, message (το συμπληρωμένο πρότυπο)"
@@ -745,6 +940,9 @@ msgstr "Καμία παράδοση ακόμη"
 msgid "Test started with the saved settings; the result appears in the delivery log."
 msgstr "Η δοκιμή ξεκίνησε με τις αποθηκευμένες ρυθμίσεις· το αποτέλεσμα εμφανίζεται στο αρχείο παράδοσης."
 
+msgid "Automatic without 2G (152)"
+msgstr "Αυτόματα χωρίς 2G (152)"
+
 msgid "4G only"
 msgstr "Μόνο 4G"
 
@@ -813,6 +1011,9 @@ msgstr "Διάρκεια συνεδρίας"
 
 msgid "Registration"
 msgstr "Καταχώριση"
+
+msgid "Data roaming"
+msgstr "Περιαγωγή δεδομένων"
 
 msgid "Bandwidth"
 msgstr "Εύρος ζώνης"
@@ -940,14 +1141,26 @@ msgstr "Σύνδεση δεδομένων…"
 msgid "Turn off cellular radio"
 msgstr "Απενεργοποίηση ραδιοφώνου κινητού δικτύου"
 
-msgid "Cellular connectivity will be interrupted."
-msgstr "Η συνδεσιμότητα κινητού δικτύου θα διακοπεί."
+msgid "This SIM will have no calls, SMS or data, and its radio stays off after a reboot until you turn it on again."
+msgstr "Αυτή η SIM δεν θα έχει κλήσεις, SMS ή δεδομένα, και ο πομπός της μένει κλειστός και μετά από επανεκκίνηση μέχρι να τον ανοίξετε ξανά."
 
 msgid "Turn on cellular radio"
 msgstr "Ενεργοποίηση ραδιοφώνου κινητού δικτύου"
 
-msgid "The SFUN power-on sequence will run (up to about 1 minute)."
-msgstr "Θα εκτελεστεί η ακολουθία ενεργοποίησης SFUN (έως περίπου 1 λεπτό)."
+msgid "The radio of the SIM in use comes on and stays on after a reboot (up to about 1 minute)."
+msgstr "Ο πομπός της SIM σε χρήση ανοίγει και μένει ανοιχτός μετά από επανεκκίνηση (έως περίπου 1 λεπτό)."
+
+msgid "Turn data roaming off"
+msgstr "Απενεργοποίηση περιαγωγής δεδομένων"
+
+msgid "While the SIM is registered on a roaming network, mobile data stays off; SMS, calls and the registration are not affected. Some SIMs report roaming at home (an MVNO, national roaming): there, data would stop as well."
+msgstr "Όσο η SIM είναι καταχωρισμένη σε δίκτυο περιαγωγής, τα δεδομένα κινητής μένουν απενεργοποιημένα· τα SMS, οι κλήσεις και η καταχώριση δεν επηρεάζονται. Ορισμένες SIM αναφέρουν περιαγωγή και στη χώρα τους (ένας MVNO, εθνική περιαγωγή): εκεί τα δεδομένα θα σταματούσαν επίσης."
+
+msgid "Allow data roaming"
+msgstr "Να επιτρέπεται η περιαγωγή δεδομένων"
+
+msgid "Mobile data is used on roaming networks too, which can cost extra. Some SIMs report roaming at home (an MVNO, national roaming) and need this to have data at all."
+msgstr "Τα δεδομένα κινητής χρησιμοποιούνται και σε δίκτυα περιαγωγής, κάτι που μπορεί να κοστίσει επιπλέον. Ορισμένες SIM αναφέρουν περιαγωγή και στη χώρα τους (ένας MVNO, εθνική περιαγωγή) και το χρειάζονται για να έχουν δεδομένα."
 
 msgid "Cellular connectivity may stop for 1–2 minutes."
 msgstr "Η συνδεσιμότητα κινητού δικτύου μπορεί να διακοπεί για 1–2 λεπτά."
@@ -1054,6 +1267,9 @@ msgstr "Άγκυρα B%s"
 msgid "No serving cell"
 msgstr "Καμία κυψέλη εξυπηρέτησης"
 
+msgid "Version %s is out: update"
+msgstr "Κυκλοφόρησε η έκδοση %s: ενημερώστε"
+
 msgid "Not registered"
 msgstr "Μη καταχωρισμένο"
 
@@ -1074,6 +1290,15 @@ msgstr "Μόνο κλήσεις έκτακτης ανάγκης"
 
 msgid "Status %s"
 msgstr "Κατάσταση %s"
+
+msgid "Off: data held back while roaming"
+msgstr "Ανενεργή: τα δεδομένα σταματούν σε περιαγωγή"
+
+msgid "Allowed"
+msgstr "Επιτρέπεται"
+
+msgid "Off"
+msgstr "Ανενεργό"
 
 msgid "LTE anchor"
 msgstr "Άγκυρα LTE"
@@ -1224,9 +1449,6 @@ msgstr "Κωδικός"
 
 msgid "Translated"
 msgstr "Μεταφρασμένο"
-
-msgid "State"
-msgstr "Κατάσταση"
 
 msgid "LuCI's own translations come from OpenWrt. This panel's translations other than Turkish and Chinese are machine (AI) translations; corrections are welcome."
 msgstr "Οι μεταφράσεις του ίδιου του LuCI προέρχονται από το OpenWrt. Οι μεταφράσεις αυτού του πίνακα εκτός των Τουρκικών και των Κινεζικών είναι αυτόματες (AI)· οι διορθώσεις είναι ευπρόσδεκτες."
@@ -1594,14 +1816,20 @@ msgstr "Το 0 % δεν φορτίζει ποτέ την μπαταρία (η σ
 msgid "80 % keeps the battery healthier on a device that stays plugged in."
 msgstr "Το 80 % προστατεύει την μπαταρία μιας συσκευής που μένει στην πρίζα."
 
+msgid "When the charger switches the device on"
+msgstr "Όταν ο φορτιστής ενεργοποιεί τη συσκευή"
+
+msgid "Charge only, until a key starts it"
+msgstr "Μόνο φόρτιση, μέχρι να την εκκινήσει ένα πλήκτρο"
+
+msgid "Start normally"
+msgstr "Κανονική εκκίνηση"
+
 msgid "Keep as is"
 msgstr "Να μείνει ως έχει"
 
 msgid "LTE only (5G off)"
 msgstr "Μόνο LTE (5G κλειστό)"
-
-msgid "Off"
-msgstr "Ανενεργό"
 
 msgid "On"
 msgstr "Ενεργό"
@@ -1795,6 +2023,78 @@ msgstr "Switch to SIM%d"
 # Source-language fallback for untranslated new controls.
 msgid "Use SIM%d at next boot"
 msgstr "Use SIM%d at next boot"
+
+msgid "Built-in SIM 1"
+msgstr "Ενσωματωμένη SIM 1"
+
+msgid "Built-in SIM 2"
+msgstr "Ενσωματωμένη SIM 2"
+
+msgid "Built-in SIM 3"
+msgstr "Ενσωματωμένη SIM 3"
+
+msgid "External SIM"
+msgstr "Εξωτερική SIM"
+
+msgid "SIM card"
+msgstr "Κάρτα SIM"
+
+msgid "Built-in SIM 3 shares SIM2, the external SIM shares SIM1. The card chosen here is switched in before the modem starts, at the next boot; without a choice the cards stay as the bootloader sets them."
+msgstr "Η ενσωματωμένη SIM 3 μοιράζεται τη SIM2 και η εξωτερική SIM τη SIM1. Η κάρτα που επιλέγεται εδώ ενεργοποιείται πριν ξεκινήσει το μόντεμ, στην επόμενη εκκίνηση· χωρίς επιλογή οι κάρτες μένουν όπως τις ορίζει ο φορτωτής εκκίνησης."
+
+msgid "As the bootloader sets them"
+msgstr "Όπως τις ορίζει ο φορτωτής εκκίνησης"
+
+msgid "Applying the radio setting…"
+msgstr "Εφαρμογή ρύθμισης πομπού…"
+
+msgid "SIM settings are not available"
+msgstr "Οι ρυθμίσεις SIM δεν είναι διαθέσιμες"
+
+msgid "Modem default"
+msgstr "Προεπιλογή μόντεμ"
+
+msgid "SIM%d"
+msgstr "SIM%d"
+
+msgid "in use"
+msgstr "σε χρήση"
+
+msgid "Turn off the radio of SIM%d"
+msgstr "Απενεργοποίηση πομπού SIM%d"
+
+msgid "Radio"
+msgstr "Πομπός"
+
+msgid "VoLTE"
+msgstr "VoLTE"
+
+msgid "VoNR"
+msgstr "VoNR"
+
+msgid "Modem: %s"
+msgstr "Μόντεμ: %s"
+
+msgid "Sent to this SIM when its radio next starts."
+msgstr "Αποστέλλεται σε αυτή τη SIM την επόμενη φορά που θα ξεκινήσει ο πομπός της."
+
+msgid "VoLTE and VoNR for each SIM, kept across reboots and sent again whenever that SIM starts. VoLTE is on unless switched off; VoNR stays as the modem has it until set."
+msgstr "VoLTE και VoNR για κάθε SIM, διατηρούνται μετά από επανεκκίνηση και αποστέλλονται ξανά κάθε φορά που ξεκινά η SIM. Το VoLTE είναι ενεργό εκτός αν απενεργοποιηθεί· το VoNR μένει όπως στο μόντεμ μέχρι να οριστεί."
+
+msgid "All radios off (airplane mode)"
+msgstr "Όλοι οι πομποί κλειστοί (λειτουργία πτήσης)"
+
+msgid "All radios on"
+msgstr "Όλοι οι πομποί ανοιχτοί"
+
+msgid "No SIM will have calls, SMS or data, also after a reboot, until a radio is turned on again here or with the dashboard's radio button."
+msgstr "Καμία SIM δεν θα έχει κλήσεις, SMS ή δεδομένα, ακόμη και μετά από επανεκκίνηση, μέχρι να ανοίξει ξανά ένας πομπός εδώ ή με το κουμπί πομπού του πίνακα."
+
+msgid "Each SIM's radio stays as set here after a reboot. A SIM whose radio is off has no calls, SMS or data, and the device does not switch to it."
+msgstr "Ο πομπός κάθε SIM μένει όπως ορίστηκε εδώ μετά από επανεκκίνηση. Μια SIM με κλειστό πομπό δεν έχει κλήσεις, SMS ή δεδομένα, και η συσκευή δεν μεταβαίνει σε αυτή."
+
+msgid "The setting is saved, but the radio did not follow it yet."
+msgstr "Η ρύθμιση αποθηκεύτηκε, αλλά ο πομπός δεν την ακολούθησε ακόμη."
 
 msgid "Recipient: number, e.g. 10086 or +86..."
 msgstr "Παραλήπτης: αριθμός, π.χ. 10086 ή +86..."
@@ -2045,6 +2345,402 @@ msgstr "Απενεργοποίηση"
 msgid "64 makes every packet leave like the device's own traffic"
 msgstr "Με 64 κάθε πακέτο φεύγει όπως η κίνηση της ίδιας της συσκευής"
 
+msgid "Check for updates"
+msgstr "Έλεγχος για ενημερώσεις"
+
+msgid "Checking the file"
+msgstr "Έλεγχος του αρχείου"
+
+msgid "Update from a file"
+msgstr "Ενημέρωση από αρχείο"
+
+msgid "Back to the previous version"
+msgstr "Επιστροφή στην προηγούμενη έκδοση"
+
+msgid "Back to the previous boot image"
+msgstr "Επιστροφή στην προηγούμενη εικόνα εκκίνησης"
+
+msgid "Remove the previous version"
+msgstr "Αφαίρεση της προηγούμενης έκδοσης"
+
+msgid "Kernel change"
+msgstr "Αλλαγή πυρήνα"
+
+msgid "Starting…"
+msgstr "Εκκίνηση…"
+
+msgid "Downloading"
+msgstr "Λήψη"
+
+msgid "All files are here and verified"
+msgstr "Όλα τα αρχεία είναι εδώ και έχουν επαληθευτεί"
+
+msgid "Unpacking the new system"
+msgstr "Αποσυμπίεση του νέου συστήματος"
+
+msgid "Carrying over your settings"
+msgstr "Μεταφορά των ρυθμίσεών σας"
+
+msgid "Writing down the packages you installed"
+msgstr "Καταγραφή των πακέτων που εγκαταστήσατε"
+
+msgid "Switching to the new system"
+msgstr "Μετάβαση στο νέο σύστημα"
+
+msgid "Kernel and boot image"
+msgstr "Πυρήνας και εικόνα εκκίνησης"
+
+msgid "Restart the device?"
+msgstr "Επανεκκίνηση της συσκευής;"
+
+msgid "The device restarts now. The default boot is Android, so it starts Android: switch to Linux from there to start the updated system."
+msgstr "Η συσκευή επανεκκινείται τώρα. Η προεπιλεγμένη εκκίνηση είναι το Android, οπότε ξεκινά το Android: μεταβείτε από εκεί στο Linux για να ξεκινήσει το ενημερωμένο σύστημα."
+
+msgid "The device restarts now and is away for about a minute. If the new system does not start, the device goes back to Android by itself after the failed attempts."
+msgstr "Η συσκευή επανεκκινείται τώρα και θα λείπει για περίπου ένα λεπτό. Αν το νέο σύστημα δεν ξεκινήσει, η συσκευή επιστρέφει μόνη της στο Android μετά τις αποτυχημένες προσπάθειες."
+
+msgid "Restart"
+msgstr "Επανεκκίνηση"
+
+msgid "Restarting… open this page again in about a minute."
+msgstr "Επανεκκίνηση… ανοίξτε ξανά αυτή τη σελίδα σε περίπου ένα λεπτό."
+
+msgid "Running for %s. It goes on when this page is closed; do not switch the device off."
+msgstr "Εκτελείται εδώ και %s. Συνεχίζει και όταν κλείσει αυτή η σελίδα· μην απενεργοποιήσετε τη συσκευή."
+
+msgid "Done. Restart the device to start it."
+msgstr "Ολοκληρώθηκε. Επανεκκινήστε τη συσκευή για να τεθεί σε ισχύ."
+
+msgid "Done. Nothing needs a restart."
+msgstr "Ολοκληρώθηκε. Δεν χρειάζεται επανεκκίνηση."
+
+msgid "It did not finish, and part of it was done: read the log before you restart."
+msgstr "Δεν ολοκληρώθηκε και ένα μέρος έγινε: διαβάστε το αρχείο καταγραφής πριν επανεκκινήσετε."
+
+msgid "It did not finish. Nothing was changed; the log says why."
+msgstr "Δεν ολοκληρώθηκε. Δεν άλλαξε τίποτα· το αρχείο καταγραφής εξηγεί τον λόγο."
+
+msgid "Log"
+msgstr "Αρχείο καταγραφής"
+
+msgid "Restart now"
+msgstr "Επανεκκίνηση τώρα"
+
+msgid "Later"
+msgstr "Αργότερα"
+
+msgid "Close"
+msgstr "Κλείσιμο"
+
+msgid "Updating is not available on this system"
+msgstr "Η ενημέρωση δεν είναι διαθέσιμη σε αυτό το σύστημα"
+
+msgid "Another update is running on the device"
+msgstr "Εκτελείται άλλη ενημέρωση στη συσκευή"
+
+msgid "It was started outside this page (a terminal, the toolkit). Nothing can be started here until it has finished."
+msgstr "Ξεκίνησε εκτός αυτής της σελίδας (τερματικό, toolkit). Δεν μπορεί να ξεκινήσει τίποτα εδώ μέχρι να τελειώσει."
+
+msgid "Restart needed"
+msgstr "Απαιτείται επανεκκίνηση"
+
+msgid "This system was updated and still runs the old version. The new one starts at the next restart."
+msgstr "Αυτό το σύστημα ενημερώθηκε και εκτελεί ακόμη την παλιά έκδοση. Η νέα ξεκινά στην επόμενη επανεκκίνηση."
+
+msgid "Installed"
+msgstr "Εγκατεστημένο"
+
+msgid "This system"
+msgstr "Αυτό το σύστημα"
+
+msgid "Also on this device"
+msgstr "Επίσης σε αυτή τη συσκευή"
+
+msgid "Kernel"
+msgstr "Πυρήνας"
+
+msgid "choice %s"
+msgstr "επιλογή %s"
+
+msgid "Boot image"
+msgstr "Εικόνα εκκίνησης"
+
+msgid "from the installer"
+msgstr "από το πρόγραμμα εγκατάστασης"
+
+msgid "Default boot"
+msgstr "Προεπιλεγμένη εκκίνηση"
+
+msgid "Free space"
+msgstr "Ελεύθερος χώρος"
+
+msgid "Release signatures"
+msgstr "Υπογραφές εκδόσεων"
+
+msgid "checked with the project's key"
+msgstr "ελέγχονται με το κλειδί του έργου"
+
+msgid "this system has no release key"
+msgstr "αυτό το σύστημα δεν έχει κλειδί εκδόσεων"
+
+msgid "The default boot is Android: a restart goes to Android, and Linux is started from there."
+msgstr "Η προεπιλεγμένη εκκίνηση είναι το Android: μια επανεκκίνηση οδηγεί στο Android και το Linux ξεκινά από εκεί."
+
+msgid "Linux is locked as the default boot: a failed start does not send the device to Android by itself, except the first starts of a new boot image."
+msgstr "Το Linux είναι κλειδωμένο ως προεπιλεγμένη εκκίνηση: μια αποτυχημένη εκκίνηση δεν στέλνει τη συσκευή μόνη της στο Android, εκτός από τις πρώτες εκκινήσεις μιας νέας εικόνας εκκίνησης."
+
+msgid "If Linux fails to start %d times in a row, the device starts Android by itself."
+msgstr "Αν το Linux αποτύχει να ξεκινήσει %d φορές στη σειρά, η συσκευή ξεκινά μόνη της το Android."
+
+msgid "Report of the last update"
+msgstr "Αναφορά της τελευταίας ενημέρωσης"
+
+msgid "Online update"
+msgstr "Ενημέρωση μέσω διαδικτύου"
+
+msgid "Asking GitHub…"
+msgstr "Ερώτημα στο GitHub…"
+
+msgid "Checked %s ago"
+msgstr "Ελέγχθηκε πριν από %s"
+
+msgid "Not checked yet"
+msgstr "Δεν έχει ελεγχθεί ακόμη"
+
+msgid "Mirror (release files)"
+msgstr "Καθρέφτης (αρχεία έκδοσης)"
+
+msgid "Leave empty for GitHub."
+msgstr "Αφήστε κενό για το GitHub."
+
+msgid "Install the packages I added again after the update (needs the device online at the first start)"
+msgstr "Εγκατάσταση ξανά, μετά την ενημέρωση, των πακέτων που πρόσθεσα (η συσκευή πρέπει να είναι σε σύνδεση στην πρώτη εκκίνηση)"
+
+msgid "Pre-release"
+msgstr "Προέκδοση"
+
+msgid "Newest release"
+msgstr "Νεότερη έκδοση"
+
+msgid "Release notes"
+msgstr "Σημειώσεις έκδοσης"
+
+msgid "Download"
+msgstr "Λήψη"
+
+msgid "Free space needed"
+msgstr "Απαιτούμενος ελεύθερος χώρος"
+
+msgid "not enough: remove the previous version first"
+msgstr "δεν επαρκεί: αφαιρέστε πρώτα την προηγούμενη έκδοση"
+
+msgid "A pre-release is a release still being tried: it can have faults a release does not. The previous version is kept all the same."
+msgstr "Μια προέκδοση είναι έκδοση που ακόμη δοκιμάζεται: μπορεί να έχει σφάλματα που μια κανονική έκδοση δεν έχει. Η προηγούμενη έκδοση διατηρείται ούτως ή άλλως."
+
+msgid "This system is newer than the newest release (a test release)."
+msgstr "Αυτό το σύστημα είναι νεότερο από τη νεότερη έκδοση (δοκιμαστική έκδοση)."
+
+msgid "Up to date."
+msgstr "Ενημερωμένο."
+
+msgid "This release is not signed, and this system checks signatures: it is not installed from here. Update from its file below, which asks you to confirm."
+msgstr "Αυτή η έκδοση δεν είναι υπογεγραμμένη και αυτό το σύστημα ελέγχει τις υπογραφές: δεν εγκαθίσταται από εδώ. Ενημερώστε από το αρχείο της παρακάτω, που ζητά επιβεβαίωση."
+
+msgid "Update to %s"
+msgstr "Ενημέρωση σε %s"
+
+msgid "Choose at least one system"
+msgstr "Επιλέξτε τουλάχιστον ένα σύστημα"
+
+msgid "Update to %s?"
+msgstr "Ενημέρωση σε %s;"
+
+msgid "The device downloads %s, puts the new system beside the running one and switches to it at the next restart. Your settings are carried over and the previous version is kept. It takes several minutes; do not switch the device off."
+msgstr "Η συσκευή κατεβάζει το %s, τοποθετεί το νέο σύστημα δίπλα σε αυτό που εκτελείται και μεταβαίνει σε αυτό στην επόμενη επανεκκίνηση. Οι ρυθμίσεις σας μεταφέρονται και η προηγούμενη έκδοση διατηρείται. Διαρκεί αρκετά λεπτά· μην απενεργοποιήσετε τη συσκευή."
+
+msgid "Also offer the pre-release %s"
+msgstr "Να προτείνεται και η προέκδοση %s"
+
+msgid "Systems to update:"
+msgstr "Συστήματα προς ενημέρωση:"
+
+msgid "GitHub could not be reached: the device has no internet connection, or GitHub did not answer. Without internet, update from a file below."
+msgstr "Δεν ήταν δυνατή η επικοινωνία με το GitHub: η συσκευή δεν έχει σύνδεση στο διαδίκτυο ή το GitHub δεν απάντησε. Χωρίς διαδίκτυο, ενημερώστε από αρχείο παρακάτω."
+
+msgid "release"
+msgstr "έκδοση"
+
+msgid "For a device without internet: download the Magisk zip of a release for this system and this kernel on another computer, from the release page on GitHub, and upload it here. For this device that is:"
+msgstr "Για συσκευή χωρίς διαδίκτυο: κατεβάστε σε άλλον υπολογιστή το Magisk zip μιας έκδοσης για αυτό το σύστημα και αυτόν τον πυρήνα, από τη σελίδα της έκδοσης στο GitHub, και ανεβάστε το εδώ. Για αυτή τη συσκευή είναι:"
+
+msgid "Uploaded file"
+msgstr "Αρχείο που ανέβηκε"
+
+msgid "Checking the file…"
+msgstr "Έλεγχος του αρχείου…"
+
+msgid "It says it is"
+msgstr "Δηλώνει ότι είναι"
+
+msgid "kernel %s"
+msgstr "πυρήνας %s"
+
+msgid "Signature"
+msgstr "Υπογραφή"
+
+msgid "signed with the project's release key"
+msgstr "υπογεγραμμένο με το κλειδί εκδόσεων του έργου"
+
+msgid "WRONG: it does not match the project's release key"
+msgstr "ΛΑΘΟΣ: δεν ταιριάζει με το κλειδί εκδόσεων του έργου"
+
+msgid "not signed"
+msgstr "χωρίς υπογραφή"
+
+msgid "cannot be checked on this system"
+msgstr "δεν μπορεί να ελεγχθεί σε αυτό το σύστημα"
+
+msgid "Its system is not installed on this device."
+msgstr "Το σύστημά του δεν είναι εγκατεστημένο σε αυτή τη συσκευή."
+
+msgid "It is the other Ubuntu release, not the one installed."
+msgstr "Είναι η άλλη έκδοση του Ubuntu, όχι η εγκατεστημένη."
+
+msgid "It carries another kernel than this device uses. Take the zip for kernel %s, or change the kernel first."
+msgstr "Περιέχει διαφορετικό πυρήνα από αυτόν που χρησιμοποιεί η συσκευή. Πάρτε το zip για τον πυρήνα %s ή αλλάξτε πρώτα τον πυρήνα."
+
+msgid "Its kernel does not run on this model."
+msgstr "Ο πυρήνας του δεν λειτουργεί σε αυτό το μοντέλο."
+
+msgid "The file is damaged: its contents do not match their checksums."
+msgstr "Το αρχείο είναι κατεστραμμένο: τα περιεχόμενά του δεν ταιριάζουν με τα αθροίσματα ελέγχου τους."
+
+msgid "Its signature is wrong. This file does not come from the project as it is; it is never installed."
+msgstr "Η υπογραφή του είναι λάθος. Αυτό το αρχείο, όπως είναι, δεν προέρχεται από το έργο· δεν εγκαθίσταται ποτέ."
+
+msgid "This file cannot be used here."
+msgstr "Αυτό το αρχείο δεν μπορεί να χρησιμοποιηθεί εδώ."
+
+msgid "Compare the SHA-256 with the one in SHA256SUMS-magisk on the release page: it is the only proof of where an unsigned file comes from."
+msgstr "Συγκρίνετε το SHA-256 με αυτό στο SHA256SUMS-magisk στη σελίδα της έκδοσης: είναι η μόνη απόδειξη για την προέλευση ενός αρχείου χωρίς υπογραφή."
+
+msgid "This release is installed already; the update would only refresh the boot image."
+msgstr "Αυτή η έκδοση είναι ήδη εγκατεστημένη· η ενημέρωση θα ανανέωνε μόνο την εικόνα εκκίνησης."
+
+msgid "I know this file is not signed: nothing proves that it comes from the project. I compared its SHA-256 myself and want it installed."
+msgstr "Γνωρίζω ότι αυτό το αρχείο δεν είναι υπογεγραμμένο: τίποτα δεν αποδεικνύει ότι προέρχεται από το έργο. Σύγκρινα ο ίδιος το SHA-256 του και θέλω να εγκατασταθεί."
+
+msgid "I know this is %s, older than the installed %s, and want to go back to it."
+msgstr "Γνωρίζω ότι αυτή είναι η %s, παλαιότερη από την εγκατεστημένη %s, και θέλω να επιστρέψω σε αυτήν."
+
+msgid "This is not a release file of this project: a Magisk zip of a release is expected."
+msgstr "Αυτό δεν είναι αρχείο έκδοσης αυτού του έργου: αναμένεται το Magisk zip μιας έκδοσης."
+
+msgid "Update from this file"
+msgstr "Ενημέρωση από αυτό το αρχείο"
+
+msgid "Tick the confirmations above first"
+msgstr "Επιλέξτε πρώτα τις παραπάνω επιβεβαιώσεις"
+
+msgid "The device puts the system of this file beside the running one and switches to it at the next restart. Your settings are carried over and the previous version is kept. It takes several minutes; do not switch the device off."
+msgstr "Η συσκευή τοποθετεί το σύστημα αυτού του αρχείου δίπλα σε αυτό που εκτελείται και μεταβαίνει σε αυτό στην επόμενη επανεκκίνηση. Οι ρυθμίσεις σας μεταφέρονται και η προηγούμενη έκδοση διατηρείται. Διαρκεί αρκετά λεπτά· μην απενεργοποιήσετε τη συσκευή."
+
+msgid "Check the file"
+msgstr "Έλεγχος του αρχείου"
+
+msgid "Remove the file"
+msgstr "Αφαίρεση του αρχείου"
+
+msgid "Previous version"
+msgstr "Προηγούμενη έκδοση"
+
+msgid "No previous version is kept on this device."
+msgstr "Δεν διατηρείται προηγούμενη έκδοση σε αυτή τη συσκευή."
+
+msgid "replaced %s"
+msgstr "αντικαταστάθηκε στις %s"
+
+msgid "I want the previous system back; what I changed since the update stays in the version I leave."
+msgstr "Θέλω πίσω το προηγούμενο σύστημα· ό,τι άλλαξα μετά την ενημέρωση μένει στην έκδοση που αφήνω."
+
+msgid "Back to the previous version?"
+msgstr "Επιστροφή στην προηγούμενη έκδοση;"
+
+msgid "The previous system (%s) becomes the one that starts at the next restart. The version you leave is not kept; settings you changed since the update are not carried back."
+msgstr "Το προηγούμενο σύστημα (%s) γίνεται αυτό που ξεκινά στην επόμενη επανεκκίνηση. Η έκδοση που αφήνετε δεν διατηρείται· οι ρυθμίσεις που αλλάξατε μετά την ενημέρωση δεν μεταφέρονται πίσω."
+
+msgid "Go back"
+msgstr "Επιστροφή"
+
+msgid "The previous version is the one running now: restart first."
+msgstr "Η προηγούμενη έκδοση είναι αυτή που εκτελείται τώρα: επανεκκινήστε πρώτα."
+
+msgid "I want the previous kernel and boot image back."
+msgstr "Θέλω πίσω τον προηγούμενο πυρήνα και την προηγούμενη εικόνα εκκίνησης."
+
+msgid "Back to the previous boot image?"
+msgstr "Επιστροφή στην προηγούμενη εικόνα εκκίνησης;"
+
+msgid "The previous boot image (%s) is written to the Linux slot and starts at the next restart. If it does not start, the device goes back to Android by itself."
+msgstr "Η προηγούμενη εικόνα εκκίνησης (%s) γράφεται στη θέση του Linux και ξεκινά στην επόμενη επανεκκίνηση. Αν δεν ξεκινήσει, η συσκευή επιστρέφει μόνη της στο Android."
+
+msgid "I do not need to go back: delete the previous system to free its space."
+msgstr "Δεν χρειάζεται να επιστρέψω: διαγραφή του προηγούμενου συστήματος για να ελευθερωθεί ο χώρος του."
+
+msgid "Remove the previous version?"
+msgstr "Αφαίρεση της προηγούμενης έκδοσης;"
+
+msgid "The kept copy of the previous system is deleted for good. After that there is no going back to it from this page."
+msgstr "Το αντίγραφο του προηγούμενου συστήματος που διατηρείται διαγράφεται οριστικά. Μετά από αυτό δεν υπάρχει επιστροφή σε αυτό από αυτή τη σελίδα."
+
+msgid "the vendor kernel"
+msgstr "ο πυρήνας του κατασκευαστή"
+
+msgid "mainline"
+msgstr "mainline"
+
+msgid "not with Ubuntu 26.04"
+msgstr "όχι με το Ubuntu 26.04"
+
+msgid "Change the kernel"
+msgstr "Αλλαγή του πυρήνα"
+
+msgid "This kernel is the one in use"
+msgstr "Αυτός ο πυρήνας είναι ο πυρήνας σε χρήση"
+
+msgid "Change the kernel to %s?"
+msgstr "Αλλαγή του πυρήνα σε %s;"
+
+msgid "The device downloads that kernel from the newest release and writes a new boot image; it starts at the next restart. The previous boot image is kept, and if the new one does not start the device goes back to Android by itself. The device must be online."
+msgstr "Η συσκευή κατεβάζει αυτόν τον πυρήνα από τη νεότερη έκδοση και γράφει μια νέα εικόνα εκκίνησης· αυτή ξεκινά στην επόμενη επανεκκίνηση. Η προηγούμενη εικόνα εκκίνησης διατηρείται και, αν η νέα δεν ξεκινήσει, η συσκευή επιστρέφει μόνη της στο Android. Η συσκευή πρέπει να είναι σε σύνδεση."
+
+msgid "Start Android at the next restart"
+msgstr "Εκκίνηση του Android στην επόμενη επανεκκίνηση"
+
+msgid "Start Android at the next restart?"
+msgstr "Εκκίνηση του Android στην επόμενη επανεκκίνηση;"
+
+msgid "The next restart, and the ones after it, start Android instead of Linux. Linux is started again from Android (the Magisk module's Action button, or mu300-linux)."
+msgstr "Η επόμενη επανεκκίνηση, και όσες ακολουθούν, ξεκινούν το Android αντί για το Linux. Το Linux ξεκινά ξανά από το Android (το κουμπί Ενέργεια της μονάδας Magisk ή το mu300-linux)."
+
+msgid "Start Android next"
+msgstr "Εκκίνηση του Android την επόμενη φορά"
+
+msgid "What an update keeps"
+msgstr "Τι διατηρεί μια ενημέρωση"
+
+msgid "An update puts the system of the new release in place and carries over what is yours: the settings, the accounts and their passwords, the device's keys and the home directories. Packages you installed yourself are written down and installed again at the first start, once the device is online. The previous version stays on the device until you remove it, so you can go back."
+msgstr "Μια ενημέρωση εγκαθιστά το σύστημα της νέας έκδοσης και μεταφέρει ό,τι είναι δικό σας: τις ρυθμίσεις, τους λογαριασμούς και τους κωδικούς τους, τα κλειδιά της συσκευής και τους προσωπικούς καταλόγους. Τα πακέτα που εγκαταστήσατε εσείς καταγράφονται και εγκαθίστανται ξανά στην πρώτη εκκίνηση, μόλις η συσκευή βρεθεί σε σύνδεση. Η προηγούμενη έκδοση μένει στη συσκευή μέχρι να την αφαιρέσετε, ώστε να μπορείτε να επιστρέψετε."
+
+msgid "The wiki's Updating page lists exactly what is kept."
+msgstr "Η σελίδα του wiki για την ενημέρωση αναφέρει ακριβώς τι διατηρείται."
+
+msgid "Choose a file first"
+msgstr "Επιλέξτε πρώτα ένα αρχείο"
+
+msgid "Uploading: %s of %s"
+msgstr "Μεταφόρτωση: %s από %s"
+
 msgid "running"
 msgstr "εκτελείται"
 
@@ -2078,9 +2774,6 @@ msgstr "Κανένα προφίλ δεν τη χρησιμοποιεί."
 msgid "Removed"
 msgstr "Αφαιρέθηκε"
 
-msgid "Check for updates"
-msgstr "Έλεγχος για ενημερώσεις"
-
 msgid "Each engine is an extra of its own: install only the ones your profiles need. Xray runs vless, vmess, trojan and ss links (with hev-socks5-tunnel), sing-box the same links and its own JSON, mihomo Clash subscriptions, dae hysteria2, tuic and the rest on newer kernels. WireGuard and OpenVPN are packages of the system."
 msgstr "Κάθε μηχανή είναι ξεχωριστό πρόσθετο: εγκαταστήστε μόνο όσες χρειάζονται τα προφίλ σας. Το Xray εκτελεί συνδέσμους vless, vmess, trojan και ss (με το hev-socks5-tunnel), το sing-box τους ίδιους συνδέσμους και το δικό του JSON, το mihomo συνδρομές Clash, το dae hysteria2, tuic και τα υπόλοιπα σε νεότερους πυρήνες. Το WireGuard και το OpenVPN είναι πακέτα του συστήματος."
 
@@ -2089,9 +2782,6 @@ msgstr "Οι λήψεις είναι δεκάδες MB ανά μηχανή: στ
 
 msgid "The available versions come from the latest release of the VPN module."
 msgstr "Οι διαθέσιμες εκδόσεις προέρχονται από την τελευταία έκδοση της μονάδας VPN."
-
-msgid "Update"
-msgstr "Ενημέρωση"
 
 msgid "system package"
 msgstr "πακέτο συστήματος"
@@ -2261,9 +2951,6 @@ msgstr "Εκκίνηση"
 msgid "Stop"
 msgstr "Διακοπή"
 
-msgid "Restart"
-msgstr "Επανεκκίνηση"
-
 msgid "Stop the VPN?"
 msgstr "Διακοπή του VPN;"
 
@@ -2342,8 +3029,8 @@ msgstr "Προστασία IPv6"
 msgid "Active: IPv6 outside the tunnel is refused"
 msgstr "Ενεργή: το IPv6 εκτός τούνελ απορρίπτεται"
 
-msgid "While the VPN is up, IPv6 never leaves beside a tunnel that does not carry it: it is refused at once, so programs and LAN clients fall back to IPv4 instead of leaking or waiting. Automatic: WireGuard uses the IPv6 addresses of its config, the other engines stay IPv4."
-msgstr "Όσο το VPN είναι ενεργό, το IPv6 δεν βγαίνει ποτέ δίπλα σε τούνελ που δεν το μεταφέρει: απορρίπτεται αμέσως, ώστε τα προγράμματα και οι πελάτες του LAN να περνούν σε IPv4 αντί να διαρρέουν ή να περιμένουν. Αυτόματο: το WireGuard χρησιμοποιεί τις διευθύνσεις IPv6 της διαμόρφωσής του, οι άλλες μηχανές μένουν σε IPv4."
+msgid "While the VPN is up, IPv6 never leaves beside a tunnel that does not carry it: it is refused at once, so programs and LAN clients fall back to IPv4 instead of leaking or waiting. Automatic: WireGuard and OpenVPN use the IPv6 addresses of their config; Xray, sing-box and mihomo are asked at every start whether IPv6 works through the tunnel, and carry it only then; dae stays IPv4."
+msgstr "Όσο το VPN είναι ενεργό, το IPv6 δεν βγαίνει ποτέ δίπλα σε τούνελ που δεν το μεταφέρει: απορρίπτεται αμέσως, ώστε τα προγράμματα και οι πελάτες του LAN να περνούν σε IPv4 αντί να διαρρέουν ή να περιμένουν. Αυτόματο: το WireGuard και το OpenVPN χρησιμοποιούν τις διευθύνσεις IPv6 της διαμόρφωσής τους· για τα Xray, sing-box και mihomo ελέγχεται σε κάθε εκκίνηση αν το IPv6 λειτουργεί μέσα από το τούνελ, και μόνο τότε το μεταφέρουν· το dae μένει σε IPv4."
 
 msgid "%d ms"
 msgstr "%d ms"
@@ -2440,9 +3127,6 @@ msgstr "Αυτό το προφίλ προέρχεται από συνδρομή:
 
 msgid "Config of %s"
 msgstr "Διαμόρφωση του %s"
-
-msgid "Close"
-msgstr "Κλείσιμο"
 
 msgid "Rename"
 msgstr "Μετονομασία"
@@ -2812,23 +3496,74 @@ msgstr "The CPU adapter gave no valid reply"
 msgid "Invalid CPU profile"
 msgstr "Invalid CPU profile"
 
+msgid "Invalid CPU core"
+msgstr "Μη έγκυρος πυρήνας CPU"
+
+msgid "Unknown CPU operation"
+msgstr "Unknown CPU operation"
+
+msgid "Unknown CPU voltage operation"
+msgstr "Άγνωστη λειτουργία τάσης CPU"
+
+msgid "Invalid CPU voltage request"
+msgstr "Μη έγκυρο αίτημα τάσης CPU"
+
+msgid "Invalid CPU voltage offset"
+msgstr "Μη έγκυρη μετατόπιση τάσης CPU"
+
+msgid "Type the confirmation word to apply a voltage offset"
+msgstr "Πληκτρολογήστε τη λέξη επιβεβαίωσης για να εφαρμόσετε μετατόπιση τάσης"
+
+msgid "Invalid stress test length"
+msgstr "Μη έγκυρη διάρκεια δοκιμής καταπόνησης"
+
 msgid "The packages adapter gave no valid reply"
 msgstr "Ο προσαρμογέας πακέτων δεν έδωσε έγκυρη απάντηση"
 
 msgid "Invalid packages operation"
 msgstr "Μη έγκυρη ενέργεια πακέτων"
 
+msgid "The sizes parameter must be 0 or 1"
+msgstr "Η παράμετρος sizes πρέπει να είναι 0 ή 1"
+
+msgid "The update adapter gave no valid reply"
+msgstr "Ο προσαρμογέας ενημέρωσης δεν έδωσε έγκυρη απάντηση"
+
+msgid "Unknown update operation"
+msgstr "Άγνωστη λειτουργία ενημέρωσης"
+
+msgid "Invalid update request"
+msgstr "Μη έγκυρο αίτημα ενημέρωσης"
+
+msgid "The backup tool gave no valid reply"
+msgstr "Το εργαλείο αντιγράφων δεν έδωσε έγκυρη απάντηση"
+
+msgid "Mobile data integration is not provided by this platform"
+msgstr "Η ενσωμάτωση δεδομένων κινητής δεν παρέχεται από αυτή την πλατφόρμα"
+
+msgid "The SIM settings could not be read"
+msgstr "Δεν ήταν δυνατή η ανάγνωση των ρυθμίσεων SIM"
+
+msgid "Radio control is not provided by this platform"
+msgstr "Αυτή η πλατφόρμα δεν παρέχει έλεγχο πομπού"
+
+msgid "A SIM radio change is already running"
+msgstr "Μια αλλαγή πομπού SIM εκτελείται ήδη"
+
 # Source-language fallback for untranslated new controls.
 msgid "Invalid SIM setting"
 msgstr "Invalid SIM setting"
 
-# Source-language fallback for untranslated new controls.
-msgid "Enable hot switching; reboot if channels are unavailable or wait until idle"
-msgstr "Enable hot switching; reboot if channels are unavailable or wait until idle"
+msgid "The modem did not take the setting; nothing was saved"
+msgstr "Το μόντεμ δεν δέχτηκε τη ρύθμιση· δεν αποθηκεύτηκε τίποτα"
 
 # Source-language fallback for untranslated new controls.
 msgid "SIM control failed"
 msgstr "SIM control failed"
+
+# Source-language fallback for untranslated new controls.
+msgid "Enable hot switching; reboot if channels are unavailable or wait until idle"
+msgstr "Enable hot switching; reboot if channels are unavailable or wait until idle"
 
 msgid "Request too large"
 msgstr "Το αίτημα είναι πολύ μεγάλο"
@@ -2983,12 +3718,18 @@ msgstr "Ο αριθμός γραμμών είναι από 1 έως 1000"
 msgid "The log could not be read"
 msgstr "Δεν ήταν δυνατή η ανάγνωση του αρχείου καταγραφής"
 
+msgid "The radio of this SIM is switched off in its settings"
+msgstr "Ο πομπός αυτής της SIM είναι κλειστός στις ρυθμίσεις της"
+
 # Source-language fallback for untranslated new controls.
 msgid "Use SIM control or reboot for managed dual-SIM radio"
 msgstr "Use SIM control or reboot for managed dual-SIM radio"
 
-msgid "Radio did not come up"
-msgstr "Το ραδιόφωνο δεν ενεργοποιήθηκε"
+msgid "The radio did not follow its setting"
+msgstr "Ο πομπός δεν ακολούθησε τη ρύθμισή του"
+
+msgid "The data roaming setting could not be saved"
+msgstr "Δεν ήταν δυνατή η αποθήκευση της ρύθμισης περιαγωγής δεδομένων"
 
 msgid "Expected on or off"
 msgstr "Αναμενόταν on ή off"
@@ -3011,8 +3752,26 @@ msgstr "The CPU profile could not be read"
 msgid "The CPU profile could not be set"
 msgstr "The CPU profile could not be set"
 
-msgid "Unknown CPU operation"
-msgstr "Unknown CPU operation"
+msgid "The CPU core could not be switched"
+msgstr "Δεν ήταν δυνατή η εναλλαγή του πυρήνα CPU"
+
+msgid "Invalid low latency setting"
+msgstr "Μη έγκυρη ρύθμιση χαμηλής καθυστέρησης"
+
+msgid "The low latency setting could not be applied"
+msgstr "Δεν ήταν δυνατή η εφαρμογή της ρύθμισης χαμηλής καθυστέρησης"
+
+msgid "The CPU voltage offset could not be read"
+msgstr "Δεν ήταν δυνατή η ανάγνωση της μετατόπισης τάσης CPU"
+
+msgid "The CPU voltage offset was refused"
+msgstr "Η μετατόπιση τάσης CPU απορρίφθηκε"
+
+msgid "The CPU voltage offset could not be turned off"
+msgstr "Δεν ήταν δυνατή η απενεργοποίηση της μετατόπισης τάσης CPU"
+
+msgid "The stress test could not be started"
+msgstr "Δεν ήταν δυνατή η εκκίνηση της δοκιμής καταπόνησης"
 
 msgid "USB role adapter is not executable"
 msgstr "Ο προσαρμογέας ρόλου USB δεν είναι εκτελέσιμος"
@@ -3223,3 +3982,45 @@ msgstr "Δεν ήταν δυνατός ο ορισμός του TTL"
 
 msgid "Unknown TTL operation"
 msgstr "Άγνωστη λειτουργία TTL"
+
+msgid "An update task is already running"
+msgstr "Εκτελείται ήδη μια εργασία ενημέρωσης"
+
+msgid "The task could not be started"
+msgstr "Δεν ήταν δυνατή η εκκίνηση της εργασίας"
+
+msgid "The updater gave no valid reply"
+msgstr "Το πρόγραμμα ενημέρωσης δεν έδωσε έγκυρη απάντηση"
+
+msgid "This needs confirmation"
+msgstr "Αυτό χρειάζεται επιβεβαίωση"
+
+msgid "Check for updates first"
+msgstr "Ελέγξτε πρώτα για ενημερώσεις"
+
+msgid "The upload directory is not safe; nothing was changed"
+msgstr "Ο κατάλογος μεταφόρτωσης δεν είναι ασφαλής· δεν άλλαξε τίποτα"
+
+msgid "Not enough memory for this upload"
+msgstr "Δεν επαρκεί η μνήμη για αυτή τη μεταφόρτωση"
+
+msgid "Not enough free space on the Linux partition"
+msgstr "Δεν επαρκεί ο ελεύθερος χώρος στο διαμέρισμα του Linux"
+
+msgid "The file was not checked; upload it again"
+msgstr "Το αρχείο δεν ελέγχθηκε· ανεβάστε το ξανά"
+
+msgid "This file is not for this device"
+msgstr "Αυτό το αρχείο δεν είναι για αυτή τη συσκευή"
+
+msgid "The signature of this file is wrong"
+msgstr "Η υπογραφή αυτού του αρχείου είναι λάθος"
+
+msgid "This file is not signed: that needs confirmation"
+msgstr "Αυτό το αρχείο είναι χωρίς υπογραφή: αυτό χρειάζεται επιβεβαίωση"
+
+msgid "This file is older than what is installed: that needs confirmation"
+msgstr "Αυτό το αρχείο είναι παλαιότερο από το εγκατεστημένο: αυτό χρειάζεται επιβεβαίωση"
+
+msgid "The release source was not changed"
+msgstr "Η πηγή έκδοσης δεν άλλαξε"
